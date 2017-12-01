@@ -73,12 +73,12 @@ public class SensorDataProcessor
 //            if (currentTime - lastRecordTime >= MAX_RECORD_TIME_INTERVAL
 //                    || mTemporarySensorData.size() >= MAX_BUFFER_SIZE) {
 //                lastRecordTime = currentTime;
-//                SensorDatabase.batchSaveSensorInfo(this);
+//                SensorDatabase.batchSaveSensorData(this);
 //            }
             while (mSensorDataRecording
                     && (currentTime - lastRecordTime >= MAX_RECORD_TIME_INTERVAL
                     || mTemporarySensorData.size() >= MAX_BUFFER_SIZE)) {
-                if (SensorDatabase.batchSaveSensorInfo(this)) {
+                if (SensorDatabase.batchSaveSensorData(this)) {
                     continuousErrorTimes = 0;
                     lastRecordTime = currentTime;
                 } else if (++continuousErrorTimes > MAX_AFFORDABLE_ERROR_TIMES) {
@@ -94,7 +94,7 @@ public class SensorDataProcessor
         }
         Sensor.setOnDynamicValueCaptureListener(null);
         if (mTemporarySensorData.size() > 0) {
-            SensorDatabase.batchSaveSensorInfo(this);
+            SensorDatabase.batchSaveSensorData(this);
         }
         mTemporarySensorData.clear();
         mTemporarySensorData = null;
@@ -127,7 +127,7 @@ public class SensorDataProcessor
 //                    || currentTime - lastRecordTime >= MAX_RECORD_TIME_INTERVAL
 //                    || mTemporarySensorData.size() >= MAX_BUFFER_SIZE) {
 //                lastRecordTime = currentTime;
-//                if (SensorDatabase.batchSaveSensorInfo(this)) {
+//                if (SensorDatabase.batchSaveSensorData(this)) {
 //                    continuousErrorTimes = 0;
 //                } else {
 //                    if (++continuousErrorTimes > 5) {
@@ -144,7 +144,7 @@ public class SensorDataProcessor
 //        }
 //        Sensor.setOnDynamicValueCaptureListener(null);
 //        if (mTemporarySensorData.size() > 0) {
-//            SensorDatabase.batchSaveSensorInfo(this);
+//            SensorDatabase.batchSaveSensorData(this);
 //        }
 //        mTemporarySensorData.clear();
 //        mTemporarySensorData = null;
@@ -178,38 +178,14 @@ public class SensorDataProcessor
             mLastSensorDataMap.put(data.getId(), SensorData.build(data));
             return SensorDatabase.SensorDataProvider.FIRST_DATA;
         }
-//        if (lastData.getRawValue() != data.getRawValue()) {
-//            lastData.setTimestamp(data.getTimestamp());
-//            lastData.setRawValue(data.getRawValue());
-//            return SensorDatabase.SensorDataProvider.NORMAL_DATA;
-//        }
-        if (lastData.getTimestamp() + MIN_TIME_INTERVAL_FOR_DUPLICATE_VALUE
-                > data.getTimestamp()) {
-            return SensorDatabase.SensorDataProvider.DUPLICATE_DATA;
-        }
-        lastData.setTimestamp(data.getTimestamp());
-        lastData.setBatteryVoltage(data.getBatteryVoltage());
-        lastData.setRawValue(data.getRawValue());
-        return SensorDatabase.SensorDataProvider.NORMAL_DATA;
-//        SensorData lastData = mLastSensorDataMap.get(data.getAddress());
-//        if (lastData == null) {
-//            mLastSensorDataMap.put(data.getAddress(),
-//                    SensorData.build(data.getAddress(),
-//                            data.getTimestamp(),
-//                            data.getBatteryVoltage()));
-//            return SensorDatabase.SensorDataProvider.FIRST_DATA;
-//        }
-//        if (lastData.getBatteryVoltage() != data.getBatteryVoltage()) {
-//            lastData.setTimestamp(data.getTimestamp());
-//            lastData.setBatteryVoltage(data.getBatteryVoltage());
-//            return SensorDatabase.SensorDataProvider.NORMAL_DATA;
-//        }
 //        if (lastData.getTimestamp() + MIN_TIME_INTERVAL_FOR_DUPLICATE_VALUE
 //                > data.getTimestamp()) {
 //            return SensorDatabase.SensorDataProvider.DUPLICATE_DATA;
 //        }
-//        lastData.setTimestamp(data.getTimestamp());
-//        return SensorDatabase.SensorDataProvider.NORMAL_DATA;
+        lastData.setTimestamp(data.getTimestamp());
+        lastData.setBatteryVoltage(data.getBatteryVoltage());
+        lastData.setRawValue(data.getRawValue());
+        return SensorDatabase.SensorDataProvider.NORMAL_DATA;
     }
 
 //    @Override

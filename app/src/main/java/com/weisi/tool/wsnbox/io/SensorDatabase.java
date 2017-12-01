@@ -404,7 +404,7 @@ public class SensorDatabase {
         void onMeasurementDataReceived(long measurementValueId, long timestamp, double rawValue);
     }
 
-    public static boolean batchSaveSensorInfo(SensorDataProvider provider) {
+    public static boolean batchSaveSensorData(SensorDataProvider provider) {
         if (database == null || provider == null) {
             return false;
         }
@@ -527,7 +527,7 @@ public class SensorDatabase {
         return false;
     }
 
-//    public static boolean batchSaveSensorInfo(SensorDataProvider provider) {
+//    public static boolean batchSaveSensorData(SensorDataProvider provider) {
 //        if (database == null || provider == null) {
 //            return false;
 //        }

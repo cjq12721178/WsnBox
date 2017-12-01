@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.os.Message;
 
 import com.cjq.lib.weisi.communicator.BleKit;
+import com.cjq.lib.weisi.communicator.SerialPortKit;
 import com.cjq.lib.weisi.communicator.UdpKit;
 import com.cjq.lib.weisi.protocol.OnFrameAnalyzedListener;
 import com.cjq.lib.weisi.protocol.ScoutBleSensorProtocol;
@@ -20,22 +21,27 @@ import com.cjq.lib.weisi.sensor.SensorManager;
 import com.cjq.lib.weisi.sensor.ValueBuildDelegator;
 import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.cjq.tool.qbox.util.ClosableLog;
+import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.io.SensorDatabase;
 import com.weisi.tool.wsnbox.processor.SensorDataProcessor;
 import com.weisi.tool.wsnbox.util.Tag;
 
+import java.io.IOException;
+
 public class DataPrepareService
         extends Service
         implements UdpKit.OnDataReceivedListener,
         BluetoothAdapter.LeScanCallback,
-        OnFrameAnalyzedListener {
+        OnFrameAnalyzedListener, SerialPortKit.OnDataReceivedListener {
 
     private final LocalBinder mLocalBinder = new LocalBinder();
-    private final UdpKit mUdpKit = new UdpKit();
-    private final BleKit mBleKit = new BleKit();
+    //private final UdpKit mUdpKit = new UdpKit();
+    //private final BleKit mBleKit = new BleKit();
+    private final SerialPortKit mSerialPortKit = new SerialPortKit();
     private final ScoutUdpSensorProtocol mUdpProtocol = new ScoutUdpSensorProtocol();
     private final ScoutBleSensorProtocol mBleProtocol = new ScoutBleSensorProtocol();
+    private final ScoutUdpSensorProtocol mSerialPortProtocol = new ScoutUdpSensorProtocol();
     private long mLastNetInTimestamp;
     private final Object mLastNetInTimeLocker = new Object();
     private OnSensorNetInListener mOnSensorNetInListener;
@@ -79,32 +85,78 @@ public class DataPrepareService
     }
 
     public boolean launchCommunicators() {
-        if (!mUdpKit.launch(0)) {
-            return false;
-        }
-        mUdpKit.startListen(true, this);
-        mUdpKit.sendData("192.168.1.18", 5000, mUdpProtocol.makeDataRequestFrame(), 500);
+//        if (!mUdpKit.launch(0)) {
+//            return false;
+//        }
+//        mUdpKit.startListen(true, this);
+//        mUdpKit.sendData("192.168.1.18", 5000, mUdpProtocol.makeDataRequestFrame(), 500);
+//
+//        if (!mBleKit.launch(this)) {
+//            return false;
+//        }
+//        mBleKit.startScan(this, 5000, 10000);
 
-        if (!mBleKit.launch(this)) {
+        if (!powerOnSerialPort()) {
             return false;
         }
-        mBleKit.startScan(this, 5000, 10000);
+        if (!mSerialPortKit.launch("ttyHSL1", 115200, 0)) {
+            return false;
+        }
+        mSerialPortKit.startListen(this);
+
         return true;
     }
 
     public void shutdownCommunicators() {
-        mUdpKit.close();
-        mBleKit.stopScan();
+//        mUdpKit.close();
+//        mBleKit.stopScan();
+        mSerialPortKit.shutdown();
+        powerOffSerialPort();
     }
 
+    private boolean powerOnSerialPort() {
+        try {
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 1 > /sys/devices/soc.0/xt_dev.68/xt_dc_in_en"});
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 1 > /sys/devices/soc.0/xt_dev.68/xt_vbat_out_en"});
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_gpio_112"});
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_a"});
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_b"});
+            return true;
+        } catch (IOException e) {
+            ExceptionLog.record(e);
+        }
+        return false;
+    }
+
+    private void powerOffSerialPort() {
+        try {
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_dc_in_en"});
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_vbat_out_en"});
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_a"});
+            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_b"});
+            SimpleCustomizeToast.show(this, "power off");
+        } catch (IOException e) {
+            ExceptionLog.record(e);
+        }
+    }
+
+    //UDP
     @Override
     public void onDataReceived(byte[] data) {
         mUdpProtocol.analyze(data, this);
     }
 
+    //BLE
     @Override
     public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
         mBleProtocol.analyze(device.getAddress(), scanRecord, this);
+    }
+
+    //SerialPort
+    @Override
+    public int onDataReceived(byte[] data, int len) {
+        mSerialPortProtocol.analyze(data, 0, len, this);
+        return len;
     }
 
     @Override
@@ -112,7 +164,7 @@ public class DataPrepareService
                                byte dataTypeValue,
                                int dataTypeIndex,
                                ValueBuildDelegator valueBuildDelegator) {
-        printCommunicationData(sensorAddress, dataTypeValue, dataTypeIndex);
+        //printCommunicationData(sensorAddress, dataTypeValue, dataTypeIndex);
         Sensor sensor = SensorManager.getSensor(sensorAddress, true);
         int position = sensor.addDynamicValue(dataTypeValue, dataTypeIndex, valueBuildDelegator);
         if (!recordSensorNetIn(sensor)) {
