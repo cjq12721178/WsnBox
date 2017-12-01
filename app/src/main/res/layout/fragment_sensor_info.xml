@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/bg_lh_sensor_data">
+
+    <View
+        android:layout_width="@dimen/width_fragment_sensor_info"
+        android:layout_height="@dimen/height_fragment_sensor_info"
+        android:background="@android:color/transparent"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_sensor_info_label"
+        android:textSize="@dimen/size_text_title_small"
+        android:padding="@dimen/padding_small"
+        android:gravity="center"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gl_sensor_info_middle_vertical"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_sensor_address"
+        android:textSize="@dimen/size_text_dialog"
+        android:padding="@dimen/padding_micro"
+        android:layout_marginStart="@dimen/margin_micro"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_sensor_info_label"
+        app:layout_constraintRight_toLeftOf="@id/gl_sensor_info_middle_vertical"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_sensor_state"
+        android:textSize="@dimen/size_text_dialog"
+        android:padding="@dimen/padding_micro"
+        android:layout_marginStart="@dimen/margin_micro"
+        app:layout_constraintTop_toBottomOf="@id/tv_sensor_info_label"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/gl_sensor_info_middle_vertical"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_sensor_source"
+        android:textSize="@dimen/size_text_dialog"
+        android:padding="@dimen/padding_micro"
+        android:layout_marginStart="@dimen/margin_micro"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_sensor_address"
+        app:layout_constraintRight_toLeftOf="@id/gl_sensor_info_middle_vertical"/>
+
+    <include
+        android:id="@+id/il_li_sensor_info"
+        layout="@layout/li_sensor_info"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_sensor_source"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/rv_sensor_info"
+        android:background="@android:color/white"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/il_li_sensor_info"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ViewStub
+        android:layout_width="@dimen/size_image_small"
+        android:layout_height="@dimen/size_image_small"
+        android:id="@+id/vs_info_orientation"
+        android:layout="@layout/vs_info_orientation"
+        android:layout_marginEnd="@dimen/margin_small"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/il_li_sensor_info"/>
+
+</android.support.constraint.ConstraintLayout>

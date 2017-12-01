@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">智联之窗</string>
+    <string name="data_browse">数据浏览</string>
+    <string name="freedom_scout">自由巡检</string>
+    <string name="scout_record">巡检记录</string>
+    <string name="scout_config">巡检配置</string>
+    <string name="settings">设置</string>
+    <string name="import_sensor_configurations_failed">导入传感器配置失败！</string>
+    <string name="launch_communicators_failed">通讯模块启动失败！</string>
+    <string name="function_expect">敬请期待</string>
+    <string name="timestamp">时间</string>
+    <string name="measurement_name">测量名称</string>
+    <string name="measurement_type">测量类型</string>
+    <string name="value">数值</string>
+    <string name="tv_sort">排序</string>
+    <string name="tv_filtrate">筛选</string>
+    <string name="tv_search">搜索</string>
+    <string name="sensor_name">传感器名称</string>
+    <string name="sensor_address">传感器地址</string>
+    <string name="address">地址</string>
+    <string name="unknown_error">发生未知错误</string>
+    <string name="data_source">数据源</string>
+    <string name="real_time">实时</string>
+    <string name="history">历史</string>
+    <string name="launch_sensor_database_failed">启动传感器数据库失败</string>
+    <string name="database_insert_sensor_data_error">数据库保存传感器数据发生错误，传感器历史数据自动保存功能将关闭</string>
+    <string name="import_sensor_earliest_value_failed">导入传感器历史数据失败</string>
+    <string name="import_sensor_history_value_failed">导入当前传感器历史数据失败</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="bg_data_browse">#CEB575</color>
+    <color name="bg_freedom_scout">#95A895</color>
+    <color name="bg_scout_record">#F46B41</color>
+    <color name="bg_scout_config">#BE98CB</color>
+    <color name="bg_title">#6F1163</color>
+    <color name="bg_function_panel">#F0F0F0</color>
+    <color name="bg_li_sensor_data">#B6DCE7</color>
+    <color name="bg_lh_sensor_data">#5078AF</color>
+</resources>

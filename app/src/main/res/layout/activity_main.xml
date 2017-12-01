@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.weisi.tool.wsnbox.activity.MainActivity">
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gl_exhibition_function"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5"/>
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gl_function_middle_horizontal"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.75"/>
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gl_function_middle_vertical"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"/>
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/iv_exhibition"
+        android:src="@drawable/ic_exhibition"
+        android:scaleType="fitXY"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/gl_exhibition_function"/>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/cl_data_browse"
+        android:background="@color/bg_data_browse"
+        android:layout_margin="@dimen/margin_small"
+        android:onClick="onClick"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gl_exhibition_function"
+        app:layout_constraintRight_toLeftOf="@id/gl_function_middle_vertical"
+        app:layout_constraintBottom_toTopOf="@id/gl_function_middle_horizontal">
+
+        <android.support.constraint.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gl_data_browse_middle_vertical"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
+
+        <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_data_browse"
+            android:text="@string/data_browse"
+            android:textColor="@android:color/white"
+            android:padding="@dimen/padding_micro"
+            android:layout_marginBottom="@dimen/margin_micro"
+            app:layout_constraintLeft_toRightOf="@id/gl_data_browse_middle_vertical"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/iv_data_browse"
+            android:padding="@dimen/padding_micro"
+            android:layout_marginTop="@dimen/margin_micro"
+            android:src="@drawable/ic_data_browse"
+            android:scaleType="fitCenter"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/gl_data_browse_middle_vertical"
+            app:layout_constraintBottom_toTopOf="@id/tv_data_browse"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/cl_freedom_scout"
+        android:background="@color/bg_freedom_scout"
+        android:layout_margin="@dimen/margin_small"
+        android:onClick="onClick"
+        app:layout_constraintLeft_toRightOf="@id/gl_function_middle_vertical"
+        app:layout_constraintTop_toBottomOf="@id/gl_exhibition_function"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/gl_function_middle_horizontal">
+
+        <android.support.constraint.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gl_freedom_scout_middle_vertical"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
+
+        <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_freedom_scout"
+            android:text="@string/freedom_scout"
+            android:textColor="@android:color/white"
+            android:padding="@dimen/padding_micro"
+            android:layout_marginBottom="@dimen/margin_micro"
+            app:layout_constraintLeft_toRightOf="@id/gl_freedom_scout_middle_vertical"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/iv_freedom_scout"
+            android:padding="@dimen/padding_micro"
+            android:layout_marginTop="@dimen/margin_micro"
+            android:src="@drawable/ic_freedom_scout"
+            android:scaleType="fitCenter"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/gl_freedom_scout_middle_vertical"
+            app:layout_constraintBottom_toTopOf="@id/tv_freedom_scout"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/cl_scout_record"
+        android:background="@color/bg_scout_record"
+        android:layout_margin="@dimen/margin_small"
+        android:onClick="onClick"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gl_function_middle_horizontal"
+        app:layout_constraintRight_toLeftOf="@id/gl_function_middle_vertical"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <android.support.constraint.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gl_scout_record_middle_vertical"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
+
+        <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_scout_record"
+            android:text="@string/scout_record"
+            android:textColor="@android:color/white"
+            android:padding="@dimen/padding_micro"
+            android:layout_marginBottom="@dimen/margin_micro"
+            app:layout_constraintLeft_toRightOf="@id/gl_scout_record_middle_vertical"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/iv_scout_record"
+            android:padding="@dimen/padding_micro"
+            android:layout_marginTop="@dimen/margin_micro"
+            android:src="@drawable/ic_scout_record"
+            android:scaleType="fitCenter"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/gl_scout_record_middle_vertical"
+            app:layout_constraintBottom_toTopOf="@id/tv_scout_record"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/cl_scout_config"
+        android:background="@color/bg_scout_config"
+        android:layout_margin="@dimen/margin_small"
+        android:onClick="onClick"
+        app:layout_constraintLeft_toRightOf="@id/gl_function_middle_vertical"
+        app:layout_constraintTop_toBottomOf="@id/gl_function_middle_horizontal"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <android.support.constraint.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gl_scout_config_middle_vertical"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
+
+        <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_scout_config"
+            android:text="@string/scout_config"
+            android:textColor="@android:color/white"
+            android:padding="@dimen/padding_micro"
+            android:layout_marginBottom="@dimen/margin_micro"
+            app:layout_constraintLeft_toRightOf="@id/gl_scout_config_middle_vertical"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/iv_scout_config"
+            android:padding="@dimen/padding_micro"
+            android:layout_marginTop="@dimen/margin_micro"
+            android:src="@drawable/ic_scout_config"
+            android:scaleType="fitCenter"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/gl_scout_config_middle_vertical"
+            app:layout_constraintBottom_toTopOf="@id/tv_scout_config"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

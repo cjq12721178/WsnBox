@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 字体大小 -->
+    <dimen name="size_text_title_large">27sp</dimen>
+    <dimen name="size_text_title_big">24sp</dimen>
+    <dimen name="size_text_title_middle">22sp</dimen>
+    <dimen name="size_text_title_small">20sp</dimen>
+    <dimen name="size_text_activity">17sp</dimen>
+    <dimen name="size_text_dialog">15sp</dimen>
+    <dimen name="size_text_view_label">15sp</dimen>
+    <dimen name="size_text_comments">13sp</dimen>
+
+    <!-- margin -->
+    <dimen name="margin_micro">6dp</dimen>
+    <dimen name="margin_small">12dp</dimen>
+    <dimen name="margin_mid">23dp</dimen>
+
+    <!-- padding -->
+    <dimen name="padding_micro">6dp</dimen>
+    <dimen name="padding_small">12dp</dimen>
+    <dimen name="padding_mid">23dp</dimen>
+    <dimen name="padding_small_vertical">10dp</dimen>
+    <dimen name="spinner_dropdown_vertical">20dp</dimen>
+
+    <!-- 控件、图片等大小 -->
+    <dimen name="size_image_micro">28dp</dimen>
+    <dimen name="size_image_small">37dp</dimen>
+    <dimen name="size_image_middle">56dp</dimen>
+    <dimen name="size_image_large">75dp</dimen>
+
+    <!-- 其他 -->
+    <dimen name="size_sensor_browse_measurement_height">23dp</dimen>
+    <dimen name="height_fragment_sensor_info">467dp</dimen>
+    <dimen name="width_fragment_sensor_info">350dp</dimen>
+</resources>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_li_sensor_data"
+    android:paddingTop="@dimen/padding_micro"
+    android:paddingBottom="@dimen/padding_micro">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_sensor_name_address"
+        android:textSize="@dimen/size_text_activity"
+        android:layout_gravity="center_vertical"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_timestamp"
+        android:textSize="@dimen/size_text_activity"
+        android:layout_gravity="center_vertical"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_measurement_name_type"
+        android:textSize="@dimen/size_text_activity"
+        android:layout_gravity="center_vertical"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="4"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_measurement_value"
+        android:textSize="@dimen/size_text_activity"
+        android:layout_gravity="center_vertical"
+        android:gravity="center"/>
+
+</LinearLayout>
