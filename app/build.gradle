@@ -13,8 +13,8 @@ android {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 2
-        versionName "0.2.0"
+        versionCode 3
+        versionName "0.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -52,7 +52,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile(name: 'com.cjq.tool.qbox-0.12.3', ext: 'aar')
-    compile(name: 'com.cjq.lib.weisi-2.0.9', ext: 'aar')
+    compile(name: 'com.cjq.lib.weisi-2.0.11', ext: 'aar')
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'

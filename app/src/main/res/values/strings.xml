@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">智联之窗</string>
+    <string name="app_name2">智联之窗</string>
+    <string name="app_name">传感数据安全监控</string>
+    <string name="home_title">集成国密算法无线电力传感数据接入系统</string>
     <string name="data_browse">数据浏览</string>
     <string name="freedom_scout">自由巡检</string>
     <string name="scout_record">巡检记录</string>

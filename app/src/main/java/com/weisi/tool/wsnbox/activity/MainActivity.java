@@ -29,7 +29,7 @@ public class MainActivity
         setContentView(R.layout.activity_main);
 
         ExceptionLog.initialize(getApplicationContext(), "WsnBox");
-        ClosableLog.setEnablePrint(true);
+        //ClosableLog.setEnablePrint(true);
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(getApplicationContext()));
         startService(new Intent(this, DataPrepareService.class));
     }

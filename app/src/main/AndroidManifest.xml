@@ -9,7 +9,8 @@
         android:roundIcon="@drawable/ic_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity"
+            android:label="@string/home_title">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -23,7 +24,8 @@
             android:exported="true">
         </service>
 
-        <activity android:name=".activity.DataBrowseActivity">
+        <activity android:name=".activity.DataBrowseActivity"
+            android:label="@string/data_browse">
         </activity>
     </application>
 

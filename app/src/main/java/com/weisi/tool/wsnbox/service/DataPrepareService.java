@@ -28,6 +28,8 @@ import com.weisi.tool.wsnbox.processor.SensorDataProcessor;
 import com.weisi.tool.wsnbox.util.Tag;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class DataPrepareService
         extends Service
@@ -47,6 +49,7 @@ public class DataPrepareService
     private OnSensorNetInListener mOnSensorNetInListener;
     private OnSensorValueUpdateListener mOnSensorValueUpdateListener;
     private SensorDataProcessor mSensorDataProcessor;
+    private Timer mDataRequestTimer = new Timer();
 
     private final Handler mEventHandler = new Handler() {
 
@@ -60,6 +63,20 @@ public class DataPrepareService
                 case SensorDataProcessor.SENSOR_DATA_RECORDER_SHUTDOWN:
                     SensorDatabase.shutdown();
                     break;
+            }
+        }
+    };
+
+    private final TimerTask mRequestSerialPortDataTask = new TimerTask() {
+
+        final byte[] mDataRequestFrame = mSerialPortProtocol.makeDataRequestFrame();
+
+        @Override
+        public void run() {
+            try {
+                mSerialPortKit.send(mDataRequestFrame);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     };
@@ -104,12 +121,15 @@ public class DataPrepareService
         }
         mSerialPortKit.startListen(this);
 
+        mDataRequestTimer.schedule(mRequestSerialPortDataTask, 1000, 2000);
+
         return true;
     }
 
     public void shutdownCommunicators() {
 //        mUdpKit.close();
 //        mBleKit.stopScan();
+        mDataRequestTimer.cancel();
         mSerialPortKit.shutdown();
         powerOffSerialPort();
     }
@@ -134,7 +154,7 @@ public class DataPrepareService
             Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_vbat_out_en"});
             Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_a"});
             Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_b"});
-            SimpleCustomizeToast.show(this, "power off");
+            //SimpleCustomizeToast.show(this, "power off");
         } catch (IOException e) {
             ExceptionLog.record(e);
         }
