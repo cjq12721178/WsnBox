@@ -184,7 +184,7 @@ public class DataPrepareService
                                byte dataTypeValue,
                                int dataTypeIndex,
                                ValueBuildDelegator valueBuildDelegator) {
-        //printCommunicationData(sensorAddress, dataTypeValue, dataTypeIndex);
+        printCommunicationData(sensorAddress, dataTypeValue, dataTypeIndex);
         Sensor sensor = SensorManager.getSensor(sensorAddress, true);
         int position = sensor.addDynamicValue(dataTypeValue, dataTypeIndex, valueBuildDelegator);
         if (!recordSensorNetIn(sensor)) {

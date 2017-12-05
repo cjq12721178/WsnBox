@@ -105,7 +105,7 @@ public class DataBrowseActivity
                     int position = mSensorSorter.find(mSensors, sensor);
                     if (position >= 0) {
                         mSensorAdapter.notifySensorValueUpdate(position);
-                        if (mIsRealTime && mSensorInformationFragment != null) {
+                        if (mSensorInformationFragment != null) {
                             mSensorInformationFragment.notifySensorDataChanged(sensor, measurementValuePosition);
                         }
                     }

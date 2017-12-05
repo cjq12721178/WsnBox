@@ -187,7 +187,9 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     }
 
     private String getCorrespondDecoratedValueWithUnit(Measurement measurement, long timestamp, int position) {
-        Measurement.Value value = measurement.findHistoryValue(position, timestamp);
+        Measurement.Value value = mIsRealTime
+                ? measurement.findDynamicValue(position, timestamp)
+                : measurement.findHistoryValue(position, timestamp);
         return value != null ? measurement.getDataType().getDecoratedValueWithUnit(value)
                 : "";
     }

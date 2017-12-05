@@ -27,9 +27,10 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setTitle(R.string.home_title);
 
         ExceptionLog.initialize(getApplicationContext(), "WsnBox");
-        //ClosableLog.setEnablePrint(true);
+        ClosableLog.setEnablePrint(true);
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(getApplicationContext()));
         startService(new Intent(this, DataPrepareService.class));
     }

@@ -190,7 +190,7 @@ public class SensorInformationFragment
 
     private boolean canNotifyValueChanged(Sensor sensor) {
         return mSensorInfoAdapter != null
-                && mSensor != sensor
+                && mSensor == sensor
                 && getDialog() != null
                 && getDialog().isShowing();
     }
