@@ -27,7 +27,7 @@
             android:drawableTop="@drawable/ic_sort"
             app:drawableTop_width="@dimen/size_image_small"
             app:drawableTop_height="@dimen/size_image_small"
-            android:text="@string/tv_sort"
+            android:text="@string/sort"
             android:gravity="center"/>
         <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
             android:layout_width="0dp"
@@ -37,7 +37,7 @@
             android:drawableTop="@drawable/ic_filter"
             app:drawableTop_width="@dimen/size_image_small"
             app:drawableTop_height="@dimen/size_image_small"
-            android:text="@string/tv_filtrate"
+            android:text="@string/filtrate"
             android:gravity="center"/>
         <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
             android:layout_width="0dp"
@@ -47,7 +47,7 @@
             android:drawableTop="@drawable/ic_search"
             app:drawableTop_width="@dimen/size_image_small"
             app:drawableTop_height="@dimen/size_image_small"
-            android:text="@string/tv_search"
+            android:text="@string/search"
             android:gravity="center"/>
     </LinearLayout>
 

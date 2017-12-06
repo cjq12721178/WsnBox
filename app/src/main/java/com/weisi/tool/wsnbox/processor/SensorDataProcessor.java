@@ -27,8 +27,8 @@ public class SensorDataProcessor
     private static final int MAX_AFFORDABLE_ERROR_TIMES = 10;
 
     private final int MAX_BUFFER_SIZE = 100;
-    private final long MIN_TIME_INTERVAL_FOR_DUPLICATE_VALUE = 60000;
     private final Handler mMessageSender;
+    private long mMinTimeIntervalForDuplicateValue;
     private boolean mSensorDataRecording;
     private LinkedList<SensorData> mTemporarySensorData;
     //private LinkedList<MeasurementData> mTemporaryMeasurementData;
@@ -40,6 +40,10 @@ public class SensorDataProcessor
             throw new NullPointerException("message sender may not be null");
         }
         mMessageSender = messageSender;
+    }
+
+    public void setMinTimeIntervalForDuplicateValue(long gatherCycle) {
+        mMinTimeIntervalForDuplicateValue = gatherCycle;
     }
 
     public void startCaptureAndRecordSensorData() {
@@ -178,10 +182,10 @@ public class SensorDataProcessor
             mLastSensorDataMap.put(data.getId(), SensorData.build(data));
             return SensorDatabase.SensorDataProvider.FIRST_DATA;
         }
-//        if (lastData.getTimestamp() + MIN_TIME_INTERVAL_FOR_DUPLICATE_VALUE
-//                > data.getTimestamp()) {
-//            return SensorDatabase.SensorDataProvider.DUPLICATE_DATA;
-//        }
+        if (lastData.getTimestamp() + mMinTimeIntervalForDuplicateValue
+                > data.getTimestamp()) {
+            return SensorDatabase.SensorDataProvider.DUPLICATE_DATA;
+        }
         lastData.setTimestamp(data.getTimestamp());
         lastData.setBatteryVoltage(data.getBatteryVoltage());
         lastData.setRawValue(data.getRawValue());
@@ -213,7 +217,7 @@ public class SensorDataProcessor
 //            lastData.setRawValue(data.getRawValue());
 //            return SensorDatabase.SensorDataProvider.NORMAL_DATA;
 //        }
-//        if (lastData.getTimestamp() + MIN_TIME_INTERVAL_FOR_DUPLICATE_VALUE
+//        if (lastData.getTimestamp() + mMinTimeIntervalForDuplicateValue
 //                > data.getTimestamp()) {
 //            return SensorDatabase.SensorDataProvider.DUPLICATE_DATA;
 //        }

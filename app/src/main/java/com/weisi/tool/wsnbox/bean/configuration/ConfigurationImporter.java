@@ -1,0 +1,120 @@
+package com.weisi.tool.wsnbox.bean.configuration;
+
+import android.content.Context;
+
+import com.cjq.tool.qbox.util.ExceptionLog;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+/**
+ * Created by CJQ on 2017/12/5.
+ */
+
+public class ConfigurationImporter extends DefaultHandler {
+
+    private final String FILE_NAME = "configuration.xml";
+    private final String COMMUNICATOR_UDP = "UDP";
+    private final String COMMUNICATOR_BLE = "BLE";
+    private final String COMMUNICATOR_SERIAL_PORT = "SerialPort";
+    private final String DATA_PROCESSOR = "DataProcessor";
+
+    private StringBuilder mBuilder;
+    private Settings mSettings;
+    private String mSettingType;
+
+    public boolean leadIn(Context context) {
+        try {
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser parser = factory.newSAXParser();
+            mSettings = new Settings(context);
+            parser.parse(context.getAssets().open(FILE_NAME), this);
+            return true;
+        } catch (Exception e) {
+            mSettings = null;
+            ExceptionLog.process(e);
+        }
+        return false;
+    }
+
+    public Settings getSettings() {
+        return mSettings;
+    }
+
+    @Override
+    public void startDocument() throws SAXException {
+        mBuilder = new StringBuilder();
+    }
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        if (localName.equals("communicator")) {
+            mSettingType = attributes.getValue("name");
+        } else if (localName.equals(DATA_PROCESSOR)) {
+            mSettingType = DATA_PROCESSOR;
+        }
+        mBuilder.setLength(0);
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        mBuilder.append(ch, start, length);
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
+        switch (localName) {
+            case "enable":
+                switch (mSettingType) {
+                    case COMMUNICATOR_UDP:
+                        mSettings.mDefaultUdpEnable = Boolean.parseBoolean(mBuilder.toString());
+                        break;
+                    case COMMUNICATOR_BLE:
+                        mSettings.mDefaultBleEnable = Boolean.parseBoolean(mBuilder.toString());
+                        break;
+                    case COMMUNICATOR_SERIAL_PORT:
+                        mSettings.mDefaultSerialPortEnable = Boolean.parseBoolean(mBuilder.toString());
+                        break;
+                    case DATA_PROCESSOR:
+                        mSettings.mDefaultSensorDataGatherEnable = Boolean.parseBoolean(mBuilder.toString());
+                        break;
+                }
+                break;
+            case "ip":
+                mSettings.mDefaultBaseStationIp = mBuilder.toString();
+                break;
+            case "port":
+                mSettings.mDefaultBaseStationPort = Integer.parseInt(mBuilder.toString());
+                break;
+            case "DataRequestCycle":
+                switch (mSettingType) {
+                    case COMMUNICATOR_UDP:
+                        mSettings.mDefaultUdpDataRequestCycle = Long.parseLong(mBuilder.toString());
+                        break;
+                    case COMMUNICATOR_SERIAL_PORT:
+                        mSettings.mDefaultSerialPortDataRequestCycle = Long.parseLong(mBuilder.toString());
+                        break;
+                }
+                break;
+            case "ScanCycle":
+                mSettings.mDefaultBleScanCycle = Long.parseLong(mBuilder.toString());
+                break;
+            case "ScanDuration":
+                mSettings.mDefaultBleScanDuration = Long.parseLong(mBuilder.toString());
+                break;
+            case "PortName":
+                mSettings.mDefaultSerialPortName = mBuilder.toString();
+                break;
+            case "BaudRate":
+                mSettings.mDefaultSerialPortBaudRate = Integer.parseInt(mBuilder.toString());
+                break;
+            case "GatherCycle":
+                mSettings.mDefaultSensorDataGatherCycle = Long.parseLong(mBuilder.toString());
+                break;
+        }
+    }
+}

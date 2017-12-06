@@ -13,9 +13,18 @@ android {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 5
-        versionName "0.2.3"
+        versionCode 6
+        versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    productFlavors {
+        general {
+        }
+        guomi {
+            applicationIdSuffix ".guomi"
+            versionCode 1
+            versionName "0.1.0"
+        }
     }
     buildTypes {
         release {
@@ -30,9 +39,9 @@ android {
             def fileName
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
                 if (variant.buildType.name.equals('release')) {
-                    fileName = "com.weisi.tool.wsnbox_${defaultConfig.versionName}_${buildTime()}.apk"
+                    fileName = "${variant.applicationId}_${variant.versionName}_${buildTime()}.apk"
                 } else if (variant.buildType.name.equals('debug')) {
-                    fileName = "debug_${defaultConfig.versionName}}.apk"
+                    fileName = "debug_${variant.applicationId}_${variant.versionName}.apk"
                 }
                 output.outputFile = new File(outputFile.parent, fileName)
             }
@@ -52,7 +61,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile(name: 'com.cjq.tool.qbox-0.12.3', ext: 'aar')
-    compile(name: 'com.cjq.lib.weisi-2.1.4', ext: 'aar')
+    compile(name: 'com.cjq.lib.weisi-2.1.6', ext: 'aar')
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'

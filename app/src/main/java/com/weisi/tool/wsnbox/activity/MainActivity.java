@@ -8,10 +8,7 @@ import android.view.View;
 
 import com.cjq.tool.qbox.ui.dialog.BaseDialog;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
-import com.cjq.tool.qbox.util.ClosableLog;
-import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.R;
-import com.weisi.tool.wsnbox.handler.CrashHandler;
 import com.weisi.tool.wsnbox.io.SensorDatabase;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 
@@ -21,38 +18,36 @@ public class MainActivity
         View.OnClickListener {
 
     private static final String DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED = "import_sensor_config_failed";
-    private static final String DIALOG_TAG_LAUNCH_COMMUNICATORS_FAILED = "launch_communicators_failed";
+    private static final String DIALOG_TAG_CONFIGURATION_NOT_PREPARED = "configuration_not_prepared";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setTitle(R.string.home_title);
+        setTitle(R.string.home_page_title);
 
-        ExceptionLog.initialize(getApplicationContext(), "WsnBox");
-        ClosableLog.setEnablePrint(true);
-        Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(getApplicationContext()));
-        startService(new Intent(this, DataPrepareService.class));
+        if (getBaseApplication().isConfigurationPrepared()) {
+            startService(new Intent(this, DataPrepareService.class));
+        } else {
+            ConfirmDialog dialog = new ConfirmDialog();
+            dialog.show(getSupportFragmentManager(),
+                    DIALOG_TAG_CONFIGURATION_NOT_PREPARED,
+                    getString(R.string.application_configuration_not_prepared),
+                    false);
+        }
     }
 
     @Override
     protected void onServiceConnectionCreate(DataPrepareService service) {
         if (service.importSensorConfigurations()) {
-            if (service.launchCommunicators()) {
-                if (SensorDatabase.launch(this)) {
-                    service.startCaptureAndRecordSensorData();
-                } else {
-                    ConfirmDialog dialog = new ConfirmDialog();
-                    dialog.show(getSupportFragmentManager(),
-                            "launch_sensor_database_failed",
-                            getString(R.string.launch_sensor_database_failed),
-                            false);
-                }
+            service.launchCommunicators();
+            if (SensorDatabase.launch(this)) {
+                service.startCaptureAndRecordSensorData();
             } else {
                 ConfirmDialog dialog = new ConfirmDialog();
                 dialog.show(getSupportFragmentManager(),
-                        DIALOG_TAG_LAUNCH_COMMUNICATORS_FAILED,
-                        getString(R.string.launch_communicators_failed),
+                        "launch_sensor_database_failed",
+                        getString(R.string.launch_sensor_database_failed),
                         false);
             }
         } else {
@@ -87,7 +82,7 @@ public class MainActivity
     public boolean onConfirm(BaseDialog dialog) {
         switch (dialog.getTag()) {
             case DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED:
-            case DIALOG_TAG_LAUNCH_COMMUNICATORS_FAILED:
+            case DIALOG_TAG_CONFIGURATION_NOT_PREPARED:
                 finish();
                 break;
         }

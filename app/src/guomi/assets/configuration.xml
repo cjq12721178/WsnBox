@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 本文档为智联之窗（WsnBox）APP（国密版）提供所有默认配置信息 -->
+<!-- 所有时间单位若无特别指出，均默认为毫秒 -->
+<configuration>
+	<settings>
+		<communicators>
+			<communicator name="SerialPort">
+				<enalbe>true</enalbe>
+				<PortName>ttyHSL1</PortName>
+				<BaudRate>115200</BaudRate>
+				<DataRequestCycle>2000</DataRequestCycle>
+			</communicator>
+		</communicators>
+		<DataProcessor>
+			<enable>true</enable>
+			<GatherCycle>60000</GatherCycle>
+		</DataProcessor>
+	</settings>
+</configuration>

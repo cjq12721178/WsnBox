@@ -23,11 +23,16 @@ import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.cjq.tool.qbox.util.ClosableLog;
 import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.R;
+import com.weisi.tool.wsnbox.application.BaseApplication;
+import com.weisi.tool.wsnbox.bean.configuration.Settings;
 import com.weisi.tool.wsnbox.io.SensorDatabase;
 import com.weisi.tool.wsnbox.processor.SensorDataProcessor;
+import com.weisi.tool.wsnbox.processor.SerialPortProcessor;
 import com.weisi.tool.wsnbox.util.Tag;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,18 +43,20 @@ public class DataPrepareService
         OnFrameAnalyzedListener, SerialPortKit.OnDataReceivedListener {
 
     private final LocalBinder mLocalBinder = new LocalBinder();
-    //private final UdpKit mUdpKit = new UdpKit();
-    //private final BleKit mBleKit = new BleKit();
-    private final SerialPortKit mSerialPortKit = new SerialPortKit();
-    private final ScoutUdpSensorProtocol mUdpProtocol = new ScoutUdpSensorProtocol();
-    private final ScoutBleSensorProtocol mBleProtocol = new ScoutBleSensorProtocol();
-    private final ScoutUdpSensorProtocol mSerialPortProtocol = new ScoutUdpSensorProtocol();
+    private UdpKit mUdpKit;
+    private BleKit mBleKit;
+    private SerialPortKit mSerialPortKit;
+    private ScoutUdpSensorProtocol mUdpProtocol;
+    private ScoutBleSensorProtocol mBleProtocol;
+    private ScoutUdpSensorProtocol mSerialPortProtocol;
+    private UdpDataRequestTask mUdpDataRequestTask;
+    private SerialPortDataRequestTask mSerialPortDataRequestTask;
+    private Timer mDataRequestTimer;
     private long mLastNetInTimestamp;
     private final Object mLastNetInTimeLocker = new Object();
     private OnSensorNetInListener mOnSensorNetInListener;
     private OnSensorValueUpdateListener mOnSensorValueUpdateListener;
     private SensorDataProcessor mSensorDataProcessor;
-    private Timer mDataRequestTimer = new Timer();
 
     private final Handler mEventHandler = new Handler() {
 
@@ -63,20 +70,6 @@ public class DataPrepareService
                 case SensorDataProcessor.SENSOR_DATA_RECORDER_SHUTDOWN:
                     SensorDatabase.shutdown();
                     break;
-            }
-        }
-    };
-
-    private final TimerTask mRequestSerialPortDataTask = new TimerTask() {
-
-        final byte[] mDataRequestFrame = mSerialPortProtocol.makeDataRequestFrame();
-
-        @Override
-        public void run() {
-            try {
-                mSerialPortKit.send(mDataRequestFrame);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     };
@@ -96,12 +89,26 @@ public class DataPrepareService
         }
     }
 
+    public BaseApplication getBaseApplication() {
+        return (BaseApplication) getApplication();
+    }
+
     public boolean importSensorConfigurations() {
         return ConfigurationManager.importEthernetConfiguration(this)
                 && ConfigurationManager.importBleConfiguration(this);
     }
 
-    public boolean launchCommunicators() {
+    public void launchCommunicators() {
+        Settings settings = getBaseApplication().getSettings();
+        if (!launchUdp(settings)) {
+            SimpleCustomizeToast.show(this, getString(R.string.udp_launch_failed));
+        }
+        if (!launchBle(settings)) {
+            SimpleCustomizeToast.show(this, getString(R.string.ble_launch_failed));
+        }
+        if (!launchSerialPort(settings)) {
+            SimpleCustomizeToast.show(this, getString(R.string.serial_port_launch_failed));
+        }
 //        if (!mUdpKit.launch(0)) {
 //            return false;
 //        }
@@ -112,51 +119,144 @@ public class DataPrepareService
 //            return false;
 //        }
 //        mBleKit.startScan(this, 5000, 10000);
+//
+//        if (!powerOnSerialPort()) {
+//            return false;
+//        }
+//        if (!mSerialPortKit.launch("ttyHSL1", 115200, 0)) {
+//            return false;
+//        }
+//        mSerialPortKit.startListen(this);
+//
+//        mDataRequestTimer.schedule(mSerialPortDataRequestTask, 1000, 2000);
+//
+//        return true;
+    }
 
-        if (!powerOnSerialPort()) {
-            return false;
+    public boolean launchUdp(Settings settings) {
+        if (settings.isUdpEnable()) {
+            if (mUdpKit == null) {
+                mUdpKit = new UdpKit();
+                mUdpKit.startListen(true, this);
+            }
+            if (!mUdpKit.launch(0)) {
+                return false;
+            }
+            mUdpKit.startListen(true, this);
+            if (mUdpDataRequestTask == null) {
+                mUdpDataRequestTask = new UdpDataRequestTask();
+            }
+            if (mUdpProtocol == null) {
+                mUdpProtocol = new ScoutUdpSensorProtocol();
+            }
+            mUdpDataRequestTask.setTargetIp(settings.getBaseStationIp());
+            mUdpDataRequestTask.setTargetPort(settings.getBaseStationPort());
+            mUdpDataRequestTask.setDataRequestFrame(mUdpProtocol.makeDataRequestFrame());
+            if (mDataRequestTimer == null) {
+                mDataRequestTimer = new Timer();
+            }
+            mDataRequestTimer.schedule(mUdpDataRequestTask, 0, settings.getUdpDataRequestCycle());
         }
-        if (!mSerialPortKit.launch("ttyHSL1", 115200, 0)) {
-            return false;
+        return true;
+    }
+
+    public boolean launchBle(Settings settings) {
+        if (settings.isBleEnable()) {
+            if (mBleKit == null) {
+                mBleKit = new BleKit();
+            }
+            if (!mBleKit.launch(this)) {
+                return false;
+            }
+            if (mBleProtocol == null) {
+                mBleProtocol = new ScoutBleSensorProtocol();
+            }
+            mBleKit.startScan(this, settings.getBleScanCycle(), settings.getBleScanDuration());
         }
-        mSerialPortKit.startListen(this);
+        return true;
+    }
 
-        mDataRequestTimer.schedule(mRequestSerialPortDataTask, 1000, 2000);
-
+    public boolean launchSerialPort(Settings settings) {
+        if (settings.isSerialPortEnable()) {
+            if (!SerialPortProcessor.processPreLaunch()) {
+                return false;
+            }
+            if (mSerialPortKit == null) {
+                mSerialPortKit = new SerialPortKit();
+            }
+            if (!mSerialPortKit.launch(settings.getSerialPortName(), settings.getSerialPortBaudRate(), 0)) {
+                return false;
+            }
+            if (mSerialPortProtocol == null) {
+                mSerialPortProtocol = new ScoutUdpSensorProtocol();
+            }
+            mSerialPortKit.startListen(this);
+            if (mSerialPortDataRequestTask == null) {
+                mSerialPortDataRequestTask = new SerialPortDataRequestTask();
+            }
+            mSerialPortDataRequestTask.setDataRequestFrame(mSerialPortProtocol.makeDataRequestFrame());
+            if (mDataRequestTimer == null) {
+                mDataRequestTimer = new Timer();
+            }
+            mDataRequestTimer.schedule(mSerialPortDataRequestTask, 0, settings.getSerialPortDataRequestCycle());
+        }
         return true;
     }
 
     public void shutdownCommunicators() {
+        shutdownUdp();
+        shutdownBle();
+        shutdownSerialPort();
+        shutdownDataRequestTimer();
 //        mUdpKit.close();
 //        mBleKit.stopScan();
-        mDataRequestTimer.cancel();
-        mSerialPortKit.shutdown();
-        powerOffSerialPort();
+        //mDataRequestTimer.cancel();
+        //mSerialPortKit.shutdown();
+        //powerOffSerialPort();
     }
 
-    private boolean powerOnSerialPort() {
-        try {
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 1 > /sys/devices/soc.0/xt_dev.68/xt_dc_in_en"});
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 1 > /sys/devices/soc.0/xt_dev.68/xt_vbat_out_en"});
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_gpio_112"});
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_a"});
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_b"});
-            return true;
-        } catch (IOException e) {
-            ExceptionLog.record(e);
+    public void shutdownUdp() {
+        if (mUdpDataRequestTask != null) {
+            mUdpDataRequestTask.cancel();
+            mUdpDataRequestTask = null;
         }
-        return false;
+        if (mUdpKit != null) {
+            mUdpKit.close();
+            mUdpKit = null;
+        }
+        if (mUdpProtocol != null) {
+            mUdpProtocol = null;
+        }
     }
 
-    private void powerOffSerialPort() {
-        try {
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_dc_in_en"});
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_vbat_out_en"});
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_a"});
-            Runtime.getRuntime().exec(new String[]{"sh", "-c", "echo 0 > /sys/devices/soc.0/xt_dev.68/xt_uart_b"});
-            //SimpleCustomizeToast.show(this, "power off");
-        } catch (IOException e) {
-            ExceptionLog.record(e);
+    public void shutdownBle() {
+        if (mBleKit != null) {
+            mBleKit.stopScan();
+        }
+        if (mBleProtocol != null) {
+            mBleProtocol = null;
+        }
+    }
+
+    public void shutdownSerialPort() {
+        if (mSerialPortDataRequestTask != null) {
+            mSerialPortDataRequestTask.cancel();
+            mSerialPortDataRequestTask = null;
+        }
+        if (mSerialPortKit != null) {
+            mSerialPortKit.shutdown();
+            mSerialPortKit = null;
+        }
+        if (mSerialPortProtocol != null) {
+            mSerialPortProtocol = null;
+        }
+        SerialPortProcessor.processPostShutdown();
+    }
+
+    public void shutdownDataRequestTimer() {
+        if (mDataRequestTimer != null) {
+            mDataRequestTimer.cancel();
+            mDataRequestTimer = null;
         }
     }
 
@@ -244,9 +344,14 @@ public class DataPrepareService
     }
 
     public void startCaptureAndRecordSensorData() {
+        Settings settings = getBaseApplication().getSettings();
+        if (!settings.isSensorDataGatherEnable()) {
+            return;
+        }
         if (mSensorDataProcessor == null) {
             mSensorDataProcessor = new SensorDataProcessor(mEventHandler);
         }
+        mSensorDataProcessor.setMinTimeIntervalForDuplicateValue(settings.getDefaultSensorDataGatherCycle());
         mSensorDataProcessor.startCaptureAndRecordSensorData();
     }
 
@@ -256,4 +361,62 @@ public class DataPrepareService
         }
         mSensorDataProcessor.stopCaptureAndRecordSensorData();
     }
+
+    private class UdpDataRequestTask extends TimerTask {
+
+        private InetAddress mTargetIp;
+        private int mTargetPort;
+        private byte[] mDataRequestFrame;
+
+        public void setTargetIp(String ip) {
+            try {
+                mTargetIp = InetAddress.getByName(ip);
+            } catch (UnknownHostException e) {
+                mTargetIp = null;
+                ExceptionLog.debug(e);
+            }
+        }
+
+        public void setTargetPort(int port) {
+            mTargetPort = port;
+        }
+
+        public void setDataRequestFrame(byte[] dataRequestFrame) {
+            mDataRequestFrame = dataRequestFrame;
+        }
+
+        public boolean isPrepared() {
+            return mTargetIp != null
+                    && mTargetPort >= 0
+                    && mTargetPort < 65536
+                    && mDataRequestFrame != null;
+        }
+
+        @Override
+        public void run() {
+            try {
+                mUdpKit.sendData(mTargetIp, mTargetPort, mDataRequestFrame);
+            } catch (IOException e) {
+                ExceptionLog.debug(e);
+            }
+        }
+    }
+
+    private class SerialPortDataRequestTask extends TimerTask {
+
+        private byte[] mDataRequestFrame;
+
+        public void setDataRequestFrame(byte[] dataRequestFrame) {
+            mDataRequestFrame = dataRequestFrame;
+        }
+
+        @Override
+        public void run() {
+            try {
+                mSerialPortKit.send(mDataRequestFrame);
+            } catch (IOException e) {
+                ExceptionLog.debug(e);
+            }
+        }
+    };
 }

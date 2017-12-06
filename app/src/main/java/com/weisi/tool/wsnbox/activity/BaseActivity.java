@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.weisi.tool.wsnbox.R;
+import com.weisi.tool.wsnbox.application.BaseApplication;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 
 /**
@@ -125,23 +126,7 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    public void uncaughtException(Thread t, Throwable e) {
-//        ExceptionLog.process(ExceptionLog.LOG_TYPE_DEBUG
-//                | ExceptionLog.LOG_TYPE_RECORD, e);
-//
-//        try {
-//            startActivity(new Intent("android.fbreader.action.CRASH",
-//                    new Uri.Builder()
-//                            .scheme(e.getClass().getSimpleName())
-//                            .build()));
-//        } catch (ActivityNotFoundException nfe) {
-//            //SimpleCustomizeToast.show(this, getString(R.string.unknown_error));
-//        }
-//
-//        finish();
-//
-//        Process.killProcess(Process.myPid());
-//        System.exit(10);
-//    }
+    public final BaseApplication getBaseApplication() {
+        return (BaseApplication) getApplication();
+    }
 }
