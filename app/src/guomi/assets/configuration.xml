@@ -6,14 +6,15 @@
 		<communicators>
 			<communicator name="SerialPort">
 				<enalbe>true</enalbe>
-				<PortName>ttyHSL1</PortName>
+				<PortName>/dev/ttyHSL1</PortName>
 				<BaudRate>115200</BaudRate>
 				<DataRequestCycle>2000</DataRequestCycle>
 			</communicator>
 		</communicators>
 		<DataProcessor>
 			<enable>true</enable>
-			<GatherCycle>60000</GatherCycle>
+			<!-- 单位秒 -->
+			<GatherCycle>60</GatherCycle>
 		</DataProcessor>
 	</settings>
 </configuration>

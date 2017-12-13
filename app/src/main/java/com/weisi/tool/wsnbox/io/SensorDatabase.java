@@ -472,6 +472,8 @@ public class SensorDatabase {
                                 || cursor.getInt(cursor.getColumnIndex(COLUMN_SENSOR_ADDRESS)) != sensorData.getAddress()) {
                             sensorDataBuffer.replace(insertPrefixLen, insertPrefixLen + TABLE_SENSOR_DATA.length(), TABLE_SENSOR_INIT_DATA);
                             sensorDataInsertSentenceChanged = true;
+                        } else {
+                            sensorDataInsertSentenceChanged = false;
                         }
                         measurementDataBuffer.setLength(0);
                         cursor = database.rawQuery(measurementDataBuffer
@@ -487,6 +489,8 @@ public class SensorDatabase {
                                 || cursor.getLong(cursor.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID)) != sensorData.getId()) {
                             measurementDataBuffer.replace(insertPrefixLen, insertPrefixLen + TABLE_MEASUREMENT_DATA.length(), TABLE_MEASUREMENT_INIT_DATA);
                             measurementDataInsertSentenceChanged = true;
+                        } else {
+                            measurementDataInsertSentenceChanged = false;
                         }
                         break;
                 }

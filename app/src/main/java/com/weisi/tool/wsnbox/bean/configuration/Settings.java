@@ -6,35 +6,40 @@ import android.support.annotation.StringRes;
 
 import com.weisi.tool.wsnbox.R;
 
+import java.util.regex.Pattern;
+
 /**
  * Created by CJQ on 2017/12/5.
  */
 
 public class Settings {
 
-    public static final String FILE_NAME = "settings";
+    public static final String PREFERENCE_FILE_NAME = "settings";
+
+    private static final long MIN_DATA_REQUEST_CYCLE = 100; /* 单位毫秒 */
+    private static final long MIN_BLE_SCAN_DURATION = 10;   /* 单位秒 */
 
     private final Context mContext;
 
     //通讯模块默认设置
     //UDP
     boolean mDefaultUdpEnable;
-    String mDefaultBaseStationIp;
-    int mDefaultBaseStationPort;
-    long mDefaultUdpDataRequestCycle;
+    private String mDefaultBaseStationIp;
+    private int mDefaultBaseStationPort;
+    private long mDefaultUdpDataRequestCycle;   /* 单位毫秒 */
     //Serial Port
     boolean mDefaultSerialPortEnable;
     String mDefaultSerialPortName;
     int mDefaultSerialPortBaudRate;
-    long mDefaultSerialPortDataRequestCycle;
+    private long mDefaultSerialPortDataRequestCycle;    /* 单位毫秒 */
     //BLE
     boolean mDefaultBleEnable;
-    long mDefaultBleScanCycle;
-    long mDefaultBleScanDuration;
+    private long mDefaultBleScanCycle;  /* 单位秒 */
+    private long mDefaultBleScanDuration;   /* 单位秒 */
 
     //数据处理模块默认设置
     boolean mDefaultSensorDataGatherEnable;
-    long mDefaultSensorDataGatherCycle;
+    private long mDefaultSensorDataGatherCycle; /* 单位秒 */
 
     public Settings(Context context) {
         mContext = context;
@@ -93,7 +98,7 @@ public class Settings {
     }
 
     private SharedPreferences getSharedPreferences() {
-        return mContext.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
+        return mContext.getSharedPreferences(PREFERENCE_FILE_NAME, Context.MODE_PRIVATE);
     }
 
     private String getString(@StringRes int preferenceKeyRes, String defaultValue) {
@@ -101,14 +106,29 @@ public class Settings {
     }
 
     private int getInt(@StringRes int preferenceKeyRes, int defaultValue) {
-        return getSharedPreferences().getInt(mContext.getString(preferenceKeyRes), defaultValue);
+        try {
+            return Integer.parseInt(getString(preferenceKeyRes, ""));
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+        //return getSharedPreferences().getInt(mContext.getString(preferenceKeyRes), defaultValue);
     }
 
     private long getLong(@StringRes int preferenceKeyRes, long defaultValue) {
-        return getSharedPreferences().getLong(mContext.getString(preferenceKeyRes), defaultValue);
+        try {
+            return Long.parseLong(getString(preferenceKeyRes, ""));
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+        //return getSharedPreferences().getLong(mContext.getString(preferenceKeyRes), defaultValue);
     }
 
     private boolean getBoolean(@StringRes int preferenceKeyRes, boolean defaultValue) {
+//        try {
+//            return Boolean.parseBoolean(getString(preferenceKeyRes, ""));
+//        } catch (NumberFormatException e) {
+//            return defaultValue;
+//        }
         return getSharedPreferences().getBoolean(mContext.getString(preferenceKeyRes), defaultValue);
     }
 
@@ -136,7 +156,7 @@ public class Settings {
         return getLong(R.string.preference_key_ble_scan_duration, mDefaultBleScanDuration);
     }
 
-    public long getSensorDataGatherTimeInterval() {
+    public long getSensorDataGatherCycle() {
         return getLong(R.string.preference_key_sensor_data_gather_cycle, mDefaultSensorDataGatherCycle);
     }
 
@@ -161,6 +181,83 @@ public class Settings {
     }
 
     public boolean isSensorDataGatherEnable() {
-        return getBoolean(R.string.preferenec_key_sensor_data_gather_enable, mDefaultSensorDataGatherEnable);
+        return getBoolean(R.string.preference_key_sensor_data_gather_enable, mDefaultSensorDataGatherEnable);
+    }
+
+    void setDefaultBaseStationIp(String ip) {
+        checkIp(ip);
+        mDefaultBaseStationIp = ip;
+    }
+
+    public void checkIp(String ip) {
+        if (!Pattern.matches("^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d?)(.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]?\\d?)){3}$",
+                ip)) {
+            throw new IllegalArgumentException("ip format error");
+        }
+    }
+
+    void setDefaultBaseStationPort(int port) {
+        checkPort(port);
+        mDefaultBaseStationPort = port;
+    }
+
+    public void checkPort(int port) {
+        if (port < 0 || port > 65535) {
+            throw new IllegalArgumentException("port out of bounds");
+        }
+    }
+
+    void setDefaultUdpDataRequestCycle(long cycle) {
+        checkDataRequestCycle(cycle);
+        mDefaultUdpDataRequestCycle = cycle;
+    }
+
+    public void checkDataRequestCycle(long cycle) {
+        if (cycle < MIN_DATA_REQUEST_CYCLE) {
+            throw new IllegalArgumentException("data request cycle may greater 100 milliseconds");
+        }
+    }
+
+    void setDefaultSerialPortDataRequestCycle(long cycle) {
+        checkDataRequestCycle(cycle);
+        mDefaultSerialPortDataRequestCycle = cycle;
+    }
+
+    void setDefaultBleScanCycle(long cycle) {
+        checkBleScanCycle(cycle);
+        mDefaultBleScanCycle = cycle;
+    }
+
+    public void checkBleScanCycle(long cycle) {
+        if (cycle < 0) {
+            throw new IllegalArgumentException("ble scan cycle may not be less than 0");
+        }
+    }
+
+    void setDefaultBleScanDuration(long duration) {
+        checkBleScanDuration(duration);
+        mDefaultBleScanDuration = duration;
+    }
+
+    public void checkBleScanDuration(long duration) {
+        if (duration < MIN_BLE_SCAN_DURATION) {
+            throw new IllegalArgumentException("ble min scan duration is 10 seconds");
+        }
+    }
+
+    void setDefaultSensorDataGatherCycle(long cycle) {
+        checkSensorDataGatherCycle(cycle);
+        mDefaultSensorDataGatherCycle = cycle;
+    }
+
+    public void checkSensorDataGatherCycle(long cycle) {
+        if (cycle < 0) {
+            throw new IllegalArgumentException("sensor data gather cycle may not be less than 0");
+        }
+    }
+
+    //修复SwitchPreference自带初始值的问题
+    void clearRedundantRecordInFirstRun() {
+        getSharedPreferences().edit().clear().commit();
     }
 }

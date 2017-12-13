@@ -35,6 +35,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class DataPrepareService
         extends Service
@@ -93,6 +94,13 @@ public class DataPrepareService
         return (BaseApplication) getApplication();
     }
 
+    private Timer getDataRequestTimer() {
+        if (mDataRequestTimer == null) {
+            mDataRequestTimer = new Timer();
+        }
+        return mDataRequestTimer;
+    }
+
     public boolean importSensorConfigurations() {
         return ConfigurationManager.importEthernetConfiguration(this)
                 && ConfigurationManager.importBleConfiguration(this);
@@ -100,107 +108,99 @@ public class DataPrepareService
 
     public void launchCommunicators() {
         Settings settings = getBaseApplication().getSettings();
-        if (!launchUdp(settings)) {
-            SimpleCustomizeToast.show(this, getString(R.string.udp_launch_failed));
+        if (settings.isUdpEnable()) {
+            if (!launchUdp(settings)) {
+                SimpleCustomizeToast.show(this, getString(R.string.udp_launch_failed));
+            }
         }
-        if (!launchBle(settings)) {
-            SimpleCustomizeToast.show(this, getString(R.string.ble_launch_failed));
+
+        if (settings.isBleEnable()) {
+            if (!launchBle(settings)) {
+                SimpleCustomizeToast.show(this, getString(R.string.ble_launch_failed));
+            }
         }
-        if (!launchSerialPort(settings)) {
-            SimpleCustomizeToast.show(this, getString(R.string.serial_port_launch_failed));
+
+        if (settings.isSerialPortEnable()) {
+            if (!launchSerialPort(settings)) {
+                SimpleCustomizeToast.show(this, getString(R.string.serial_port_launch_failed));
+            }
         }
-//        if (!mUdpKit.launch(0)) {
-//            return false;
-//        }
-//        mUdpKit.startListen(true, this);
-//        mUdpKit.sendData("192.168.1.18", 5000, mUdpProtocol.makeDataRequestFrame(), 500);
-//
-//        if (!mBleKit.launch(this)) {
-//            return false;
-//        }
-//        mBleKit.startScan(this, 5000, 10000);
-//
-//        if (!powerOnSerialPort()) {
-//            return false;
-//        }
-//        if (!mSerialPortKit.launch("ttyHSL1", 115200, 0)) {
-//            return false;
-//        }
-//        mSerialPortKit.startListen(this);
-//
-//        mDataRequestTimer.schedule(mSerialPortDataRequestTask, 1000, 2000);
-//
-//        return true;
     }
 
     public boolean launchUdp(Settings settings) {
-        if (settings.isUdpEnable()) {
-            if (mUdpKit == null) {
-                mUdpKit = new UdpKit();
-                mUdpKit.startListen(true, this);
-            }
-            if (!mUdpKit.launch(0)) {
-                return false;
-            }
-            mUdpKit.startListen(true, this);
-            if (mUdpDataRequestTask == null) {
-                mUdpDataRequestTask = new UdpDataRequestTask();
-            }
-            if (mUdpProtocol == null) {
-                mUdpProtocol = new ScoutUdpSensorProtocol();
-            }
-            mUdpDataRequestTask.setTargetIp(settings.getBaseStationIp());
-            mUdpDataRequestTask.setTargetPort(settings.getBaseStationPort());
-            mUdpDataRequestTask.setDataRequestFrame(mUdpProtocol.makeDataRequestFrame());
-            if (mDataRequestTimer == null) {
-                mDataRequestTimer = new Timer();
-            }
-            mDataRequestTimer.schedule(mUdpDataRequestTask, 0, settings.getUdpDataRequestCycle());
+        if (mUdpKit == null) {
+            mUdpKit = new UdpKit();
         }
+        if (!mUdpKit.launch(0)) {
+            return false;
+        }
+        mUdpKit.startListen(true, this);
+        startUdpDataRequestTask(settings.getBaseStationIp(),
+                settings.getBaseStationPort(),
+                settings.getUdpDataRequestCycle());
         return true;
     }
 
-    public boolean launchBle(Settings settings) {
-        if (settings.isBleEnable()) {
-            if (mBleKit == null) {
-                mBleKit = new BleKit();
-            }
-            if (!mBleKit.launch(this)) {
-                return false;
-            }
-            if (mBleProtocol == null) {
-                mBleProtocol = new ScoutBleSensorProtocol();
-            }
-            mBleKit.startScan(this, settings.getBleScanCycle(), settings.getBleScanDuration());
+    private void startUdpDataRequestTask(String ip, int port, long cycle) {
+        if (mUdpProtocol == null) {
+            mUdpProtocol = new ScoutUdpSensorProtocol();
         }
+        if (mUdpDataRequestTask == null) {
+            mUdpDataRequestTask = new UdpDataRequestTask();
+        }
+        mUdpDataRequestTask.setTargetIp(ip);
+        mUdpDataRequestTask.setTargetPort(port);
+        mUdpDataRequestTask.setDataRequestFrame(mUdpProtocol.makeDataRequestFrame());
+        getDataRequestTimer().schedule(mUdpDataRequestTask, 0, cycle);
+    }
+
+    public boolean launchBle(Settings settings) {
+        if (mBleKit == null) {
+            mBleKit = new BleKit();
+        }
+        if (!mBleKit.launch(this)) {
+            return false;
+        }
+        if (mBleProtocol == null) {
+            mBleProtocol = new ScoutBleSensorProtocol();
+        }
+        startBleScanImpl(settings.getBleScanCycle(), settings.getBleScanDuration());
         return true;
     }
 
     public boolean launchSerialPort(Settings settings) {
-        if (settings.isSerialPortEnable()) {
+        return launchSerialPortImpl(settings.isSerialPortEnable(),
+                settings.getSerialPortName(),
+                settings.getSerialPortBaudRate(),
+                settings.getSerialPortDataRequestCycle());
+    }
+
+    private boolean launchSerialPortImpl(boolean enabled, String portName, int baudRate, long dataRequestCycle) {
+        if (enabled) {
             if (!SerialPortProcessor.processPreLaunch()) {
                 return false;
             }
             if (mSerialPortKit == null) {
                 mSerialPortKit = new SerialPortKit();
             }
-            if (!mSerialPortKit.launch(settings.getSerialPortName(), settings.getSerialPortBaudRate(), 0)) {
+            if (!mSerialPortKit.launch(portName, baudRate, 0)) {
                 return false;
             }
-            if (mSerialPortProtocol == null) {
-                mSerialPortProtocol = new ScoutUdpSensorProtocol();
-            }
             mSerialPortKit.startListen(this);
-            if (mSerialPortDataRequestTask == null) {
-                mSerialPortDataRequestTask = new SerialPortDataRequestTask();
-            }
-            mSerialPortDataRequestTask.setDataRequestFrame(mSerialPortProtocol.makeDataRequestFrame());
-            if (mDataRequestTimer == null) {
-                mDataRequestTimer = new Timer();
-            }
-            mDataRequestTimer.schedule(mSerialPortDataRequestTask, 0, settings.getSerialPortDataRequestCycle());
+            startSerialPortDataRequestTask(dataRequestCycle);
         }
         return true;
+    }
+
+    private void startSerialPortDataRequestTask(long cycle) {
+        if (mSerialPortProtocol == null) {
+            mSerialPortProtocol = new ScoutUdpSensorProtocol();
+        }
+        if (mSerialPortDataRequestTask == null) {
+            mSerialPortDataRequestTask = new SerialPortDataRequestTask();
+        }
+        mSerialPortDataRequestTask.setDataRequestFrame(mSerialPortProtocol.makeDataRequestFrame());
+        getDataRequestTimer().schedule(mSerialPortDataRequestTask, 0, cycle);
     }
 
     public void shutdownCommunicators() {
@@ -208,24 +208,23 @@ public class DataPrepareService
         shutdownBle();
         shutdownSerialPort();
         shutdownDataRequestTimer();
-//        mUdpKit.close();
-//        mBleKit.stopScan();
-        //mDataRequestTimer.cancel();
-        //mSerialPortKit.shutdown();
-        //powerOffSerialPort();
     }
 
     public void shutdownUdp() {
-        if (mUdpDataRequestTask != null) {
-            mUdpDataRequestTask.cancel();
-            mUdpDataRequestTask = null;
-        }
+        stopUdpDataRequestTask();
         if (mUdpKit != null) {
             mUdpKit.close();
             mUdpKit = null;
         }
         if (mUdpProtocol != null) {
             mUdpProtocol = null;
+        }
+    }
+
+    private void stopUdpDataRequestTask() {
+        if (mUdpDataRequestTask != null) {
+            mUdpDataRequestTask.cancel();
+            mUdpDataRequestTask = null;
         }
     }
 
@@ -239,10 +238,7 @@ public class DataPrepareService
     }
 
     public void shutdownSerialPort() {
-        if (mSerialPortDataRequestTask != null) {
-            mSerialPortDataRequestTask.cancel();
-            mSerialPortDataRequestTask = null;
-        }
+        stopSerialPortDataRequestTask();
         if (mSerialPortKit != null) {
             mSerialPortKit.shutdown();
             mSerialPortKit = null;
@@ -251,6 +247,13 @@ public class DataPrepareService
             mSerialPortProtocol = null;
         }
         SerialPortProcessor.processPostShutdown();
+    }
+
+    private void stopSerialPortDataRequestTask() {
+        if (mSerialPortDataRequestTask != null) {
+            mSerialPortDataRequestTask.cancel();
+            mSerialPortDataRequestTask = null;
+        }
     }
 
     public void shutdownDataRequestTimer() {
@@ -284,7 +287,7 @@ public class DataPrepareService
                                byte dataTypeValue,
                                int dataTypeIndex,
                                ValueBuildDelegator valueBuildDelegator) {
-        printCommunicationData(sensorAddress, dataTypeValue, dataTypeIndex);
+        //printCommunicationData(sensorAddress, dataTypeValue, dataTypeIndex);
         Sensor sensor = SensorManager.getSensor(sensorAddress, true);
         int position = sensor.addDynamicValue(dataTypeValue, dataTypeIndex, valueBuildDelegator);
         if (!recordSensorNetIn(sensor)) {
@@ -348,11 +351,19 @@ public class DataPrepareService
         if (!settings.isSensorDataGatherEnable()) {
             return;
         }
+        startCaptureAndRecordSensorDataWithoutAllowance();
+    }
+
+    public void startCaptureAndRecordSensorDataWithoutAllowance() {
         if (mSensorDataProcessor == null) {
             mSensorDataProcessor = new SensorDataProcessor(mEventHandler);
         }
-        mSensorDataProcessor.setMinTimeIntervalForDuplicateValue(settings.getDefaultSensorDataGatherCycle());
+        setSensorDataGatherCycleImpl(getBaseApplication().getSettings().getSensorDataGatherCycle());
         mSensorDataProcessor.startCaptureAndRecordSensorData();
+    }
+
+    private void setSensorDataGatherCycleImpl(long cycle) {
+        mSensorDataProcessor.setMinTimeIntervalForDuplicateValue(TimeUnit.SECONDS.toMillis(cycle));
     }
 
     public void stopCaptureAndRecordSensorData() {
@@ -368,13 +379,15 @@ public class DataPrepareService
         private int mTargetPort;
         private byte[] mDataRequestFrame;
 
-        public void setTargetIp(String ip) {
+        public boolean setTargetIp(String ip) {
             try {
                 mTargetIp = InetAddress.getByName(ip);
+                return true;
             } catch (UnknownHostException e) {
                 mTargetIp = null;
                 ExceptionLog.debug(e);
             }
+            return false;
         }
 
         public void setTargetPort(int port) {
@@ -419,4 +432,87 @@ public class DataPrepareService
             }
         }
     };
+
+    public boolean setUdpBaseStationIp(String ip) {
+        if (mUdpDataRequestTask == null) {
+            return false;
+        }
+        return mUdpDataRequestTask.setTargetIp(ip);
+    }
+
+    public void setUdpBaseStationPort(int port) {
+        if (mUdpDataRequestTask == null) {
+            return;
+        }
+        mUdpDataRequestTask.setTargetPort(port);
+    }
+
+    public void setUdpDataRequest(long cycle) {
+        if (mDataRequestTimer == null) {
+            return;
+        }
+        stopUdpDataRequestTask();
+        Settings settings = getBaseApplication().getSettings();
+        startUdpDataRequestTask(settings.getBaseStationIp(),
+                settings.getBaseStationPort(),
+                cycle);
+        //mDataRequestTimer.schedule(mUdpDataRequestTask, 0, cycle);
+    }
+
+    public void setBleScanCycle(long cycle) {
+        if (mBleKit == null) {
+            return;
+        }
+        mBleKit.stopScan();
+        startBleScanImpl(cycle, getBaseApplication().getSettings().getBleScanDuration());
+    }
+
+    private void startBleScanImpl(long cycle, long duration) {
+        mBleKit.startScan(this,
+                TimeUnit.SECONDS.toMillis(cycle),
+                TimeUnit.SECONDS.toMillis(duration));
+    }
+
+    public void setBleScanDuration(long duration) {
+        if (mBleKit == null) {
+            return;
+        }
+        mBleKit.stopScan();
+        startBleScanImpl(getBaseApplication().getSettings().getBleScanCycle(), duration);
+    }
+
+    public boolean setSerialPortName(String portName) {
+        shutdownSerialPort();
+        Settings settings = getBaseApplication().getSettings();
+        return launchSerialPortImpl(settings.isSerialPortEnable(),
+                portName,
+                settings.getSerialPortBaudRate(),
+                settings.getSerialPortDataRequestCycle());
+    }
+
+    public boolean setSerialPortBaudRate(int baudRate) {
+        shutdownSerialPort();
+        Settings settings = getBaseApplication().getSettings();
+        return launchSerialPortImpl(settings.isSerialPortEnable(),
+                settings.getSerialPortName(),
+                baudRate,
+                settings.getSerialPortDataRequestCycle());
+    }
+
+    public void setSerialPortDataRequestCycle(long cycle) {
+        if (mDataRequestTimer == null) {
+            return;
+        }
+        stopSerialPortDataRequestTask();
+        startSerialPortDataRequestTask(cycle);
+        //mSerialPortDataRequestTask.cancel();
+        //mDataRequestTimer.schedule(mSerialPortDataRequestTask, 0, cycle);
+    }
+
+    public void setSensorDataGatherCycle(long cycle) {
+        if (mSensorDataProcessor == null) {
+            return;
+        }
+        setSensorDataGatherCycleImpl(cycle);
+    }
 }

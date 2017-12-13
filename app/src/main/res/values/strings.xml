@@ -20,6 +20,8 @@
     <string name="data_source">数据源</string>
     <string name="real_time">实时</string>
     <string name="history">历史</string>
+    <string name="enable">启用</string>
+    <string name="disable">禁用</string>
 
     <!-- 提示信息 -->
     <string name="unknown_error">发生未知错误</string>
@@ -29,10 +31,19 @@
     <string name="database_insert_sensor_data_error">数据库保存传感器数据发生错误，传感器历史数据自动保存功能将关闭</string>
     <string name="import_sensor_earliest_value_failed">导入传感器历史数据失败</string>
     <string name="import_sensor_history_value_failed">导入当前传感器历史数据失败</string>
+    <string name="udp_launch_succeed">UDP通讯模块启动成功</string>
     <string name="udp_launch_failed">UDP通讯模块启动失败</string>
+    <string name="ble_launch_succeed">蓝牙通讯模块启动成功</string>
     <string name="ble_launch_failed">蓝牙通讯模块启动失败</string>
     <string name="serial_port_launch_failed">串口通讯模块启动失败</string>
     <string name="application_configuration_not_prepared">缺少应用配置</string>
+    <string name="ip_format_error">IP地址格式错误</string>
+    <string name="set_failed">设置失败</string>
+    <string name="set_base_station_ip_failed">基站IP地址设置失败</string>
+    <string name="port_format_error">端口号格式错误</string>
+    <string name="port_out_of_bounds">端口号范围为0-65535</string>
+    <string name="time_format_error">时间参数格式错误</string>
+    <string name="data_request_less_than_min_cycle">数据申请周期最小为100毫秒</string>
 
     <!-- 设置相关 -->
     <string name="preference_key_udp_enable">udp_enable</string>
@@ -47,5 +58,62 @@
     <string name="preference_key_ble_scan_cycle">ble_scan_cycle</string>
     <string name="preference_key_ble_scan_duration">ble_scan_duration</string>
     <string name="preference_key_sensor_data_gather_cycle">sensor_data_gather_cycle</string>
-    <string name="preferenec_key_sensor_data_gather_enable">sensor_data_gather_enable</string>
+    <string name="preference_key_sensor_data_gather_enable">sensor_data_gather_enable</string>
+    <string name="preference_title_udp_settings">UDP通信设置</string>
+    <string name="preference_title_udp">UDP通信</string>
+    <string name="preference_title_base_station_ip">基站IP地址</string>
+    <string name="preference_title_base_station_port">基站端口号</string>
+    <string name="preference_title_data_request_cycle">数据申请周期（毫秒）</string>
+    <string name="preference_title_ble">BLE通信</string>
+    <string name="preference_title_ble_scan_cycle">设备搜索周期（秒）</string>
+    <string name="preference_title_ble_scan_duration">搜索持续时间（秒）</string>
+    <string name="preference_title_serial_port">串口通信</string>
+    <string name="preference_title_serial_port_name">串口名称</string>
+    <string name="preference_title_serial_port_baud_rate">波特率</string>
+    <string name="preference_title_sensor_data_gather_enable">保存实时数据</string>
+    <string name="preference_title_sensor_data_gather_cycle">数据保存周期（秒）</string>
+    <string name="udp_shutdown">UDP通讯模块关闭</string>
+    <string name="ble_shutdown">蓝牙通讯模块关闭</string>
+    <string name="ble_scan_cycle_out_of_bounds">蓝牙设备搜索周期不能小于0</string>
+    <string name="ble_scan_duration_out_of_bounds">蓝牙设备搜索周期不得小于10秒</string>
+    <string name="serial_port_launch_succeed">串口通讯模块启动成功</string>
+    <string name="serial_port_shutdown">串口通讯模块关闭</string>
+    <string name="parameter_format_error">参数格式错误</string>
+    <string name="sensor_data_gather_cycle_out_of_bounds">传感器数据保存周期不得小于0</string>
+    <string name="change_serial_port_name_failed">更换串口失败</string>
+
+    <!-- 常数 -->
+    <string-array name="baud_rates">
+        <item>50</item>
+        <item>75</item>
+        <item>110</item>
+        <item>134</item>
+        <item>150</item>
+        <item>200</item>
+        <item>300</item>
+        <item>600</item>
+        <item>1200</item>
+        <item>1800</item>
+        <item>2400</item>
+        <item>4800</item>
+        <item>9600</item>
+        <item>19200</item>
+        <item>38400</item>
+        <item>57600</item>
+        <item>115200</item>
+        <item>230400</item>
+        <item>460800</item>
+        <item>500000</item>
+        <item>576000</item>
+        <item>921600</item>
+        <item>1000000</item>
+        <item>1152000</item>
+        <item>1500000</item>
+        <item>2000000</item>
+        <item>2500000</item>
+        <item>3000000</item>
+        <item>3500000</item>
+        <item>4000000</item>
+    </string-array>
+
 </resources>

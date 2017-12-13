@@ -31,9 +31,7 @@ public class SensorDataProcessor
     private long mMinTimeIntervalForDuplicateValue;
     private boolean mSensorDataRecording;
     private LinkedList<SensorData> mTemporarySensorData;
-    //private LinkedList<MeasurementData> mTemporaryMeasurementData;
     private Map<Long, SensorData> mLastSensorDataMap;
-    //private Map<Long, MeasurementData> mLastMeasurementValueMap;
 
     public SensorDataProcessor(@NonNull Handler messageSender) {
         if (messageSender == null) {
@@ -64,21 +62,22 @@ public class SensorDataProcessor
 
     @Override
     public void run() {
-        mTemporarySensorData = new LinkedList<>();
-        //mTemporaryMeasurementData = new LinkedList<>();
-        mLastSensorDataMap = new HashMap<>();
-        //mLastMeasurementValueMap = new HashMap<>();
+        if (mTemporarySensorData == null) {
+            mTemporarySensorData = new LinkedList<>();
+        } else {
+            mTemporarySensorData.clear();
+        }
+        if (mLastSensorDataMap == null) {
+            mLastSensorDataMap = new HashMap<>();
+        } else {
+            mLastSensorDataMap.clear();
+        }
         Sensor.setOnDynamicValueCaptureListener(this);
         final long MAX_RECORD_TIME_INTERVAL = 30000;
         long currentTime, lastRecordTime = System.currentTimeMillis();
         int continuousErrorTimes = 0;
         while (mSensorDataRecording) {
             currentTime = System.currentTimeMillis();
-//            if (currentTime - lastRecordTime >= MAX_RECORD_TIME_INTERVAL
-//                    || mTemporarySensorData.size() >= MAX_BUFFER_SIZE) {
-//                lastRecordTime = currentTime;
-//                SensorDatabase.batchSaveSensorData(this);
-//            }
             while (mSensorDataRecording
                     && (currentTime - lastRecordTime >= MAX_RECORD_TIME_INTERVAL
                     || mTemporarySensorData.size() >= MAX_BUFFER_SIZE)) {
@@ -101,69 +100,10 @@ public class SensorDataProcessor
             SensorDatabase.batchSaveSensorData(this);
         }
         mTemporarySensorData.clear();
-        mTemporarySensorData = null;
-        //mTemporaryMeasurementData.clear();
-        //mTemporaryMeasurementData = null;
         mLastSensorDataMap.clear();
-        mLastSensorDataMap = null;
-        //mLastMeasurementValueMap.clear();
-        //mLastMeasurementValueMap = null;
         mSensorDataRecording = false;
-//        if (continuousErrorTimes == -1) {
-//            mMessageSender.sendEmptyMessage(DATABASE_INSERT_SENSOR_DATA_ERROR);
-//        }
         mMessageSender.sendEmptyMessage(SENSOR_DATA_RECORDER_SHUTDOWN);
     }
-
-//    @Override
-//    public void run() {
-//        mTemporarySensorData = new LinkedList<>();
-//        mTemporaryMeasurementData = new LinkedList<>();
-//        mLastSensorDataMap = new HashMap<>();
-//        mLastMeasurementValueMap = new HashMap<>();
-//        Sensor.setOnDynamicValueCaptureListener(this);
-//        final long MAX_RECORD_TIME_INTERVAL = 60000;
-//        long currentTime, lastRecordTime = System.currentTimeMillis();
-//        int continuousErrorTimes = 0;
-//        while (mSensorDataRecording) {
-//            currentTime = System.currentTimeMillis();
-//            while (mSensorDataRecording
-//                    || currentTime - lastRecordTime >= MAX_RECORD_TIME_INTERVAL
-//                    || mTemporarySensorData.size() >= MAX_BUFFER_SIZE) {
-//                lastRecordTime = currentTime;
-//                if (SensorDatabase.batchSaveSensorData(this)) {
-//                    continuousErrorTimes = 0;
-//                } else {
-//                    if (++continuousErrorTimes > 5) {
-//                        mSensorDataRecording = false;
-//                        continuousErrorTimes = -1;
-//                    }
-//                }
-//            }
-//            try {
-//                Thread.sleep(5000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        Sensor.setOnDynamicValueCaptureListener(null);
-//        if (mTemporarySensorData.size() > 0) {
-//            SensorDatabase.batchSaveSensorData(this);
-//        }
-//        mTemporarySensorData.clear();
-//        mTemporarySensorData = null;
-//        mTemporaryMeasurementData.clear();
-//        mTemporaryMeasurementData = null;
-//        mLastSensorDataMap.clear();
-//        mLastSensorDataMap = null;
-//        mLastMeasurementValueMap.clear();
-//        mLastMeasurementValueMap = null;
-//        mSensorDataRecording = false;
-//        if (continuousErrorTimes == -1) {
-//            mMessageSender.sendEmptyMessage(DATABASE_INSERT_SENSOR_DATA_ERROR);
-//        }
-//        mMessageSender.sendEmptyMessage(SENSOR_DATA_RECORDER_SHUTDOWN);
-//    }
 
     @Override
     public int getSensorDataCount() {
@@ -191,39 +131,6 @@ public class SensorDataProcessor
         lastData.setRawValue(data.getRawValue());
         return SensorDatabase.SensorDataProvider.NORMAL_DATA;
     }
-
-//    @Override
-//    public int getMeasurementDataCount() {
-//        return mTemporaryMeasurementData.size();
-//    }
-//
-//    @Override
-//    public MeasurementData provideMeasurementData() {
-//        return mTemporaryMeasurementData.pollFirst();
-//    }
-//
-//    @Override
-//    public int getMeasurementDataState(MeasurementData data) {
-//        MeasurementData lastData = mLastMeasurementValueMap.get(data.getId());
-//        if (lastData == null) {
-//            mLastMeasurementValueMap.put(data.getId(),
-//                    MeasurementData.build(data.getId(),
-//                            data.getTimestamp(),
-//                            data.getRawValue()));
-//            return SensorDatabase.SensorDataProvider.FIRST_DATA;
-//        }
-//        if (lastData.getRawValue() != data.getRawValue()) {
-//            lastData.setTimestamp(data.getTimestamp());
-//            lastData.setRawValue(data.getRawValue());
-//            return SensorDatabase.SensorDataProvider.NORMAL_DATA;
-//        }
-//        if (lastData.getTimestamp() + mMinTimeIntervalForDuplicateValue
-//                > data.getTimestamp()) {
-//            return SensorDatabase.SensorDataProvider.DUPLICATE_DATA;
-//        }
-//        lastData.setTimestamp(data.getTimestamp());
-//        return SensorDatabase.SensorDataProvider.NORMAL_DATA;
-//    }
 
     @Override
     public void onDynamicValueCapture(int address, byte dataTypeValue, int dataTypeValueIndex, long timestamp, float batteryVoltage, double rawValue) {

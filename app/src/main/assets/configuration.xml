@@ -12,19 +12,22 @@
 			</communicator>
 			<communicator name="BLE">
 				<enable>true</enable>
-				<ScanCycle>5000</ScanCycle>
-				<ScanDuration>10000</ScanDuration>
+				<!-- 单位秒 -->
+				<ScanCycle>5</ScanCycle>
+				<!-- 单位秒 -->
+				<ScanDuration>10</ScanDuration>
 			</communicator>
 			<communicator name="SerialPort">
 				<enable>false</enable>
-				<PortName>ttyHSL1</PortName>
+				<PortName>/dev/ttyHSL1</PortName>
 				<BaudRate>115200</BaudRate>
 				<DataRequestCycle>2000</DataRequestCycle>
 			</communicator>
 		</communicators>
 		<DataProcessor>
 			<enable>true</enable>
-			<GatherCycle>60000</GatherCycle>
+			<!-- 单位秒 -->
+			<GatherCycle>60</GatherCycle>
 		</DataProcessor>
 	</settings>
 </configuration>

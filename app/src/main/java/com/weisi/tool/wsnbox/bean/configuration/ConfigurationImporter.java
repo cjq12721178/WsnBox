@@ -27,12 +27,15 @@ public class ConfigurationImporter extends DefaultHandler {
     private Settings mSettings;
     private String mSettingType;
 
-    public boolean leadIn(Context context) {
+    public boolean leadIn(Context context, boolean isFirstRun) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser parser = factory.newSAXParser();
             mSettings = new Settings(context);
             parser.parse(context.getAssets().open(FILE_NAME), this);
+            if (isFirstRun) {
+                mSettings.clearRedundantRecordInFirstRun();
+            }
             return true;
         } catch (Exception e) {
             mSettings = null;
@@ -85,26 +88,26 @@ public class ConfigurationImporter extends DefaultHandler {
                 }
                 break;
             case "ip":
-                mSettings.mDefaultBaseStationIp = mBuilder.toString();
+                mSettings.setDefaultBaseStationIp(mBuilder.toString());
                 break;
             case "port":
-                mSettings.mDefaultBaseStationPort = Integer.parseInt(mBuilder.toString());
+                mSettings.setDefaultBaseStationPort(Integer.parseInt(mBuilder.toString()));
                 break;
             case "DataRequestCycle":
                 switch (mSettingType) {
                     case COMMUNICATOR_UDP:
-                        mSettings.mDefaultUdpDataRequestCycle = Long.parseLong(mBuilder.toString());
+                        mSettings.setDefaultUdpDataRequestCycle(Long.parseLong(mBuilder.toString()));
                         break;
                     case COMMUNICATOR_SERIAL_PORT:
-                        mSettings.mDefaultSerialPortDataRequestCycle = Long.parseLong(mBuilder.toString());
+                        mSettings.setDefaultSerialPortDataRequestCycle(Long.parseLong(mBuilder.toString()));
                         break;
                 }
                 break;
             case "ScanCycle":
-                mSettings.mDefaultBleScanCycle = Long.parseLong(mBuilder.toString());
+                mSettings.setDefaultBleScanCycle(Long.parseLong(mBuilder.toString()));
                 break;
             case "ScanDuration":
-                mSettings.mDefaultBleScanDuration = Long.parseLong(mBuilder.toString());
+                mSettings.setDefaultBleScanDuration(Long.parseLong(mBuilder.toString()));
                 break;
             case "PortName":
                 mSettings.mDefaultSerialPortName = mBuilder.toString();
@@ -113,7 +116,7 @@ public class ConfigurationImporter extends DefaultHandler {
                 mSettings.mDefaultSerialPortBaudRate = Integer.parseInt(mBuilder.toString());
                 break;
             case "GatherCycle":
-                mSettings.mDefaultSensorDataGatherCycle = Long.parseLong(mBuilder.toString());
+                mSettings.setDefaultSensorDataGatherCycle(Long.parseLong(mBuilder.toString()));
                 break;
         }
     }

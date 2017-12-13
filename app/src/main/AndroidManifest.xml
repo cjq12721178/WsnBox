@@ -24,8 +24,14 @@
             android:exported="true">
         </service>
 
-        <activity android:name=".activity.DataBrowseActivity"
+        <activity
+            android:name=".activity.DataBrowseActivity"
             android:label="@string/data_browse">
+        </activity>
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:label="@string/settings"
+            android:theme="@style/SettingsActivityTheme">
         </activity>
     </application>
 

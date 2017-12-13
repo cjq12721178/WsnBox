@@ -97,8 +97,8 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unbindService(mServiceConnection);
         onServiceConnectionStop(mDataPrepareService);
+        unbindService(mServiceConnection);
     }
 
     @Override

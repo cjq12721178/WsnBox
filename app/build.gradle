@@ -13,8 +13,8 @@ android {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 6
-        versionName "1.0.0"
+        versionCode 7
+        versionName "1.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     productFlavors {
@@ -22,8 +22,8 @@ android {
         }
         guomi {
             applicationIdSuffix ".guomi"
-            versionCode 1
-            versionName "0.1.0"
+            versionCode 3
+            versionName "0.2.0"
         }
     }
     buildTypes {
@@ -60,10 +60,11 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile(name: 'com.cjq.tool.qbox-0.12.3', ext: 'aar')
-    compile(name: 'com.cjq.lib.weisi-2.1.6', ext: 'aar')
+    compile(name: 'com.cjq.tool.qbox-0.14.0', ext: 'aar')
+    compile(name: 'com.cjq.lib.weisi-2.1.8', ext: 'aar')
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
+    compile 'com.android.support:preference-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
 }
