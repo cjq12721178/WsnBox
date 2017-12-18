@@ -45,14 +45,14 @@ public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<Senso
     }
 
     protected void setTimestampText(TextView tvTimestamp, Sensor sensor) {
-        TIMESTAMP_SETTER.setTime(getValue(sensor).getTimeStamp());
+        TIMESTAMP_SETTER.setTime(getValue(sensor).getTimestamp());
         tvTimestamp.setText(DATE_FORMAT.format(TIMESTAMP_SETTER));
     }
 
     private Sensor.Value getValue(Sensor sensor) {
         return realTime
                 ? sensor.getRealTimeValue()
-                : sensor.getHistoryValue(0);
+                : sensor.getEarliestHistoryValue();
     }
 
     protected void setMeasurementText(TextView tvMeasurementNameType, TextView tvMeasurementValue, Measurement measurement) {
@@ -76,6 +76,6 @@ public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<Senso
     private Measurement.Value getValue(Measurement measurement) {
         return realTime
                 ? measurement.getRealTimeValue()
-                : measurement.getEarliestValue();
+                : measurement.getEarliestHistoryValue();
     }
 }

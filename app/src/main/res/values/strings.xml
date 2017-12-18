@@ -22,6 +22,15 @@
     <string name="history">历史</string>
     <string name="enable">启用</string>
     <string name="disable">禁用</string>
+    <string name="today">今日</string>
+    <string name="previous_day">前一日</string>
+    <string name="next_day">后一日</string>
+    <string name="custom_day">自选</string>
+    <string name="sensor_info_title" formatted="false">%s详细信息</string>
+    <string name="sensor_info_address" formatted="false">地址：%s</string>
+    <string name="sensor_info_state_on">状态：在线</string>
+    <string name="sensor_info_state_off">状态：离线</string>
+    <string name="sensor_info_date" formatted="false">日期：%tF</string>
 
     <!-- 提示信息 -->
     <string name="unknown_error">发生未知错误</string>
@@ -44,6 +53,15 @@
     <string name="port_out_of_bounds">端口号范围为0-65535</string>
     <string name="time_format_error">时间参数格式错误</string>
     <string name="data_request_less_than_min_cycle">数据申请周期最小为100毫秒</string>
+    <string name="udp_shutdown">UDP通讯模块关闭</string>
+    <string name="ble_shutdown">蓝牙通讯模块关闭</string>
+    <string name="ble_scan_cycle_out_of_bounds">蓝牙设备搜索周期不能小于0</string>
+    <string name="ble_scan_duration_out_of_bounds">蓝牙设备搜索周期不得小于10秒</string>
+    <string name="serial_port_launch_succeed">串口通讯模块启动成功</string>
+    <string name="serial_port_shutdown">串口通讯模块关闭</string>
+    <string name="parameter_format_error">参数格式错误</string>
+    <string name="sensor_data_gather_cycle_out_of_bounds">传感器数据保存周期不得小于0</string>
+    <string name="change_serial_port_name_failed">更换串口失败</string>
 
     <!-- 设置相关 -->
     <string name="preference_key_udp_enable">udp_enable</string>
@@ -72,15 +90,6 @@
     <string name="preference_title_serial_port_baud_rate">波特率</string>
     <string name="preference_title_sensor_data_gather_enable">保存实时数据</string>
     <string name="preference_title_sensor_data_gather_cycle">数据保存周期（秒）</string>
-    <string name="udp_shutdown">UDP通讯模块关闭</string>
-    <string name="ble_shutdown">蓝牙通讯模块关闭</string>
-    <string name="ble_scan_cycle_out_of_bounds">蓝牙设备搜索周期不能小于0</string>
-    <string name="ble_scan_duration_out_of_bounds">蓝牙设备搜索周期不得小于10秒</string>
-    <string name="serial_port_launch_succeed">串口通讯模块启动成功</string>
-    <string name="serial_port_shutdown">串口通讯模块关闭</string>
-    <string name="parameter_format_error">参数格式错误</string>
-    <string name="sensor_data_gather_cycle_out_of_bounds">传感器数据保存周期不得小于0</string>
-    <string name="change_serial_port_name_failed">更换串口失败</string>
 
     <!-- 常数 -->
     <string-array name="baud_rates">

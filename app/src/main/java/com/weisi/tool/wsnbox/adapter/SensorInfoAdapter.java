@@ -124,14 +124,14 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     public Sensor.Value getItemByPosition(int position) {
         return mIsRealTime
                 ? mSensor.getDynamicValue(position)
-                : mSensor.getHistoryValue(position);
+                : mSensor.getIntradayHistoryValue(position);
     }
 
     @Override
     public int getItemCount() {
         return mIsRealTime
                 ? mSensor.getDynamicValueSize()
-                : mSensor.getHistoryValueSize();
+                : mSensor.getIntradayHistoryValueSize();
     }
 
     @Override
@@ -147,7 +147,7 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Sensor.Value value, int position) {
         ViewHolder holder = (ViewHolder) viewHolder;
-        mTimeSetter.setTime(value.getTimeStamp());
+        mTimeSetter.setTime(value.getTimestamp());
         holder.mTvTimestamp.setText(mDateFormat.format(mTimeSetter));
         setDisplayItems(value, position, holder);
     }
@@ -156,7 +156,7 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
         holder.itemView.setBackground(position % 2 == 1
                 ? mSensorValueBackground
                 : null);
-        long timestamp = value.getTimeStamp();
+        long timestamp = value.getTimestamp();
         List<Measurement> measurements = mSensor.getMeasurementCollections();
         for (int i = 0,
              valueContentSize = holder.mTvValueContents.length,

@@ -11,4 +11,8 @@
     <color name="bg_function_panel">#F0F0F0</color>
     <color name="bg_li_sensor_data">#B6DCE7</color>
     <color name="bg_lh_sensor_data">#5078AF</color>
+    <color name="time_selection_today">#303672</color>
+    <color name="time_selection_previous_day">#2F6FAD</color>
+    <color name="time_selection_next_day">#21314A</color>
+    <color name="time_selection_custom">#1F348F</color>
 </resources>

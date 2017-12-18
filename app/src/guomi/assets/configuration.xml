@@ -5,7 +5,7 @@
 	<settings>
 		<communicators>
 			<communicator name="SerialPort">
-				<enalbe>true</enalbe>
+				<enable>true</enable>
 				<PortName>/dev/ttyHSL1</PortName>
 				<BaudRate>115200</BaudRate>
 				<DataRequestCycle>2000</DataRequestCycle>

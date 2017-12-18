@@ -43,6 +43,7 @@ import com.weisi.tool.wsnbox.io.SensorDatabase;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class DataBrowseActivity
@@ -546,10 +547,11 @@ public class DataBrowseActivity
         mSensorInformationFragment.show(getSupportFragmentManager(),
                 sensor,
                 mIsRealTime);
-        if (!mIsRealTime) {
-            ImportSensorHistoryInfoTask task = new ImportSensorHistoryInfoTask();
-            task.execute(sensor);
-        }
+//        if (!mIsRealTime) {
+//            sensor.setIntraday(System.currentTimeMillis());
+//            ImportSensorHistoryInfoTask task = new ImportSensorHistoryInfoTask();
+//            task.execute(sensor, System.currentTimeMillis());
+//        }
     }
 
     @Override
@@ -651,7 +653,7 @@ public class DataBrowseActivity
         @Override
         public void onSensorDataReceived(int address, long timestamp, float batteryVoltage) {
             Sensor sensor = SensorManager.getSensor(address, true);
-            if (sensor.getHistoryValueSize() == 0) {
+            if (sensor.hasHistoryValue()) {
                 sensor.addHistoryValue(timestamp, batteryVoltage);
                 notifyAdapterSensorNetIn(sensor);
             }
@@ -669,100 +671,86 @@ public class DataBrowseActivity
         }
     }
 
-    private class ImportSensorHistoryInfoTask
-            extends AsyncTask<Object, Object, Boolean>
-            implements SensorDatabase.SensorHistoryInfoReceiver {
-
-        private static final int TASK_SENSOR_DATA_RECEIVED = 1;
-        private static final int TASK_MEASUREMENT_DATA_RECEIVED = 2;
-
-        private Sensor mSensor;
-
-        @Override
-        protected Boolean doInBackground(Object... params) {
-            if (params == null) {
-                return false;
-            }
-            if (!(params[0] instanceof Sensor)) {
-                return false;
-            }
-            mSensor = (Sensor) params[0];
-            if (mSensor.getHistoryValueSize() > 1) {
-                return true;
-            }
-            return SensorDatabase.importSensorHistoryValues(
-                    mSensor.getRawAddress(),
-                    0,
-                    0,
-                    30,
-                    this
-            );
-//            int localHistoryValueSize = SensorDatabase.getSensorHistoryValueSize(mSensor.getRawAddress());
-//            int actualHistoryValueSize = mSensor.getHistoryValueSize();
-//            if (localHistoryValueSize == 0 || localHistoryValueSize == actualHistoryValueSize) {
+//    private class ImportSensorHistoryInfoTask
+//            extends AsyncTask<Object, Object, Boolean>
+//            implements SensorDatabase.SensorHistoryInfoReceiver {
+//
+//        private static final int TASK_SENSOR_DATA_RECEIVED = 1;
+//        private static final int TASK_MEASUREMENT_DATA_RECEIVED = 2;
+//
+//        private Sensor mSensor;
+//
+//        @Override
+//        protected Boolean doInBackground(Object... params) {
+//            if (params == null) {
+//                return false;
+//            }
+//            if (params.length < 1) {
+//                return false;
+//            }
+//            if (!(params[0] instanceof Sensor)) {
+//                return false;
+//            }
+//            mSensor = (Sensor) params[0];
+//            if (mSensor.hasHistoryValue()) {
 //                return true;
 //            }
-//            try {
-//                Thread.sleep(2000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+//            Calendar calendar = Calendar.getInstance();
+//            calendar.set(Calendar.HOUR, 0);
+//            calendar.set(Calendar.MINUTE, 0);
+//            calendar.set(Calendar.SECOND, 0);
+//            calendar.set(Calendar.MILLISECOND, 0);
+//            long today = calendar.getTimeInMillis();
+//            calendar.add(Calendar.DAY_OF_MONTH, 1);
+//            long tomorrow = calendar.getTimeInMillis();
 //            return SensorDatabase.importSensorHistoryValues(
 //                    mSensor.getRawAddress(),
-//                    actualHistoryValueSize > 0
-//                            ? mSensor.getLatestValue().getTimeStamp()
-//                            : 0,
+//                    today,
+//                    tomorrow,
 //                    0,
-//                    0,
-//                    this);
-        }
-
-        @Override
-        protected void onProgressUpdate(Object... values) {
-            switch ((int) values[0]) {
-                case TASK_SENSOR_DATA_RECEIVED:
-                    mSensorInformationFragment.notifySensorDataChanged(
-                            mSensor,
-                            mSensor.addHistoryValue((long) values[1],
-                                    (float) values[2]));
-                    break;
-                case TASK_MEASUREMENT_DATA_RECEIVED:
-                    mSensorInformationFragment.notifyMeasurementDataChanged(
-                            mSensor,
-                            mSensor.addHistoryValue((long) values[1],
-                                    (long) values[2],
-                                    (double) values[3]),
-                            (long) values[2]
-                    );
-            }
-//            mSensorInformationFragment.notifySensorDataChanged(
-//                    mSensor.addHistoryValue(
-//                            (byte) values[0],
-//                            (int) values[1],
-//                            (long) values[2],
-//                            (float) values[3],
-//                            (double) values[4]));
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if (!result) {
-                ConfirmDialog dialog = new ConfirmDialog();
-                dialog.show(getSupportFragmentManager(),
-                        "import_sensor_history_value_failed",
-                        getString(R.string.import_sensor_history_value_failed),
-                        false);
-            }
-        }
-
-        @Override
-        public void onSensorDataReceived(int address, long timestamp, float batteryVoltage) {
-            publishProgress(TASK_SENSOR_DATA_RECEIVED, timestamp, batteryVoltage);
-        }
-
-        @Override
-        public void onMeasurementDataReceived(long measurementValueId, long timestamp, double rawValue) {
-            publishProgress(TASK_MEASUREMENT_DATA_RECEIVED, measurementValueId, timestamp, rawValue);
-        }
-    }
+//                    this
+//            );
+//        }
+//
+//        @Override
+//        protected void onProgressUpdate(Object... values) {
+//            switch ((int) values[0]) {
+//                case TASK_SENSOR_DATA_RECEIVED:
+//                    mSensorInformationFragment.notifySensorDataChanged(
+//                            mSensor,
+//                            mSensor.addHistoryValue((long) values[1],
+//                                    (float) values[2]));
+//                    break;
+//                case TASK_MEASUREMENT_DATA_RECEIVED:
+//                    mSensorInformationFragment.notifyMeasurementDataChanged(
+//                            mSensor,
+//                            mSensor.addHistoryValue((long) values[1],
+//                                    (long) values[2],
+//                                    (double) values[3]),
+//                            (long) values[2]
+//                    );
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Boolean result) {
+//            if (!result) {
+//                ConfirmDialog dialog = new ConfirmDialog();
+//                dialog.show(getSupportFragmentManager(),
+//                        "import_sensor_history_value_failed",
+//                        getString(R.string.import_sensor_history_value_failed),
+//                        false);
+//            }
+//        }
+//
+//        @Override
+//        public void onSensorDataReceived(int address, long timestamp, float batteryVoltage) {
+//            publishProgress(TASK_SENSOR_DATA_RECEIVED, timestamp, batteryVoltage);
+//        }
+//
+//        @Override
+//        public void onMeasurementDataReceived(long measurementValueId, long timestamp, double rawValue) {
+//            publishProgress(TASK_MEASUREMENT_DATA_RECEIVED, measurementValueId, timestamp, rawValue);
+//        }
+//    }
 }
