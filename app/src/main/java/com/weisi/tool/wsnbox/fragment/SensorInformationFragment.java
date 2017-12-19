@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -152,8 +153,17 @@ public class SensorInformationFragment
             if (mSensor.isIntraday(date)) {
                 isDateChanged = false;
             } else {
+                int previousSize = mSensor.getIntradayHistoryValueSize();
                 mSensor.setIntraday(date);
-                mSensorInfoAdapter.notifyDataSetChanged();
+                int currentSize = mSensor.getIntradayHistoryValueSize();
+                if (previousSize >= currentSize) {
+                    mSensorInfoAdapter.notifyItemRangeChanged(0, currentSize);
+                    mSensorInfoAdapter.notifyItemRangeRemoved(currentSize, previousSize - currentSize);
+                } else {
+                    mSensorInfoAdapter.notifyItemRangeChanged(0, previousSize);
+                    mSensorInfoAdapter.notifyItemRangeInserted(previousSize, currentSize - previousSize);
+                }
+                //mSensorInfoAdapter.notifyDataSetChanged();
             }
         } else {
             throw new IllegalArgumentException("intraday start time may not be less than 0");
@@ -163,6 +173,8 @@ public class SensorInformationFragment
             setDateLabel(dateTime);
             ImportSensorHistoryDataTask task = new ImportSensorHistoryDataTask();
             task.execute(mSensor, dateTime);
+        } else if (TextUtils.isEmpty(mTvDate.getText())) {
+            setDateLabel(mSensor.getIntraday());
         }
     }
 
@@ -368,7 +380,7 @@ public class SensorInformationFragment
                 return false;
             }
             mCurrentSensor = (Sensor) params[0];
-            if (mCurrentSensor.hasHistoryValue()) {
+            if (mCurrentSensor.getIntradayHistoryValueSize() > 1) {
                 return true;
             }
             //Calendar calendar = Calendar.getInstance();

@@ -11,6 +11,6 @@ public class SensorWithHistoryValueFilter implements Filter {
 
     @Override
     public boolean isMatch(Sensor sensor) {
-        return sensor.getHistoryValueSize() > 0;
+        return sensor.hasHistoryValue();
     }
 }

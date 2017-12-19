@@ -66,7 +66,11 @@ public class TimeTest {
 
     @Test
     public void testGetPreviousDayTime() {
-        String actual = String.format("%tF", new Date(getPreviousDayTime(System.currentTimeMillis())));
+        long currentDayTime = System.currentTimeMillis();
+        long previousDayTime = getPreviousDayTime(currentDayTime);
+        System.out.println("current day time = " + currentDayTime);
+        System.out.println("previous day time = " + previousDayTime);
+        String actual = String.format("%tF", new Date(previousDayTime));
         String expect = "2017-12-17";
         assertEquals(expect, actual);
     }

@@ -513,12 +513,12 @@ public class DataBrowseActivity
             return;
         }
 
-        notifyAdapterSensorNetIn(sensor);
+        notifyAdapterSensorNetIn(sensor, true);
     }
 
-    private void notifyAdapterSensorNetIn(Sensor sensor) {
+    private void notifyAdapterSensorNetIn(Sensor sensor, boolean isRealTime) {
         Message message = Message.obtain();
-        message.what = mIsRealTime
+        message.what = isRealTime
                 ? MSG_SENSOR_NET_IN_REAL_TIME
                 : MSG_SENSOR_NET_IN_HISTORY;
         message.obj = sensor;
@@ -653,9 +653,11 @@ public class DataBrowseActivity
         @Override
         public void onSensorDataReceived(int address, long timestamp, float batteryVoltage) {
             Sensor sensor = SensorManager.getSensor(address, true);
-            if (sensor.hasHistoryValue()) {
+            if (!sensor.hasHistoryValue()) {
                 sensor.addHistoryValue(timestamp, batteryVoltage);
-                notifyAdapterSensorNetIn(sensor);
+                if (!mIsRealTime) {
+                    notifyAdapterSensorNetIn(sensor, false);
+                }
             }
         }
 
