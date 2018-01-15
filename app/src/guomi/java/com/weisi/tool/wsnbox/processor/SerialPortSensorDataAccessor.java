@@ -1,20 +1,24 @@
 package com.weisi.tool.wsnbox.processor;
 
+import android.content.Context;
+
 import com.cjq.tool.qbox.util.ExceptionLog;
 
 import java.io.IOException;
 
 /**
- * Created by CJQ on 2017/12/6.
+ * Created by CJQ on 2017/12/27.
  */
 
-public class SerialPortProcessor {
+public class SerialPortSensorDataAccessor extends BaseSerialPortSensorDataAccessor {
 
-    public static boolean processPreLaunch() {
+    @Override
+    protected boolean onPreLaunchCommunicator(Context context) {
         return powerOnSerialPort();
     }
 
-    public static void processPostShutdown() {
+    @Override
+    protected void onPostShutdownCommunicator() {
         powerOffSerialPort();
     }
 
