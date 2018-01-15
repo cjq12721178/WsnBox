@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by CJQ on 2017/11/9.
  */
 
-public class SensorDataProcessor
+public class SensorDataExporter
         implements Runnable,
         SensorDatabase.SensorDataProvider,
         Sensor.OnDynamicValueCaptureListener {
@@ -33,7 +33,7 @@ public class SensorDataProcessor
     private LinkedList<SensorData> mTemporarySensorData;
     private Map<Long, SensorData> mLastSensorDataMap;
 
-    public SensorDataProcessor(@NonNull Handler messageSender) {
+    public SensorDataExporter(@NonNull Handler messageSender) {
         if (messageSender == null) {
             throw new NullPointerException("message sender may not be null");
         }

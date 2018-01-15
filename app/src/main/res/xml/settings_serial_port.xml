@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:key="@string/preference_key_serial_port_enable"
+        android:title="@string/preference_title_serial_port"
+        android:switchTextOn="@string/enable"
+        android:switchTextOff="@string/disable"/>
+    <PreferenceCategory
+        android:key="@string/preference_key_launch_parameter_serial_port"
+        android:title="@string/preference_title_launch_parameter">
+        <ListPreference
+            android:key="@string/preference_key_serial_port_name"
+            android:title="@string/preference_title_serial_port_name"/>
+        <ListPreference
+            android:key="@string/preference_key_serial_port_baud_rate"
+            android:title="@string/preference_title_baud_rate"
+            android:entries="@array/baud_rates"
+            android:entryValues="@array/baud_rates"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/preference_title_use_parameter"
+        android:key="@string/preference_key_use_parameter_serial_port">
+        <EditTextPreference
+            android:key="@string/preference_key_serial_port_data_request_cycle"
+            android:title="@string/preference_title_data_request_cycle"
+            android:inputType="number"/>
+    </PreferenceCategory>
+</PreferenceScreen>

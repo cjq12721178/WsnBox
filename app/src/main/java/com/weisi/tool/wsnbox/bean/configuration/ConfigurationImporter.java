@@ -21,21 +21,19 @@ public class ConfigurationImporter extends DefaultHandler {
     private final String COMMUNICATOR_UDP = "UDP";
     private final String COMMUNICATOR_BLE = "BLE";
     private final String COMMUNICATOR_SERIAL_PORT = "SerialPort";
+    private final String COMMUNICATOR_USB = "USB";
     private final String DATA_PROCESSOR = "DataProcessor";
 
     private StringBuilder mBuilder;
     private Settings mSettings;
     private String mSettingType;
 
-    public boolean leadIn(Context context, boolean isFirstRun) {
+    public boolean leadIn(Context context) {
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser parser = factory.newSAXParser();
             mSettings = new Settings(context);
             parser.parse(context.getAssets().open(FILE_NAME), this);
-            if (isFirstRun) {
-                mSettings.clearRedundantRecordInFirstRun();
-            }
             return true;
         } catch (Exception e) {
             mSettings = null;
@@ -82,6 +80,9 @@ public class ConfigurationImporter extends DefaultHandler {
                     case COMMUNICATOR_SERIAL_PORT:
                         mSettings.mDefaultSerialPortEnable = Boolean.parseBoolean(mBuilder.toString());
                         break;
+                    case COMMUNICATOR_USB:
+                        mSettings.mDefaultUsbEnable = Boolean.parseBoolean(mBuilder.toString());
+                        break;
                     case DATA_PROCESSOR:
                         mSettings.mDefaultSensorDataGatherEnable = Boolean.parseBoolean(mBuilder.toString());
                         break;
@@ -101,6 +102,9 @@ public class ConfigurationImporter extends DefaultHandler {
                     case COMMUNICATOR_SERIAL_PORT:
                         mSettings.setDefaultSerialPortDataRequestCycle(Long.parseLong(mBuilder.toString()));
                         break;
+                    case COMMUNICATOR_USB:
+                        mSettings.setDefaultUsbDataRequestCycle(Long.parseLong(mBuilder.toString()));
+                        break;
                 }
                 break;
             case "ScanCycle":
@@ -113,10 +117,32 @@ public class ConfigurationImporter extends DefaultHandler {
                 mSettings.mDefaultSerialPortName = mBuilder.toString();
                 break;
             case "BaudRate":
-                mSettings.mDefaultSerialPortBaudRate = Integer.parseInt(mBuilder.toString());
+                switch (mSettingType) {
+                    case COMMUNICATOR_SERIAL_PORT:
+                        mSettings.mDefaultSerialPortBaudRate = Integer.parseInt(mBuilder.toString());
+                        break;
+                    case COMMUNICATOR_USB:
+                        mSettings.mDefaultUsbBaudRate = Integer.parseInt(mBuilder.toString());
+                        break;
+                }
                 break;
             case "GatherCycle":
                 mSettings.setDefaultSensorDataGatherCycle(Long.parseLong(mBuilder.toString()));
+                break;
+            case "vpid":
+                mSettings.mDefaultUsbVendorProductId = Long.parseLong(mBuilder.toString(), 16);
+                break;
+            case "DataBits":
+                mSettings.mDefaultUsbDataBits = Integer.parseInt(mBuilder.toString());
+                break;
+            case "StopBits":
+                mSettings.mDefaultUsbStopBits = Integer.parseInt(mBuilder.toString());
+                break;
+            case "parity":
+                mSettings.mDefaultUsbParity = Integer.parseInt(mBuilder.toString());
+                break;
+            case "protocol":
+                mSettings.mDefaultUsbProtocol = mBuilder.toString();
                 break;
         }
     }

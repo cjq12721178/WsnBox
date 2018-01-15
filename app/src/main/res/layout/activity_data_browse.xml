@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.weisi.tool.wsnbox.activity.DataBrowseActivity">
+    tools:fragment="com.weisi.tool.wsnbox.fragment.DataBrowseActivity">
 
     <include layout="@layout/list_head_sensor"
         android:id="@+id/il_list_head_data_browse"/>

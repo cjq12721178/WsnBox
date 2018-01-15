@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:key="@string/preference_key_udp_enable"
+        android:title="@string/preference_title_udp"
+        android:switchTextOn="@string/enable"
+        android:switchTextOff="@string/disable"/>
+    <EditTextPreference
+        android:key="@string/preference_key_base_station_ip"
+        android:title="@string/preference_title_base_station_ip"/>
+    <EditTextPreference
+        android:key="@string/preference_key_base_station_port"
+        android:title="@string/preference_title_base_station_port"
+        android:inputType="number"/>
+    <EditTextPreference
+        android:key="@string/preference_key_udp_data_request_cycle"
+        android:title="@string/preference_title_data_request_cycle"
+        android:inputType="number"/>
+</PreferenceScreen>

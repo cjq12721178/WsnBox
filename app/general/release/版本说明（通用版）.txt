@@ -45,3 +45,29 @@
 
 20171220-1.2.3(11):
 1. 修复蓝牙通讯模块在高版本(至少大于4.4.2)上无法使用的问题
+
+20171221-1.2.4(12):
+1. 降低targetSdkVersion至minSdkVersion18，以保持版本一致
+
+20171227-1.2.5(13):
+1. 优化各通讯模块的启动、关闭、数据传输和接收
+
+20171227-1.3.0(14):
+1. 新增USB通讯模块，使USB基站成为新的传感器数据源，目前支持的USB型号如下：
+   (1)FTDI：FT232R、FT231X
+   (2)ATMEL：LUFA CDC DEMO APP
+   (3)ARDUINO：UNO、MEGA 2560、SERIAL ADAPTER、MEGA ADK、MEGA 2560 R3、UNO R3、MEGA ADK R3、LEONARDO、MICRO
+   (4)VAN OOIJEN TECH：TEENSYDUINO SERIAL
+   (5)LEAFLABS：MAPLE
+   (6)SILABS：CP2102、CP2105、CP2108、CP2110
+   (7)PROLIFIC：PL2303
+   (8)QINHENG：HL340 
+2. 新增历史版本号记录及规范版本更新初始化
+3. 增加动态权限申请模块
+4. 重组设置界面，细化功能设置
+5. 重新调整API版本，当前最低版本为18（即Android4.3），目标版本为27（即Android8.0以上）
+6. 新增USB通讯协议ESB和BLE
+
+20180112-1.3.1(15):
+1. 修复无法收到BLE数据的问题
+2. 修复UDP通讯模块无法启动的问题

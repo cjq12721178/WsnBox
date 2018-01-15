@@ -39,9 +39,9 @@ public class MainActivity
     }
 
     @Override
-    protected void onServiceConnectionCreate(DataPrepareService service) {
+    public void onServiceConnectionCreate(DataPrepareService service) {
         if (service.importSensorConfigurations()) {
-            service.launchCommunicators();
+            service.startAccessSensorData(this);
             if (SensorDatabase.launch(this)) {
                 service.startCaptureAndRecordSensorData();
             } else {
@@ -61,7 +61,7 @@ public class MainActivity
     }
 
     @Override
-    protected void onServiceConnectionDestroy(DataPrepareService service) {
+    public void onServiceConnectionDestroy(DataPrepareService service) {
         service.shutdownCommunicators();
         service.stopCaptureAndRecordSensorData();
     }

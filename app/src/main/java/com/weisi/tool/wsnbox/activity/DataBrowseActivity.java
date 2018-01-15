@@ -40,16 +40,16 @@ import com.weisi.tool.wsnbox.bean.sorter.SensorNetInTimeSorter;
 import com.weisi.tool.wsnbox.bean.filter.SensorSourceFilter;
 import com.weisi.tool.wsnbox.fragment.SensorInformationFragment;
 import com.weisi.tool.wsnbox.io.SensorDatabase;
+import com.weisi.tool.wsnbox.processor.SensorDataAccessor;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class DataBrowseActivity
         extends BaseActivity
-        implements DataPrepareService.OnSensorNetInListener,
-        DataPrepareService.OnSensorValueUpdateListener,
+        implements SensorDataAccessor.OnSensorNetInListener,
+        SensorDataAccessor.OnSensorValueUpdateListener,
         RecyclerViewBaseAdapter.OnItemClickListener,
         View.OnClickListener,
         SortDialog.OnSortTypeChangedListener {
@@ -280,7 +280,7 @@ public class DataBrowseActivity
     }
 
     @Override
-    protected void onServiceConnectionCreate(DataPrepareService service) {
+    public void onServiceConnectionCreate(DataPrepareService service) {
         onSensorFilterChanged();
         if (mIsRealTime) {
             service.setOnSensorNetInListener(this);
@@ -300,21 +300,21 @@ public class DataBrowseActivity
     }
 
     @Override
-    protected void onServiceConnectionStart(DataPrepareService service) {
+    public void onServiceConnectionStart(DataPrepareService service) {
         if (mIsRealTime) {
             service.startSensorValueUpdater(this);
         }
     }
 
     @Override
-    protected void onServiceConnectionStop(DataPrepareService service) {
+    public void onServiceConnectionStop(DataPrepareService service) {
         if (mIsRealTime) {
             service.stopSensorValueUpdater();
         }
     }
 
     @Override
-    protected void onServiceConnectionDestroy(DataPrepareService service) {
+    public void onServiceConnectionDestroy(DataPrepareService service) {
         if (mIsRealTime) {
             service.setOnSensorNetInListener(null);
         }

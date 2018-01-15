@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:key="@string/preference_key_sensor_data_gather_enable"
+        android:title="@string/preference_title_sensor_data_gather_enable"
+        android:switchTextOn="@string/enable"
+        android:switchTextOff="@string/disable"/>
+    <EditTextPreference
+        android:key="@string/preference_key_sensor_data_gather_cycle"
+        android:title="@string/preference_title_sensor_data_gather_cycle"
+        android:inputType="number"/>
+</PreferenceScreen>

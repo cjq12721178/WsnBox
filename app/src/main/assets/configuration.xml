@@ -23,6 +23,16 @@
 				<BaudRate>115200</BaudRate>
 				<DataRequestCycle>2000</DataRequestCycle>
 			</communicator>
+			<communicator name="USB">
+				<enable>false</enable>
+                <vpid>0</vpid>
+				<BaudRate>115200</BaudRate>
+                <DataBits>8</DataBits>
+                <StopBits>1</StopBits>
+                <parity>0</parity>
+				<protocol>ESB</protocol>
+				<DataRequestCycle>2000</DataRequestCycle>
+			</communicator>
 		</communicators>
 		<DataProcessor>
 			<enable>true</enable>

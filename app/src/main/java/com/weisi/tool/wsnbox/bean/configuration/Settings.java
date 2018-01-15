@@ -2,6 +2,7 @@ package com.weisi.tool.wsnbox.bean.configuration;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 
 import com.weisi.tool.wsnbox.R;
@@ -14,7 +15,7 @@ import java.util.regex.Pattern;
 
 public class Settings {
 
-    public static final String PREFERENCE_FILE_NAME = "settings";
+    //public static final String PREFERENCE_FILE_NAME = "settings";
 
     private static final long MIN_DATA_REQUEST_CYCLE = 100; /* 单位毫秒 */
     private static final long MIN_BLE_SCAN_DURATION = 10;   /* 单位秒 */
@@ -36,6 +37,16 @@ public class Settings {
     boolean mDefaultBleEnable;
     private long mDefaultBleScanCycle;  /* 单位秒 */
     private long mDefaultBleScanDuration;   /* 单位秒 */
+
+    //USB
+    boolean mDefaultUsbEnable;
+    long mDefaultUsbVendorProductId;   /* 0-31位为ProductId， 32-63位为VendorId */
+    int mDefaultUsbBaudRate;
+    int mDefaultUsbDataBits;
+    int mDefaultUsbStopBits;
+    int mDefaultUsbParity;
+    private long mDefaultUsbDataRequestCycle;   /* 单位毫秒 */
+    String mDefaultUsbProtocol;
 
     //数据处理模块默认设置
     boolean mDefaultSensorDataGatherEnable;
@@ -97,8 +108,53 @@ public class Settings {
         return mDefaultSensorDataGatherEnable;
     }
 
+    public boolean isDefaultUsbEnable() {
+        return mDefaultUsbEnable;
+    }
+
+    public long getDefaultUsbVendorProductId() {
+        return mDefaultUsbVendorProductId;
+    }
+
+    public int getDefaultUsbVendorId() {
+        return getUsbVendorIdByUsbVendorProductId(getDefaultUsbVendorProductId());
+    }
+
+    public int getUsbVendorIdByUsbVendorProductId(long vendorProductId) {
+        return (int) (vendorProductId >> 32);
+    }
+
+    public int getDefaultUsbProductId() {
+        return getUsbProductIdByUsbVendorProductId(getDefaultUsbVendorProductId());
+    }
+
+    public int getUsbProductIdByUsbVendorProductId(long vendorProductId) {
+        return (int) (vendorProductId & 0xffffffff);
+    }
+
+    public int getDefaultUsbBaudRate() {
+        return mDefaultUsbBaudRate;
+    }
+
+    public int getDefaultUsbDataBits() {
+        return mDefaultUsbDataBits;
+    }
+
+    public int getDefaultUsbStopBits() {
+        return mDefaultUsbStopBits;
+    }
+
+    public int getDefaultUsbParity() {
+        return mDefaultUsbParity;
+    }
+
+    public long getDefaultUsbDataRequestCycle() {
+        return mDefaultUsbDataRequestCycle;
+    }
+
     private SharedPreferences getSharedPreferences() {
-        return mContext.getSharedPreferences(PREFERENCE_FILE_NAME, Context.MODE_PRIVATE);
+        return PreferenceManager.getDefaultSharedPreferences(mContext);
+        //return mContext.getSharedPreferences(PREFERENCE_FILE_NAME, Context.MODE_PRIVATE);
     }
 
     private String getString(@StringRes int preferenceKeyRes, String defaultValue) {
@@ -133,55 +189,55 @@ public class Settings {
     }
 
     public String getBaseStationIp() {
-        return getString(R.string.preference_key_base_station_ip, mDefaultBaseStationIp);
+        return getString(R.string.preference_key_base_station_ip, getDefaultBaseStationIp());
     }
 
     public int getBaseStationPort() {
-        return getInt(R.string.preference_key_base_station_port, mDefaultBaseStationPort);
+        return getInt(R.string.preference_key_base_station_port, getDefaultBaseStationPort());
     }
 
     public long getUdpDataRequestCycle() {
-        return getLong(R.string.preference_key_udp_data_request_cycle, mDefaultUdpDataRequestCycle);
+        return getLong(R.string.preference_key_udp_data_request_cycle, getDefaultUdpDataRequestCycle());
     }
 
     public long getSerialPortDataRequestCycle() {
-        return getLong(R.string.preference_key_serial_port_data_request_cycle, mDefaultSerialPortDataRequestCycle);
+        return getLong(R.string.preference_key_serial_port_data_request_cycle, getDefaultSerialPortDataRequestCycle());
     }
 
     public long getBleScanCycle() {
-        return getLong(R.string.preference_key_ble_scan_cycle, mDefaultBleScanCycle);
+        return getLong(R.string.preference_key_ble_scan_cycle, getDefaultBleScanCycle());
     }
 
     public long getBleScanDuration() {
-        return getLong(R.string.preference_key_ble_scan_duration, mDefaultBleScanDuration);
+        return getLong(R.string.preference_key_ble_scan_duration, getDefaultBleScanDuration());
     }
 
     public long getSensorDataGatherCycle() {
-        return getLong(R.string.preference_key_sensor_data_gather_cycle, mDefaultSensorDataGatherCycle);
+        return getLong(R.string.preference_key_sensor_data_gather_cycle, getDefaultSensorDataGatherCycle());
     }
 
     public boolean isUdpEnable() {
-        return getBoolean(R.string.preference_key_udp_enable, mDefaultUdpEnable);
+        return getBoolean(R.string.preference_key_udp_enable, isDefaultUdpEnable());
     }
 
     public boolean isSerialPortEnable() {
-        return getBoolean(R.string.preference_key_serial_port_enable, mDefaultSerialPortEnable);
+        return getBoolean(R.string.preference_key_serial_port_enable, isDefaultSerialPortEnable());
     }
 
     public String getSerialPortName() {
-        return getString(R.string.preference_key_serial_port_name, mDefaultSerialPortName);
+        return getString(R.string.preference_key_serial_port_name, getDefaultSerialPortName());
     }
 
     public int getSerialPortBaudRate() {
-        return getInt(R.string.preference_key_serial_port_baud_rate, mDefaultSerialPortBaudRate);
+        return getInt(R.string.preference_key_serial_port_baud_rate, getDefaultSerialPortBaudRate());
     }
 
     public boolean isBleEnable() {
-        return getBoolean(R.string.preference_key_ble_enable, mDefaultBleEnable);
+        return getBoolean(R.string.preference_key_ble_enable, isDefaultBleEnable());
     }
 
     public boolean isSensorDataGatherEnable() {
-        return getBoolean(R.string.preference_key_sensor_data_gather_enable, mDefaultSensorDataGatherEnable);
+        return getBoolean(R.string.preference_key_sensor_data_gather_enable, isDefaultSensorDataGatherEnable());
     }
 
     void setDefaultBaseStationIp(String ip) {
@@ -254,6 +310,55 @@ public class Settings {
         if (cycle < 0) {
             throw new IllegalArgumentException("sensor data gather cycle may not be less than 0");
         }
+    }
+
+    public boolean isUsbEnable() {
+        return getBoolean(R.string.preference_key_usb_enable, isDefaultUsbEnable());
+    }
+
+    public long getUsbVendorProductId() {
+        return getLong(R.string.preference_key_usb_vendor_product_id, getDefaultUsbVendorProductId());
+    }
+
+    public int getUsbVendorId() {
+        return getUsbVendorIdByUsbVendorProductId(getUsbVendorProductId());
+    }
+
+    public int getUsbProductId() {
+        return getUsbProductIdByUsbVendorProductId(getUsbVendorProductId());
+    }
+
+    public int getUsbBaudRate() {
+        return getInt(R.string.preference_key_usb_baud_rate, getDefaultUsbBaudRate());
+    }
+
+    public int getUsbDataBits() {
+        return getInt(R.string.preference_key_usb_data_bits, getDefaultUsbDataBits());
+    }
+
+    public int getUsbStopBits() {
+        return getInt(R.string.preference_key_usb_stop_bits, getDefaultUsbStopBits());
+    }
+
+    public int getUsbParity() {
+        return getInt(R.string.preference_key_usb_parity, getDefaultUsbParity());
+    }
+
+    public long getUsbUsbDataRequestCycle() {
+        return getLong(R.string.preference_key_usb_data_request_cycle, getDefaultUsbDataRequestCycle());
+    }
+
+    void setDefaultUsbDataRequestCycle(long cycle) {
+        checkDataRequestCycle(cycle);
+        mDefaultUsbDataRequestCycle = cycle;
+    }
+
+    public String getDefaultUsbProtocol() {
+        return mDefaultUsbProtocol;
+    }
+
+    public String getUsbProtocol() {
+        return getString(R.string.preference_key_usb_protocol, getDefaultUsbProtocol());
     }
 
     //修复SwitchPreference自带初始值的问题
