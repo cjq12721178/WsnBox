@@ -62,7 +62,7 @@ public class MainActivity
 
     @Override
     public void onServiceConnectionDestroy(DataPrepareService service) {
-        service.shutdownCommunicators();
+        service.stopAccessSensorData();
         service.stopCaptureAndRecordSensorData();
     }
 

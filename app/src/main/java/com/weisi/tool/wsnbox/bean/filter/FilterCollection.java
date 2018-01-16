@@ -25,6 +25,10 @@ public class FilterCollection implements Filter {
         mFilters.clear();
     }
 
+    public void remove(Filter filter) {
+        mFilters.remove(filter);
+    }
+
     public int size() {
         return mFilters.size();
     }

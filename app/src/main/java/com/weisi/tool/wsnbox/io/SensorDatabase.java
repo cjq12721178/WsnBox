@@ -17,7 +17,7 @@ import java.util.List;
 
 public class SensorDatabase {
 
-    private static final String DATABASE_NAME = "SensorStorage.db";
+    private static final String DATABASE_NAME = "BaseSensorStorage.db";
     private static final int VN_WINDOW = 1;
     private static final int CURRENT_VERSION_NO = VN_WINDOW;
 

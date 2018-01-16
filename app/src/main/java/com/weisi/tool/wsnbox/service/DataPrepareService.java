@@ -298,7 +298,7 @@ public class DataPrepareService extends Service implements SensorDataAccessor.On
 //        getDataRequestTimer().schedule(mSerialPortDataRequestTask, 0, cycle);
 //    }
 
-    public void shutdownCommunicators() {
+    public void stopAccessSensorData() {
         //shutdownUdp();
         if (mUdpSensorDataAccessor != null) {
             mUdpSensorDataAccessor.stopDataAccess(this);

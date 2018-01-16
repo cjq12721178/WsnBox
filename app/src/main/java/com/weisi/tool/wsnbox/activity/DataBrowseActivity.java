@@ -473,6 +473,7 @@ public class DataBrowseActivity
         synchronized (mSensors) {
             mSensorSorter.sort(mSensors);
         }
+        mSensorAdapter.notifySensorOrderChanged();
     }
 
     private boolean setSensorSource(int source) {

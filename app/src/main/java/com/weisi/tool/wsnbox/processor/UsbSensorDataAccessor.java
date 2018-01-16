@@ -103,7 +103,7 @@ public class UsbSensorDataAccessor
 
     @Override
     protected void sendDataRequestFrame() throws IOException {
-        mCommunicator.write(mDataRequestFrame, 5000);
+        mCommunicator.write(mDataRequestFrame, TIMEOUT_MILLIS);
     }
 
     @Override
