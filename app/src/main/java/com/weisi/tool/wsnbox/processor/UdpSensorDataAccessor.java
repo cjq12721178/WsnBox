@@ -47,6 +47,7 @@ public class UdpSensorDataAccessor extends CommonSensorDataAccessor<UdpKit, UdpS
                     mCommunicator.send(settings.getBaseStationIp(),
                             settings.getBaseStationPort(),
                             getTimeSynchronizationFrame());
+                    onInitDataRequestTaskParameter(settings);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -7,13 +7,11 @@ import android.os.Message;
 import android.support.annotation.IdRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.sensor.Filter;
 import com.cjq.lib.weisi.sensor.MeasurementIdentifier;
 import com.cjq.lib.weisi.sensor.Sensor;
 import com.cjq.lib.weisi.sensor.SensorManager;
@@ -29,22 +27,13 @@ import com.weisi.tool.wsnbox.adapter.BaseSensorAdapterDelegate;
 import com.weisi.tool.wsnbox.adapter.DataBrowseSensorAdapter;
 import com.weisi.tool.wsnbox.adapter.MultipleMeasurementSensorAdapterDelegate;
 import com.weisi.tool.wsnbox.adapter.SingleMeasurementSensorAdapterDelegate;
-import com.weisi.tool.wsnbox.bean.filter.SensorWithHistoryValueFilter;
-import com.weisi.tool.wsnbox.bean.filter.FilterCollection;
-import com.weisi.tool.wsnbox.bean.filter.SensorUseForRealtimeFilter;
-import com.weisi.tool.wsnbox.bean.filter.SearchFilter;
-import com.weisi.tool.wsnbox.bean.sorter.SensorAddressSorter;
-import com.weisi.tool.wsnbox.bean.sorter.SensorEarliestValueTimeSorter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorSorter;
-import com.weisi.tool.wsnbox.bean.sorter.SensorNetInTimeSorter;
-import com.weisi.tool.wsnbox.bean.filter.SensorSourceFilter;
+import com.weisi.tool.wsnbox.bean.storage.BaseSensorStorage;
+import com.weisi.tool.wsnbox.bean.storage.DataBrowseSensorStorage;
 import com.weisi.tool.wsnbox.fragment.SensorInformationFragment;
 import com.weisi.tool.wsnbox.io.SensorDatabase;
 import com.weisi.tool.wsnbox.processor.SensorDataAccessor;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DataBrowseActivity
         extends BaseActivity
@@ -52,32 +41,35 @@ public class DataBrowseActivity
         SensorDataAccessor.OnSensorValueUpdateListener,
         RecyclerViewBaseAdapter.OnItemClickListener,
         View.OnClickListener,
-        SortDialog.OnSortTypeChangedListener {
+        SortDialog.OnSortTypeChangedListener, BaseSensorStorage.OnSensorFilterChangeListener, BaseSensorStorage.OnSensorSorterChangeListener, DataBrowseSensorStorage.OnSensorDataSourceChangeListener {
 
-    private static final int FROM_BLE_ONLY = 1;
-    private static final int FROM_UDP_ONLY = 2;
-    private static final int FROM_BOTH = 3;
+//    private static final int FROM_BLE_ONLY = 1;
+//    private static final int FROM_UDP_ONLY = 2;
+//    private static final int FROM_BOTH = 3;
+//
+//    private static final int SORTED_BY_ADDRESS = 1;
+//    private static final int SORTED_BY_TIME = 2;
 
-    private static final int SORTED_BY_ADDRESS = 1;
-    private static final int SORTED_BY_TIME = 2;
-
-    private static final int MSG_SENSOR_NET_IN_REAL_TIME = 1;
+    //private static final int MSG_SENSOR_NET_IN_REAL_TIME = 1;
+    private static final int MSG_SENSOR_NET_IN = 1;
     private static final int MSG_SENSOR_VALUE_UPDATE = 2;
-    private static final int MSG_SENSOR_NET_IN_HISTORY = 3;
+    //private static final int MSG_SENSOR_NET_IN_HISTORY = 3;
     //private static final int MSG_SENSOR_VALUE_INSERT = 4;
 
     private static final String ARGUMENT_KEY_SELECTED_SENSOR_ADDRESS = "selected_sensor";
     private static final String ARGUMENT_KEY_SELECTED_SENSOR_INDEX = "selected_index";
     private static final String ARGUMENT_KEY_DATA_SOURCE = "data_source";
     private static final String ARGUMENT_KEY_SENSOR_SORT_TYPE = "sort_type";
+    private static final String ARGUMENT_KEY_SENSOR_ORDER = "sensor_order";
     private static final String ARGUMENT_KEY_SENSOR_SOURCE = "sensor_source";
 
     private boolean mIsRealTime;
-    private final List<Sensor> mSensors = new ArrayList<>();
-    private Filter mDataSourceFilter;
-    private SensorSourceFilter mSensorSourceFilter;
-    private SearchFilter mSearchFilter;
-    private SensorSorter mSensorSorter;// = new SensorNetInTimeSorter();
+    private final DataBrowseSensorStorage mSensorStorage = new DataBrowseSensorStorage();
+    //private final List<Sensor> mSensors = new ArrayList<>();
+    //private Filter mDataSourceFilter;
+    //private SensorSourceFilter mSensorSourceFilter;
+    //private SearchFilter mSearchFilter;
+    //private SensorSorter mSensorSorter;// = new SensorNetInTimeSorter();
     private DataBrowseSensorAdapter mSensorAdapter;
     private SortDialog mSortDialog;
     private RecyclerView mRvSensors;
@@ -89,10 +81,8 @@ public class DataBrowseActivity
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_SENSOR_NET_IN_REAL_TIME: {
-                    if (mIsRealTime) {
-                        addSensor((Sensor) msg.obj);
-                    }
+                case MSG_SENSOR_NET_IN: {
+                    addSensor((Sensor) msg.obj);
                 } break;
                 case MSG_SENSOR_VALUE_UPDATE: {
                     Sensor sensor = (Sensor) msg.obj;
@@ -103,7 +93,8 @@ public class DataBrowseActivity
                             return;
                         }
                     }
-                    int position = mSensorSorter.find(mSensors, sensor);
+                    //int position = mSensorSorter.find(mSensors, sensor);
+                    int position = mSensorStorage.findSensor(sensor);
                     if (position >= 0) {
                         mSensorAdapter.notifySensorValueUpdate(position);
                         if (mSensorInformationFragment != null) {
@@ -111,11 +102,11 @@ public class DataBrowseActivity
                         }
                     }
                 } break;
-                case MSG_SENSOR_NET_IN_HISTORY: {
-                    if (!mIsRealTime) {
-                        addSensor((Sensor) msg.obj);
-                    }
-                } break;
+//                case MSG_SENSOR_NET_IN_HISTORY: {
+//                    if (!mIsRealTime) {
+//                        addSensor((Sensor) msg.obj);
+//                    }
+//                } break;
                 default:
                     break;
             }
@@ -124,7 +115,8 @@ public class DataBrowseActivity
 
     private void addSensor(Sensor sensor) {
         //根据设置有序添加
-        int position = mSensorSorter.add(mSensors, sensor);
+        //int position = mSensorSorter.add(mSensors, sensor);
+        int position = mSensorStorage.addSensor(sensor);
         if (position != -1) {
             mSensorAdapter.notifySensorNetIn(position);
         }
@@ -153,7 +145,7 @@ public class DataBrowseActivity
             }
         };
         delegateManager.addAdapterDelegate(new SingleMeasurementSensorAdapterDelegate());
-        mSensorAdapter = new DataBrowseSensorAdapter(delegateManager, mSensors);
+        mSensorAdapter = new DataBrowseSensorAdapter(delegateManager, mSensorStorage);
         mSensorAdapter.setOnItemClickListener(this);
     }
 
@@ -165,10 +157,13 @@ public class DataBrowseActivity
     }
 
     private void initializeParameters(Bundle savedInstanceState) {
-        setDataSource();
+        mSensorStorage.setDataSource(mIsRealTime);
         if (savedInstanceState != null) {
-            setSensorSorter(savedInstanceState.getInt(ARGUMENT_KEY_SENSOR_SORT_TYPE));
-            setSensorSource(savedInstanceState.getInt(ARGUMENT_KEY_SENSOR_SOURCE));
+            mSensorStorage.setSorter(
+                    savedInstanceState.getInt(ARGUMENT_KEY_SENSOR_SORT_TYPE),
+                    savedInstanceState.getBoolean(ARGUMENT_KEY_SENSOR_ORDER),
+                    mIsRealTime);
+            //setSensorSource(savedInstanceState.getInt(ARGUMENT_KEY_SENSOR_SOURCE));
             mSensorInformationFragment = (SensorInformationFragment) getSupportFragmentManager()
                     .findFragmentByTag(SensorInformationFragment.TAG);
             if (mSensorInformationFragment != null) {
@@ -177,9 +172,25 @@ public class DataBrowseActivity
             }
             mSensorAdapter.setSelectedIndex(savedInstanceState.getInt(ARGUMENT_KEY_SELECTED_SENSOR_INDEX));
         } else {
-            setSensorSorter(SORTED_BY_TIME);
-            setSensorSource(FROM_BOTH);
+            mSensorStorage.setSorter(DataBrowseSensorStorage.SORTED_BY_TIME, false, mIsRealTime);
+            //setSensorSource(FROM_BOTH);
         }
+
+//        setDataSource();
+//        if (savedInstanceState != null) {
+//            setSensorSorter(savedInstanceState.getInt(ARGUMENT_KEY_SENSOR_SORT_TYPE));
+//            setSensorSource(savedInstanceState.getInt(ARGUMENT_KEY_SENSOR_SOURCE));
+//            mSensorInformationFragment = (SensorInformationFragment) getSupportFragmentManager()
+//                    .findFragmentByTag(SensorInformationFragment.TAG);
+//            if (mSensorInformationFragment != null) {
+//                mSensorInformationFragment.setSensor(getSavedSelectedSensor(savedInstanceState));
+//                mSensorInformationFragment.setRealTime(mIsRealTime);
+//            }
+//            mSensorAdapter.setSelectedIndex(savedInstanceState.getInt(ARGUMENT_KEY_SELECTED_SENSOR_INDEX));
+//        } else {
+//            setSensorSorter(SORTED_BY_TIME);
+//            setSensorSource(FROM_BOTH);
+//        }
     }
 
     private Sensor getSavedSelectedSensor(Bundle savedInstanceState) {
@@ -201,16 +212,20 @@ public class DataBrowseActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.mi_data_source:
-                if (mSensors.size() > 0) {
+                if (mSensorStorage.getSensorSize() > 0) {
                     mRvSensors.scrollToPosition(0);
                 }
                 mIsRealTime = !mIsRealTime;
-                //CodeRunTimeCatcher.start();
                 setDataSourceLabel(item);
-                setSensorSorter(getSensorSortType());
-                setDataSource();
-                onDataSourceChanged();
-                //ClosableLog.d(Tag.LOG_TAG_D_CODE_RUN_TIME, "real time to history spend time = " + CodeRunTimeCatcher.end());
+                mSensorStorage.setDataSource(mIsRealTime, this);
+//                if (mSensors.size() > 0) {
+//                    mRvSensors.scrollToPosition(0);
+//                }
+//                mIsRealTime = !mIsRealTime;
+//                setDataSourceLabel(item);
+//                setSensorSorter(getSensorSortType());
+//                setDataSource();
+//                onDataSourceChanged();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -222,19 +237,19 @@ public class DataBrowseActivity
                 : R.string.history));
     }
 
-    private void onDataSourceChanged() {
-        BaseSensorAdapterDelegate.setRealTime(mIsRealTime);
-        onSensorFilterChanged();
-        DataPrepareService service = getDataPrepareService();
-        if (mIsRealTime) {
-            service.setOnSensorNetInListener(this);
-            service.startSensorValueUpdater(this);
-        } else {
-            service.setOnSensorNetInListener(null);
-            service.stopSensorValueUpdater();
-            importSensorsWithHistoryValue();
-        }
-    }
+//    private void onDataSourceChanged() {
+//        BaseSensorAdapterDelegate.setRealTime(mIsRealTime);
+//        onSensorFilterChanged();
+//        DataPrepareService service = getDataPrepareService();
+//        if (mIsRealTime) {
+//            service.setOnSensorNetInListener(this);
+//            service.startSensorValueUpdater(this);
+//        } else {
+//            service.setOnSensorNetInListener(null);
+//            service.stopSensorValueUpdater();
+//            importSensorsWithHistoryValue();
+//        }
+//    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -248,29 +263,30 @@ public class DataBrowseActivity
                         ? selectedSensor.getRawAddress()
                         : -1);
         outState.putBoolean(ARGUMENT_KEY_DATA_SOURCE, mIsRealTime);
-        outState.putInt(ARGUMENT_KEY_SENSOR_SORT_TYPE, getSensorSortType());
-        outState.putInt(ARGUMENT_KEY_SENSOR_SOURCE, getSensorSource());
+        outState.putBoolean(ARGUMENT_KEY_SENSOR_ORDER, mSensorStorage.getSensorOrder());
+        outState.putInt(ARGUMENT_KEY_SENSOR_SORT_TYPE, mSensorStorage.getSensorSortType());
+        //outState.putInt(ARGUMENT_KEY_SENSOR_SOURCE, getSensorSource());
     }
 
-    private int getSensorSortType() {
-        if (mSensorSorter instanceof SensorNetInTimeSorter) {
-            return SORTED_BY_TIME;
-        } else if (mSensorSorter instanceof SensorEarliestValueTimeSorter) {
-            return SORTED_BY_TIME;
-        } else if (mSensorSorter instanceof SensorAddressSorter) {
-            return SORTED_BY_ADDRESS;
-        }
-        return SORTED_BY_TIME;
-    }
+//    private int getSensorSortType() {
+//        if (mSensorSorter instanceof SensorNetInTimeSorter) {
+//            return SORTED_BY_TIME;
+//        } else if (mSensorSorter instanceof SensorEarliestValueTimeSorter) {
+//            return SORTED_BY_TIME;
+//        } else if (mSensorSorter instanceof SensorAddressSorter) {
+//            return SORTED_BY_ADDRESS;
+//        }
+//        return SORTED_BY_TIME;
+//    }
 
-    private int getSensorSource() {
-        if (mSensorSourceFilter == null) {
-            return FROM_BOTH;
-        }
-        return mSensorSourceFilter.isSensorSourceBle()
-                ? FROM_BLE_ONLY
-                : FROM_UDP_ONLY;
-    }
+//    private int getSensorSource() {
+//        if (mSensorSourceFilter == null) {
+//            return FROM_BOTH;
+//        }
+//        return mSensorSourceFilter.isSensorSourceBle()
+//                ? FROM_BLE_ONLY
+//                : FROM_UDP_ONLY;
+//    }
 
     @Override
     protected void onDestroy() {
@@ -281,12 +297,13 @@ public class DataBrowseActivity
 
     @Override
     public void onServiceConnectionCreate(DataPrepareService service) {
-        onSensorFilterChanged();
-        if (mIsRealTime) {
-            service.setOnSensorNetInListener(this);
-        } else {
-            importSensorsWithHistoryValue();
-        }
+        mSensorStorage.commitFilter(this);
+        //onSensorFilterChanged();
+//        if (mIsRealTime) {
+//            service.setOnSensorNetInListener(this);
+//        } else {
+//            importSensorsWithHistoryValue();
+//        }
         initSensorBrowseInterface();
     }
 
@@ -320,26 +337,26 @@ public class DataBrowseActivity
         }
     }
 
-    private void onSensorFilterChanged() {
-        synchronized (mSensors) {
-            int oldSize = mSensors.size();
-            mSensors.clear();
-            SensorManager.getSensors(mSensors, getCurrentSensorFilter());
-            mSensorSorter.sort(mSensors);
-            mSensorAdapter.notifySensorFilterChanged(oldSize);
-        }
-    }
+//    private void onSensorFilterChanged() {
+//        synchronized (mSensors) {
+//            int oldSize = mSensors.size();
+//            mSensors.clear();
+//            SensorManager.getSensors(mSensors, getCurrentSensorFilter());
+//            mSensorSorter.sort(mSensors);
+//            mSensorAdapter.notifySensorFilterChanged(oldSize);
+//        }
+//    }
 
-    private Filter getCurrentSensorFilter() {
-        FilterCollection collection = new FilterCollection();
-        collection.add(mDataSourceFilter);
-        collection.add(mSensorSourceFilter);
-        collection.add(mSearchFilter);
-        return collection;
-    }
+//    private Filter getCurrentSensorFilter() {
+//        FilterCollection collection = new FilterCollection();
+//        collection.add(mDataSourceFilter);
+//        collection.add(mSensorSourceFilter);
+//        collection.add(mSearchFilter);
+//        return collection;
+//    }
 
     private void initSensorBrowseInterface() {
-        mRvSensors = (RecyclerView) findViewById(R.id.rv_sensors);
+        mRvSensors = findViewById(R.id.rv_sensors);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mRvSensors.setLayoutManager(linearLayoutManager);
         mRvSensors.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.margin_small), true));
@@ -367,37 +384,37 @@ public class DataBrowseActivity
 //        }
 //    }
 
-    public void setSearchCondition(String searchCondition) {
-        if (TextUtils.isEmpty(searchCondition)) {
-            if (mSearchFilter != null) {
-                mSearchFilter = null;
-                onSensorFilterChanged();
-            }
-        } else {
-            if (mSearchFilter == null) {
-                mSearchFilter = new SearchFilter();
-                mSearchFilter.setSearchContents(searchCondition.split(" "));
-            } else {
-                String[] newSearchContents = searchCondition.split(" ");
-                String[] oldSearchContents = mSearchFilter.getSearchContents();
-                mSearchFilter.setSearchContents(newSearchContents);
-                if (newSearchContents.length == oldSearchContents.length) {
-                    int i = 0, size = newSearchContents.length;
-                    for (;i < size;++i) {
-                        if (!newSearchContents[i].equals(oldSearchContents[i])) {
-                            break;
-                        }
-                    }
-                    if (i == size) {
-                        return;
-                    }
-                }
-                onSensorFilterChanged();
-            }
-        }
-    }
+//    public void setSearchCondition(String searchCondition) {
+//        if (TextUtils.isEmpty(searchCondition)) {
+//            if (mSearchFilter != null) {
+//                mSearchFilter = null;
+//                onSensorFilterChanged();
+//            }
+//        } else {
+//            if (mSearchFilter == null) {
+//                mSearchFilter = new SearchFilter();
+//                mSearchFilter.setSearchContents(searchCondition.split(" "));
+//            } else {
+//                String[] newSearchContents = searchCondition.split(" ");
+//                String[] oldSearchContents = mSearchFilter.getSearchContents();
+//                mSearchFilter.setSearchContents(newSearchContents);
+//                if (newSearchContents.length == oldSearchContents.length) {
+//                    int i = 0, size = newSearchContents.length;
+//                    for (;i < size;++i) {
+//                        if (!newSearchContents[i].equals(oldSearchContents[i])) {
+//                            break;
+//                        }
+//                    }
+//                    if (i == size) {
+//                        return;
+//                    }
+//                }
+//                onSensorFilterChanged();
+//            }
+//        }
+//    }
 
-//    public void setSensorSorter(int sortType, boolean isDescend) {
+//    public void setSensorSorter(int sortType, boolean getSensorOrder) {
 //        SensorSorter newSorter;
 //        switch (sortType) {
 //            case SORTED_BY_ADDRESS:
@@ -411,7 +428,7 @@ public class DataBrowseActivity
 //                break;
 //        }
 //        if (setSensorSorter(newSorter)
-//                || mSensorAdapter.setOrder(isDescend)) {
+//                || mSensorAdapter.setOrder(getSensorOrder)) {
 //            mSensorAdapter.notifySensorOrderChanged();
 //        }
 //    }
@@ -425,103 +442,101 @@ public class DataBrowseActivity
 //        return false;
 //    }
 
-    private boolean setDataSource() {
-        Filter oldDataSourceFilter = mDataSourceFilter;
-        if (mIsRealTime) {
-            if (!(mDataSourceFilter instanceof SensorUseForRealtimeFilter)) {
-                mDataSourceFilter = new SensorUseForRealtimeFilter();
-            }
-        } else {
-            if (!(mDataSourceFilter instanceof SensorWithHistoryValueFilter)) {
-                mDataSourceFilter = new SensorWithHistoryValueFilter();
-            }
-        }
-        return oldDataSourceFilter != mDataSourceFilter;
-    }
+//    private boolean setDataSource() {
+//        Filter oldDataSourceFilter = mDataSourceFilter;
+//        if (mIsRealTime) {
+//            if (!(mDataSourceFilter instanceof SensorUseForRealtimeFilter)) {
+//                mDataSourceFilter = new SensorUseForRealtimeFilter();
+//            }
+//        } else {
+//            if (!(mDataSourceFilter instanceof SensorWithHistoryValueFilter)) {
+//                mDataSourceFilter = new SensorWithHistoryValueFilter();
+//            }
+//        }
+//        return oldDataSourceFilter != mDataSourceFilter;
+//    }
 
-    private boolean setSensorSorter(int sortType) {
-        SensorSorter oldSorter = mSensorSorter;
-        switch (sortType) {
-            case SORTED_BY_ADDRESS:
-                if (!(mSensorSorter instanceof SensorAddressSorter)) {
-                    mSensorSorter = new SensorAddressSorter();
-                }
-                break;
-            case SORTED_BY_TIME:
-            default:
-                if (mIsRealTime) {
-                    if (!(mSensorSorter instanceof SensorNetInTimeSorter)) {
-                        mSensorSorter = new SensorNetInTimeSorter();
-                    }
-                } else {
-                    if (!(mSensorSorter instanceof SensorEarliestValueTimeSorter)) {
-                        mSensorSorter = new SensorEarliestValueTimeSorter();
-                    }
-                }
-                break;
-        }
-        return oldSorter != mSensorSorter;
-    }
+//    private boolean setSensorSorter(int sortType) {
+//        SensorSorter oldSorter = mSensorSorter;
+//        switch (sortType) {
+//            case SORTED_BY_ADDRESS:
+//                if (!(mSensorSorter instanceof SensorAddressSorter)) {
+//                    mSensorSorter = new SensorAddressSorter();
+//                }
+//                break;
+//            case SORTED_BY_TIME:
+//            default:
+//                if (mIsRealTime) {
+//                    if (!(mSensorSorter instanceof SensorNetInTimeSorter)) {
+//                        mSensorSorter = new SensorNetInTimeSorter();
+//                    }
+//                } else {
+//                    if (!(mSensorSorter instanceof SensorEarliestValueTimeSorter)) {
+//                        mSensorSorter = new SensorEarliestValueTimeSorter();
+//                    }
+//                }
+//                break;
+//        }
+//        return oldSorter != mSensorSorter;
+//    }
 
-    private void changeSensorSorterAndOrder(int sortType, boolean isDescend) {
-        if (setSensorSorter(sortType) || mSensorAdapter.setOrder(isDescend)) {
-            onSensorSorterOrOrderChanged();
-        }
-    }
+//    private void changeSensorSorterAndOrder(int sortType, boolean getSensorOrder) {
+//        if (setSensorSorter(sortType) || mSensorAdapter.setOrder(getSensorOrder)) {
+//            onSensorSorterOrOrderChanged();
+//        }
+//    }
 
-    private void onSensorSorterOrOrderChanged() {
-        synchronized (mSensors) {
-            mSensorSorter.sort(mSensors);
-        }
-        mSensorAdapter.notifySensorOrderChanged();
-    }
+//    private void onSensorSorterOrOrderChanged() {
+//        synchronized (mSensors) {
+//            mSensorSorter.sort(mSensors);
+//        }
+//        mSensorAdapter.notifySensorOrderChanged();
+//    }
 
-    private boolean setSensorSource(int source) {
-        if (source >= FROM_BLE_ONLY && source <= FROM_UDP_ONLY) {
-            if (mSensorSourceFilter == null) {
-                mSensorSourceFilter = new SensorSourceFilter();
-                mSensorSourceFilter.setSensorSource(FROM_BLE_ONLY == source);
-                return true;
-            } else {
-                boolean sensorSource = mSensorSourceFilter.isSensorSourceBle();
-                mSensorSourceFilter.setSensorSource(source == FROM_BLE_ONLY);
-                if (sensorSource != mSensorSourceFilter.isSensorSourceBle()) {
-                    return true;
-                }
-            }
-        } else {
-            if (mSensorSourceFilter != null) {
-                mSensorSourceFilter = null;
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean setSensorSource(int source) {
+//        if (source >= FROM_BLE_ONLY && source <= FROM_UDP_ONLY) {
+//            if (mSensorSourceFilter == null) {
+//                mSensorSourceFilter = new SensorSourceFilter();
+//                mSensorSourceFilter.setSensorSource(FROM_BLE_ONLY == source);
+//                return true;
+//            } else {
+//                boolean sensorSource = mSensorSourceFilter.isSensorSourceBle();
+//                mSensorSourceFilter.setSensorSource(source == FROM_BLE_ONLY);
+//                if (sensorSource != mSensorSourceFilter.isSensorSourceBle()) {
+//                    return true;
+//                }
+//            }
+//        } else {
+//            if (mSensorSourceFilter != null) {
+//                mSensorSourceFilter = null;
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
-    private void changeSensorSource(int source) {
-        if (setSensorSource(source)) {
-            onSensorFilterChanged();
-        }
-    }
+//    private void changeSensorSource(int source) {
+//        if (setSensorSource(source)) {
+//            onSensorFilterChanged();
+//        }
+//    }
 
     @Override
     public void onSensorNetIn(Sensor sensor) {
-        if (mSensorSourceFilter != null && !mSensorSourceFilter.isMatch(sensor)) {
-            return;
-        }
+//        if (mSensorSourceFilter != null && !mSensorSourceFilter.isMatch(sensor)) {
+//            return;
+//        }
+//
+//        if (mSearchFilter != null && !mSearchFilter.isMatch(sensor)) {
+//            return;
+//        }
 
-        if (mSearchFilter != null && !mSearchFilter.isMatch(sensor)) {
-            return;
-        }
-
-        notifyAdapterSensorNetIn(sensor, true);
+        notifyAdapterSensorNetIn(sensor);
     }
 
-    private void notifyAdapterSensorNetIn(Sensor sensor, boolean isRealTime) {
+    private void notifyAdapterSensorNetIn(Sensor sensor) {
         Message message = Message.obtain();
-        message.what = isRealTime
-                ? MSG_SENSOR_NET_IN_REAL_TIME
-                : MSG_SENSOR_NET_IN_HISTORY;
+        message.what = MSG_SENSOR_NET_IN;
         message.obj = sensor;
         mEventHandler.sendMessage(message);
     }
@@ -610,13 +625,44 @@ public class DataBrowseActivity
     public void onSortTypeChanged(@IdRes int checkedId, boolean isAscending) {
         switch (checkedId) {
             case R.id.rb_address:
-                changeSensorSorterAndOrder(SORTED_BY_ADDRESS, !isAscending);
+                //changeSensorSorterAndOrder(SORTED_BY_ADDRESS, !isAscending);
+                mSensorStorage.setSorter(DataBrowseSensorStorage.SORTED_BY_ADDRESS, !isAscending, mIsRealTime, this);
                 break;
             case R.id.rb_time:
-                changeSensorSorterAndOrder(SORTED_BY_TIME, !isAscending);
+                mSensorStorage.setSorter(DataBrowseSensorStorage.SORTED_BY_TIME, !isAscending, mIsRealTime, this);
+                //changeSensorSorterAndOrder(, !isAscending);
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void onSensorSizeChange(int previousSize, int currentSize) {
+        mSensorAdapter.notifySensorFilterChanged(previousSize, currentSize);
+    }
+
+    @Override
+    public void onSorterChange(SensorSorter newSorter) {
+        mSensorAdapter.notifySensorOrderChanged();
+    }
+
+    @Override
+    public void onOrderChange(boolean newOrder) {
+        mSensorAdapter.notifySensorOrderChanged();
+    }
+
+    @Override
+    public void onDataSourceChange(boolean isRealTime) {
+        BaseSensorAdapterDelegate.setRealTime(mIsRealTime);
+        DataPrepareService service = getDataPrepareService();
+        if (mIsRealTime) {
+            service.setOnSensorNetInListener(this);
+            service.startSensorValueUpdater(this);
+        } else {
+            service.setOnSensorNetInListener(null);
+            service.stopSensorValueUpdater();
+            importSensorsWithHistoryValue();
         }
     }
 
@@ -657,7 +703,7 @@ public class DataBrowseActivity
             if (!sensor.hasHistoryValue()) {
                 sensor.addHistoryValue(timestamp, batteryVoltage);
                 if (!mIsRealTime) {
-                    notifyAdapterSensorNetIn(sensor, false);
+                    notifyAdapterSensorNetIn(sensor);
                 }
             }
         }

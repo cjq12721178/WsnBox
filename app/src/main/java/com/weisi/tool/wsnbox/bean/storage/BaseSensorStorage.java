@@ -24,6 +24,10 @@ public class BaseSensorStorage {
         mSensors = new ArrayList<>();
     }
 
+    public int getSensorSize() {
+        return mSensors.size();
+    }
+
     public Sensor getSensor(int position) {
         return mSensors.get(getSensorDisplayPosition(position));
     }
@@ -35,16 +39,28 @@ public class BaseSensorStorage {
                 : logicalPosition;
     }
 
-    public BaseSensorStorage setSorter(SensorSorter sorter, boolean isDescend, OnSorterChangeListener listener) {
+    public BaseSensorStorage setSorter(SensorSorter sorter, boolean isDescend) {
+        return setSorter(sorter, isDescend, false, null);
+    }
+
+    public BaseSensorStorage setSorter(SensorSorter sorter, boolean isDescend, OnSensorSorterChangeListener listener) {
+        return setSorter(sorter, isDescend, true, listener);
+    }
+
+    protected BaseSensorStorage setSorter(SensorSorter sorter, boolean isDescend, boolean isCommit, OnSensorSorterChangeListener listener) {
         if (mSensorSorter != sorter) {
             mSensorSorter = sorter;
             mIsDescend = isDescend;
-            resort();
-            notifySorterChangeListener(listener);
+            if (isCommit) {
+                resort();
+                notifySorterChangeListener(listener);
+            }
         } else {
             if (mIsDescend != isDescend) {
                 mIsDescend = isDescend;
-                notifyOrderChangeListener(listener);
+                if (isCommit) {
+                    notifyOrderChangeListener(listener);
+                }
             }
         }
         return this;
@@ -56,13 +72,13 @@ public class BaseSensorStorage {
         }
     }
 
-    private void notifySorterChangeListener(OnSorterChangeListener listener) {
+    private void notifySorterChangeListener(OnSensorSorterChangeListener listener) {
         if (listener != null) {
             listener.onSorterChange(mSensorSorter);
         }
     }
 
-    private void notifyOrderChangeListener(OnSorterChangeListener listener) {
+    private void notifyOrderChangeListener(OnSensorSorterChangeListener listener) {
         if (listener != null) {
             listener.onOrderChange(mIsDescend);
         }
@@ -87,7 +103,7 @@ public class BaseSensorStorage {
         return this;
     }
 
-    public void commitFilter(OnSensorSizeChangeListener listener) {
+    public void commitFilter(OnSensorFilterChangeListener listener) {
         int previousSize = mSensors.size();
         mSensors.clear();
         SensorManager.getSensors(mSensors, mSensorFilters);
@@ -130,12 +146,20 @@ public class BaseSensorStorage {
         }
     }
 
-    public interface OnSorterChangeListener {
+    protected SensorSorter getSensorSorter() {
+        return mSensorSorter;
+    }
+
+    public boolean getSensorOrder() {
+        return mIsDescend;
+    }
+
+    public interface OnSensorSorterChangeListener {
         void onSorterChange(SensorSorter newSorter);
         void onOrderChange(boolean newOrder);
     }
 
-    public interface OnSensorSizeChangeListener {
+    public interface OnSensorFilterChangeListener {
         void onSensorSizeChange(int previousSize, int currentSize);
     }
 }

@@ -169,7 +169,7 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
                         timestamp,
                         position));
             } else {
-                holder.mTvValueContents[i].setText(String.format("%.2fV", value.getBatteryVoltage()));
+                holder.mTvValueContents[i].setText(value.getFormattedBatteryVoltage());
             }
         }
     }

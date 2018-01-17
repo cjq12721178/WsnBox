@@ -3,6 +3,7 @@ package com.weisi.tool.wsnbox.adapter;
 import com.cjq.lib.weisi.sensor.Sensor;
 import com.cjq.tool.qbox.ui.adapter.AdapterDelegateManager;
 import com.cjq.tool.qbox.ui.adapter.RecyclerViewBaseAdapter;
+import com.weisi.tool.wsnbox.bean.storage.BaseSensorStorage;
 
 import java.util.List;
 
@@ -12,31 +13,34 @@ import java.util.List;
 
 public class DataBrowseSensorAdapter extends RecyclerViewBaseAdapter<Sensor> {
 
-    private final List<Sensor> mSensors;
-    private boolean mIsDescend;
+    //private final List<Sensor> mSensors;
+    //private boolean mIsDescend;
+
+    private final BaseSensorStorage mSensorStorage;
 
     public DataBrowseSensorAdapter(AdapterDelegateManager<Sensor> manager,
-                                   List<Sensor> sensors) {
+                                   BaseSensorStorage storage) {
         super(manager);
-        mSensors = sensors;
+        mSensorStorage = storage;
     }
 
-    public boolean setOrder(boolean isDescend) {
-        if (mIsDescend != isDescend) {
-            mIsDescend = isDescend;
-            return true;
-        }
-        return false;
-    }
+//    public boolean setOrder(boolean getSensorOrder) {
+//        if (mIsDescend != getSensorOrder) {
+//            mIsDescend = getSensorOrder;
+//            return true;
+//        }
+//        return false;
+//    }
 
     @Override
     public Sensor getItemByPosition(int position) {
-        return mSensors.get(getItemDisplayPosition(position));
+        //return mSensors.get(getItemDisplayPosition(position));
+        return mSensorStorage.getSensor(position);
     }
 
     @Override
     public int getItemCount() {
-        return mSensors.size();
+        return mSensorStorage.getSensorSize();
     }
 
     @Override
@@ -46,19 +50,20 @@ public class DataBrowseSensorAdapter extends RecyclerViewBaseAdapter<Sensor> {
                 .size() - 1;
     }
 
-    private int getItemDisplayPosition(int structurePosition) {
-        return mIsDescend
-                ? mSensors.size() - 1 - structurePosition
-                : structurePosition;
-    }
+//    private int getItemDisplayPosition(int structurePosition) {
+//        return mIsDescend
+//                ? mSensors.size() - 1 - structurePosition
+//                : structurePosition;
+//    }
 
     public void notifySensorNetIn(int position) {
-        notifyItemInserted(getItemDisplayPosition(position));
+        //notifyItemInserted(getItemDisplayPosition(position));
+        notifyItemInserted(position);
     }
 
     public void notifySensorValueUpdate(int position) {
-        notifyItemChanged(getItemDisplayPosition(position),
-                BaseSensorAdapterDelegate.UPDATE_TYPE_VALUE_CHANGED);
+        //notifyItemChanged(getItemDisplayPosition(position),
+        notifyItemChanged(position, BaseSensorAdapterDelegate.UPDATE_TYPE_VALUE_CHANGED);
     }
 
     public void notifySensorOrderChanged() {
@@ -75,8 +80,8 @@ public class DataBrowseSensorAdapter extends RecyclerViewBaseAdapter<Sensor> {
                 BaseSensorAdapterDelegate.UPDATE_TYPE_MEASUREMENT_LABEL_CHANGED);
     }
 
-    public void notifySensorFilterChanged(int previousSize) {
-        int currentSize = getItemCount();
+    public void notifySensorFilterChanged(int previousSize, int currentSize) {
+        //int currentSize = getItemCount();
         if (previousSize < currentSize) {
             notifyItemRangeChanged(0, previousSize);
             notifyItemRangeInserted(previousSize, currentSize - previousSize);

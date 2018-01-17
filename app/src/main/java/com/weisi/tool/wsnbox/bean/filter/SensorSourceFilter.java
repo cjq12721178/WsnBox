@@ -21,6 +21,6 @@ public class SensorSourceFilter implements Filter {
 
     @Override
     public boolean isMatch(Sensor sensor) {
-        return mIsBle == ConfigurationManager.isBleSensor(sensor.getRawAddress());
+        return sensor.isBleProtocolFamily();
     }
 }
