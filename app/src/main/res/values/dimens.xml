@@ -27,6 +27,7 @@
     <dimen name="size_image_small">32dp</dimen>
     <dimen name="size_image_middle">48dp</dimen>
     <dimen name="size_image_large">64dp</dimen>
+    <dimen name="size_image_huge">96dp</dimen>
 
     <!-- 其他 -->
     <dimen name="size_sensor_browse_measurement_height">20dp</dimen>

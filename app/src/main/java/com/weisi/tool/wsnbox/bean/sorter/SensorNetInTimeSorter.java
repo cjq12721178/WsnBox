@@ -1,6 +1,6 @@
 package com.weisi.tool.wsnbox.bean.sorter;
 
-import com.cjq.lib.weisi.sensor.Sensor;
+import com.cjq.lib.weisi.node.Sensor;
 
 import java.util.List;
 

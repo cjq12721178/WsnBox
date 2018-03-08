@@ -11,10 +11,10 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.sensor.Measurement;
-import com.cjq.lib.weisi.sensor.Sensor;
+import com.cjq.lib.weisi.node.Sensor;
 import com.cjq.tool.qbox.ui.adapter.RecyclerViewBaseAdapter;
 import com.weisi.tool.wsnbox.R;
+import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,6 +31,9 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     public static final int ONLY_HAS_RIGHT_DISPLAY_ITEM = 1;
     public static final int HAS_BOTH_DISPLAY_ITEM = 2;
     public static final int ONLY_HAS_LEFT_DISPLAY_ITEM = 3;
+
+    private static CommonWarnProcessor<View> mWarnProcessor;
+
     private final Drawable mSensorValueBackground;
     private final Date mTimeSetter = new Date();
     private final SimpleDateFormat mDateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -54,6 +57,10 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
         mIsRealTime = isRealTime;
         mDisplayCount = mSensor.getMeasurementCollections().size() + 1;
         mDisplayStartIndex = displayStartIndex;
+    }
+
+    public static void setWarnProcessor(CommonWarnProcessor warnProcessor) {
+        mWarnProcessor = warnProcessor;
     }
 
     public int getDisplayStartIndex() {
@@ -157,19 +164,33 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
                 ? mSensorValueBackground
                 : null);
         long timestamp = value.getTimestamp();
-        List<Measurement> measurements = mSensor.getMeasurementCollections();
+        List<Sensor.Measurement> measurements = mSensor.getMeasurementCollections();
+        Sensor.Measurement.Value measurementValue;
+        TextView tvValueContent;
+        Sensor.Measurement measurement;
         for (int i = 0,
              valueContentSize = holder.mTvValueContents.length,
              measurementSize = mDisplayCount - 1;
              i < valueContentSize;
              ++i) {
+            tvValueContent = holder.mTvValueContents[i];
             if (mDisplayStartIndex + i < measurementSize) {
-                holder.mTvValueContents[i].setText(getCorrespondDecoratedValueWithUnit(
-                        measurements.get(mDisplayStartIndex + i),
-                        timestamp,
-                        position));
+                measurement = measurements.get(mDisplayStartIndex + i);
+                measurementValue = getCorrespondValue(measurement, timestamp, position);
+                if (measurementValue != null) {
+                    tvValueContent.setText(measurement.formatValueWithUnit(measurementValue));
+                    if (mWarnProcessor != null) {
+                        mWarnProcessor.process(measurementValue, measurement.getConfiguration().getWarner(), tvValueContent);
+                    }
+                } else {
+                    tvValueContent.setText(null);
+                }
+//                holder.mTvValueContents[i].setText(getCorrespondFormattedValueWithUnit(
+//                        measurements.get(mDisplayStartIndex + i),
+//                        timestamp,
+//                        position));
             } else {
-                holder.mTvValueContents[i].setText(value.getFormattedBatteryVoltage());
+                tvValueContent.setText(value.getFormattedBatteryVoltage());
             }
         }
     }
@@ -186,13 +207,21 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
         }
     }
 
-    private String getCorrespondDecoratedValueWithUnit(Measurement measurement, long timestamp, int position) {
-        Measurement.Value value = mIsRealTime
+    private Sensor.Measurement.Value getCorrespondValue(Sensor.Measurement measurement, long timestamp, int position) {
+        return mIsRealTime
                 ? measurement.findDynamicValue(position, timestamp)
                 : measurement.findHistoryValue(position, timestamp);
-        return value != null ? measurement.getDataType().getDecoratedValueWithUnit(value)
-                : "";
     }
+
+//    private String getCorrespondFormattedValueWithUnit(Sensor.Measurement measurement, long timestamp, int position) {
+//        Sensor.Measurement.Value value = mIsRealTime
+//                ? measurement.findDynamicValue(position, timestamp)
+//                : measurement.findHistoryValue(position, timestamp);
+//        return value != null ? measurement.formatValueWithUnit(value)
+//                : "";
+////        return value != null ? measurement.getDataType().getDecoratedValueWithUnit(value)
+////                : "";
+//    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 

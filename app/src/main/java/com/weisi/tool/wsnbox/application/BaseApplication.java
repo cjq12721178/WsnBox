@@ -4,9 +4,8 @@ import android.app.Application;
 
 import com.cjq.tool.qbox.util.ClosableLog;
 import com.cjq.tool.qbox.util.ExceptionLog;
-import com.weisi.tool.wsnbox.bean.configuration.ConfigurationImporter;
+import com.weisi.tool.wsnbox.bean.configuration.SettingsImporter;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
-import com.weisi.tool.wsnbox.bean.information.UserInfo;
 import com.weisi.tool.wsnbox.handler.CrashHandler;
 import com.weisi.tool.wsnbox.version.VersionChecker;
 
@@ -27,7 +26,7 @@ public class BaseApplication extends Application {
         ClosableLog.setEnablePrint(true);
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(getApplicationContext()));
         if (VersionChecker.amend(getApplicationContext())) {
-            ConfigurationImporter importer = new ConfigurationImporter();
+            SettingsImporter importer = new SettingsImporter();
             if (importer.leadIn(this)) {
                 mSettings = importer.getSettings();
             }

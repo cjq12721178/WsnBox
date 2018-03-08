@@ -1,8 +1,7 @@
 package com.weisi.tool.wsnbox.bean.storage;
 
-import com.cjq.lib.weisi.sensor.Filter;
-import com.cjq.lib.weisi.sensor.Sensor;
-import com.cjq.lib.weisi.sensor.SensorManager;
+import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.node.SensorManager;
 import com.weisi.tool.wsnbox.bean.filter.FilterCollection;
 import com.weisi.tool.wsnbox.bean.sorter.SensorSorter;
 
@@ -84,7 +83,7 @@ public class BaseSensorStorage {
         }
     }
 
-    public BaseSensorStorage addFilter(Filter filter) {
+    public BaseSensorStorage addFilter(Sensor.Filter filter) {
         if (filter != null) {
             getSensorFilters().add(filter);
         }
@@ -98,7 +97,7 @@ public class BaseSensorStorage {
         return mSensorFilters;
     }
 
-    public BaseSensorStorage removeFilter(Filter filter) {
+    public BaseSensorStorage removeFilter(Sensor.Filter filter) {
         getSensorFilters().remove(filter);
         return this;
     }

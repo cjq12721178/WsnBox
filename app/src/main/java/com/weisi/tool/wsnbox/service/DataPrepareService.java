@@ -8,12 +8,12 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.StringRes;
 
-import com.cjq.lib.weisi.sensor.ConfigurationManager;
+import com.cjq.lib.weisi.node.SensorManager;
 import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.application.BaseApplication;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
-import com.weisi.tool.wsnbox.io.SensorDatabase;
+import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;
 import com.weisi.tool.wsnbox.processor.BleSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.CommonSensorDataAccessor;
@@ -158,8 +158,8 @@ public class DataPrepareService extends Service implements SensorDataAccessor.On
     }
 
     public boolean importSensorConfigurations() {
-        return ConfigurationManager.importEsbConfiguration(this)
-                && ConfigurationManager.importBleConfiguration(this);
+        return SensorManager.importEsbConfiguration(this)
+                && SensorManager.importBleConfiguration(this);
     }
 
     public void startAccessSensorData(PermissionsRequester.Builder builder) {

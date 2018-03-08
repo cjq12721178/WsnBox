@@ -19,12 +19,11 @@ import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.sensor.Measurement;
-import com.cjq.lib.weisi.sensor.Sensor;
+import com.cjq.lib.weisi.node.Sensor;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.adapter.SensorInfoAdapter;
-import com.weisi.tool.wsnbox.io.SensorDatabase;
+import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 
 import java.util.Calendar;
 import java.util.List;
@@ -81,17 +80,15 @@ public class SensorInformationFragment
             mSensorInfoAdapter = new SensorInfoAdapter(getContext(), mSensor, mRealTime, savedInstanceState.getInt(ARGUMENT_KEY_START_MEASUREMENT_INDEX));
         }
         View view = inflater.inflate(R.layout.fragment_sensor_info, container, false);
-        TextView tvTitle = (TextView) view.findViewById(R.id.tv_sensor_info_label);
-        //tvTitle.setText(mCurrentSensor.getName() + "详细信息");
+        TextView tvTitle = view.findViewById(R.id.tv_sensor_info_label);
         tvTitle.setText(getString(R.string.sensor_info_title, mSensor.getName()));
-        TextView tvAddress = (TextView) view.findViewById(R.id.tv_sensor_address);
-        //tvAddress.setText("地址：" + mCurrentSensor.getFormatAddress());
+        TextView tvAddress = view.findViewById(R.id.tv_sensor_address);
         tvAddress.setText(getString(R.string.sensor_info_address, mSensor.getFormatAddress()));
-        TextView tvState = (TextView) view.findViewById(R.id.tv_sensor_state);
+        TextView tvState = view.findViewById(R.id.tv_sensor_state);
         tvState.setText(mSensor.getState() == Sensor.State.ON_LINE
                         ? R.string.sensor_info_state_on
                         : R.string.sensor_info_state_off);
-        mTvDate = (TextView) view.findViewById(R.id.tv_date);
+        mTvDate = view.findViewById(R.id.tv_date);
 //        if (mSensor.getIntraday() == 0) {
 //            mSensor.setIntraday(System.currentTimeMillis());
 //        }
@@ -116,7 +113,7 @@ public class SensorInformationFragment
         }
 
         //设置RecyclerView header
-        List<Measurement> measurements = mSensor.getMeasurementCollections();
+        List<Sensor.Measurement> measurements = mSensor.getMeasurementCollections();
         mTvValueLabels[0] = (TextView) view.findViewById(R.id.tv_measurement1);
         mTvValueLabels[1] = (TextView) view.findViewById(R.id.tv_measurement2);
         if (mSensorInfoAdapter.getScheduledDisplayCount() >= SensorInfoAdapter.MAX_DISPLAY_COUNT) {
@@ -182,14 +179,14 @@ public class SensorInformationFragment
         mTvDate.setText(getString(R.string.sensor_info_date, date));
     }
 
-    private void setValueLabels(List<Measurement> measurements) {
+    private void setValueLabels(List<Sensor.Measurement> measurements) {
         for (int i = 0,
              measurementSize = mSensorInfoAdapter.getScheduledDisplayCount() - 1,
              displayCount = mSensorInfoAdapter.getActualDisplayCount(),
              offset = mSensorInfoAdapter.getDisplayStartIndex();
              i < displayCount;
              ++i) {
-            Measurement measurement = offset + i < measurementSize
+            Sensor.Measurement measurement = offset + i < measurementSize
                     ? measurements.get(offset + i)
                     : null;
             mTvValueLabels[i].setText(measurement != null
@@ -241,8 +238,12 @@ public class SensorInformationFragment
     }
 
     private boolean canNotifyValueChanged(Sensor sensor) {
+        return mSensor == sensor
+                && isDialogShow();
+    }
+
+    private boolean isDialogShow() {
         return mSensorInfoAdapter != null
-                && mSensor == sensor
                 && getDialog() != null
                 && getDialog().isShowing();
     }
@@ -266,9 +267,15 @@ public class SensorInformationFragment
         }
     }
 
+    public void notifyWarnProcessorLoaded() {
+        if (isDialogShow()) {
+            mSensorInfoAdapter.notifyItemRangeChanged(0, mSensorInfoAdapter.getItemCount());
+        }
+    }
+
     public void notifyMeasurementDataChanged(Sensor sensor, int position, long timestamp) {
         if (!canNotifyValueChanged(sensor)
-                || mSensor.interpretAddResult(position, mRealTime) == Measurement.ADD_VALUE_FAILED) {
+                || mSensor.interpretAddResult(position, mRealTime) == Sensor.Measurement.ADD_VALUE_FAILED) {
             return;
         }
         int sensorValuePosition = mSensor.findHistoryValuePosition(position, timestamp);
@@ -421,10 +428,10 @@ public class SensorInformationFragment
         protected void onPostExecute(Boolean result) {
             if (!result) {
                 ConfirmDialog dialog = new ConfirmDialog();
+                dialog.setTitle(R.string.import_sensor_history_value_failed);
+                dialog.setDrawCancelButton(false);
                 dialog.show(getChildFragmentManager(),
-                        "import_sensor_history_value_failed",
-                        getString(R.string.import_sensor_history_value_failed),
-                        false);
+                        "import_sensor_history_value_failed");
             }
         }
 

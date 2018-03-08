@@ -1,15 +1,14 @@
 package com.weisi.tool.wsnbox.adapter;
 
-import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.sensor.Measurement;
-import com.cjq.lib.weisi.sensor.Sensor;
+import com.cjq.lib.weisi.node.Sensor;
 import com.cjq.tool.qbox.ui.adapter.AdapterDelegate;
+import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by CJQ on 2017/9/22.
@@ -17,14 +16,16 @@ import java.util.List;
 
 public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<Sensor> {
 
-    private static boolean showSensorNameOrAddress = true;
-    private static boolean showMeasurementNameOrType = true;
-    private static boolean realTime = true;
-    private static final Date TIMESTAMP_SETTER = new Date();
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
     public static final int UPDATE_TYPE_VALUE_CHANGED = 1;
     public static final int UPDATE_TYPE_SENSOR_LABEL_CHANGED = 2;
     public static final int UPDATE_TYPE_MEASUREMENT_LABEL_CHANGED = 3;
+
+    private static final Date TIMESTAMP_SETTER = new Date();
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    private static boolean showSensorNameOrAddress = true;
+    private static boolean showMeasurementNameOrType = true;
+    private static boolean realTime = true;
+    private static CommonWarnProcessor<View> warnProcessor;
 
     public static void setShowSensorNameOrAddress(boolean showName) {
         showSensorNameOrAddress = showName;
@@ -38,9 +39,13 @@ public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<Senso
         realTime = isRealTime;
     }
 
+    public static void setWarnProcessor(CommonWarnProcessor commonWarnProcessor) {
+        warnProcessor = commonWarnProcessor;
+    }
+
     protected void setSensorNameAddressText(TextView tvSensorNameAddress, Sensor sensor) {
         tvSensorNameAddress.setText(showSensorNameOrAddress
-                ? sensor.getGeneralName()
+                ? sensor.getName()
                 : sensor.getFormatAddress());
     }
 
@@ -55,25 +60,30 @@ public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<Senso
                 : sensor.getEarliestHistoryValue();
     }
 
-    protected void setMeasurementText(TextView tvMeasurementNameType, TextView tvMeasurementValue, Measurement measurement) {
+    protected void setMeasurementText(TextView tvMeasurementNameType, TextView tvMeasurementValue, Sensor.Measurement measurement) {
         setMeasurementNameTypeText(tvMeasurementNameType, measurement);
         setMeasurementValueText(tvMeasurementValue, measurement);
     }
 
-    protected void setMeasurementNameTypeText(TextView tvMeasurementNameType, Measurement measurement) {
+    protected void setMeasurementNameTypeText(TextView tvMeasurementNameType, Sensor.Measurement measurement) {
         tvMeasurementNameType.setText(showMeasurementNameOrType
-                ? measurement.getGeneralName()
-                : String.format("%02X", measurement.getDataType().getValue()));
+                ? measurement.getName()
+                : measurement.getDataType().getFormattedValue());
     }
 
-    protected void setMeasurementValueText(TextView tvMeasurementValue, Measurement measurement) {
-        Measurement.Value value = getValue(measurement);
-        tvMeasurementValue.setText(value != null
-                ? measurement.getDataType().getDecoratedValueWithUnit(value)
-                : null);
+    protected void setMeasurementValueText(TextView tvMeasurementValue, Sensor.Measurement measurement) {
+        Sensor.Measurement.Value value = getValue(measurement);
+        if (value != null) {
+            tvMeasurementValue.setText(measurement.formatValueWithUnit(value));
+            if (warnProcessor != null) {
+                warnProcessor.process(value, measurement.getConfiguration().getWarner(), tvMeasurementValue);
+            }
+        } else {
+            tvMeasurementValue.setText(null);
+        }
     }
 
-    private Measurement.Value getValue(Measurement measurement) {
+    private Sensor.Measurement.Value getValue(Sensor.Measurement measurement) {
         return realTime
                 ? measurement.getRealTimeValue()
                 : measurement.getEarliestHistoryValue();

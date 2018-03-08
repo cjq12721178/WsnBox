@@ -10,7 +10,7 @@ import android.view.View;
 import com.cjq.tool.qbox.ui.dialog.BaseDialog;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.weisi.tool.wsnbox.R;
-import com.weisi.tool.wsnbox.io.SensorDatabase;
+import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 
 public class MainActivity
@@ -31,10 +31,10 @@ public class MainActivity
             startService(new Intent(this, DataPrepareService.class));
         } else {
             ConfirmDialog dialog = new ConfirmDialog();
+            dialog.setTitle(R.string.application_configuration_not_prepared);
+            dialog.setDrawCancelButton(false);
             dialog.show(getSupportFragmentManager(),
-                    DIALOG_TAG_CONFIGURATION_NOT_PREPARED,
-                    getString(R.string.application_configuration_not_prepared),
-                    false);
+                    DIALOG_TAG_CONFIGURATION_NOT_PREPARED);
         }
     }
 
@@ -46,17 +46,17 @@ public class MainActivity
                 service.startCaptureAndRecordSensorData();
             } else {
                 ConfirmDialog dialog = new ConfirmDialog();
+                dialog.setTitle(R.string.launch_sensor_database_failed);
+                dialog.setDrawCancelButton(false);
                 dialog.show(getSupportFragmentManager(),
-                        "launch_sensor_database_failed",
-                        getString(R.string.launch_sensor_database_failed),
-                        false);
+                        "launch_sensor_database_failed");
             }
         } else {
             ConfirmDialog dialog = new ConfirmDialog();
+            dialog.setTitle(R.string.import_sensor_configurations_failed);
+            dialog.setDrawCancelButton(false);
             dialog.show(getSupportFragmentManager(),
-                    DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED,
-                    getString(R.string.import_sensor_configurations_failed),
-                    false);
+                    DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED);
         }
     }
 
@@ -106,14 +106,16 @@ public class MainActivity
             case R.id.cl_data_browse:
                 startActivity(new Intent(this, DataBrowseActivity.class));
                 break;
+            case R.id.cl_parameter_config:
+                startActivity(new Intent(this, ParameterConfigurationActivity.class));
+                break;
             case R.id.cl_freedom_scout:
             case R.id.cl_scout_config:
-            case R.id.cl_scout_record:
                 ConfirmDialog dialog = new ConfirmDialog();
+                dialog.setTitle(R.string.function_expect);
+                dialog.setDrawCancelButton(false);
                 dialog.show(getSupportFragmentManager(),
-                        "function_expect",
-                        R.string.function_expect,
-                        false);
+                        "function_expect");
                 break;
         }
     }

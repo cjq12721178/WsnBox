@@ -2,11 +2,13 @@ package com.weisi.tool.wsnbox.bean.configuration;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
 
 import com.weisi.tool.wsnbox.R;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 /**
@@ -53,7 +55,7 @@ public class Settings {
     private long mDefaultSensorDataGatherCycle; /* 单位秒 */
 
     public Settings(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
     }
 
     public String getDefaultBaseStationIp() {
@@ -364,5 +366,17 @@ public class Settings {
     //修复SwitchPreference自带初始值的问题
     void clearRedundantRecordInFirstRun() {
         getSharedPreferences().edit().clear().commit();
+    }
+
+    public long getDataBrowseValueContainerConfigurationProviderId() {
+        return getSharedPreferences().getLong(mContext.getString(R.string.preference_key_data_browse_config_provider_id), 0);
+    }
+
+    public void setDataBrowseValueContainerConfigurationProviderId(long id) {
+        getSharedPreferences().edit().putLong(mContext.getString(R.string.preference_key_data_browse_config_provider_id), id).commit();
+    }
+
+    public String getOutputFilePath() {
+        return getString(R.string.preference_key_output_file_path, Environment.getExternalStorageDirectory() + File.separator + "WsnBox");
     }
 }

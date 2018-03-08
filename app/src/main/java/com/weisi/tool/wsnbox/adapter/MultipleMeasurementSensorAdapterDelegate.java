@@ -3,7 +3,6 @@ package com.weisi.tool.wsnbox.adapter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,10 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.sensor.Measurement;
-import com.cjq.lib.weisi.sensor.Sensor;
-import com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView;
-import com.cjq.tool.qbox.ui.view.SizeSelfAdaptionTextView;
+import com.cjq.lib.weisi.node.Sensor;
 import com.weisi.tool.wsnbox.R;
 
 import java.util.List;
@@ -52,20 +48,21 @@ public class MultipleMeasurementSensorAdapterDelegate extends BaseSensorAdapterD
         ViewHolder holder = (ViewHolder) viewHolder;
         setSensorNameAddressText(holder.mTvSensorNameAddress, sensor);
         setTimestampText(holder.mTvTimestamp, sensor);
-        List<Measurement> measurements = sensor.getMeasurementCollections();
-        Measurement measurement;
+        List<Sensor.Measurement> measurements = sensor.getMeasurementCollections();
+        //Sensor.Measurement measurement;
         for (int i = 0;i < mMeasurementSize;++i) {
-            measurement = measurements.get(i);
-            setMeasurementNameTypeText(holder.mTvMeasurementNameTypes[i], measurement);
-            setMeasurementValueText(holder.mTvMeasurementValues[i], measurement);
+            setMeasurementText(holder.mTvMeasurementNameTypes[i], holder.mTvMeasurementValues[i], measurements.get(i));
+//            measurement = measurements.get(i);
+//            setMeasurementNameTypeText(holder.mTvMeasurementNameTypes[i], measurement);
+//            setMeasurementValueText(holder.mTvMeasurementValues[i], measurement);
         }
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Sensor sensor, int position, List payloads) {
         ViewHolder holder = (ViewHolder) viewHolder;
-        List<Measurement> measurements = sensor.getMeasurementCollections();
-        Measurement measurement;
+        List<Sensor.Measurement> measurements = sensor.getMeasurementCollections();
+        Sensor.Measurement measurement;
         switch ((int)payloads.get(0)) {
             case UPDATE_TYPE_VALUE_CHANGED: {
                 setTimestampText(holder.mTvTimestamp, sensor);

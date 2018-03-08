@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.weisi.tool.wsnbox">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <application
         android:name=".application.BaseApplication"
         android:allowBackup="true"
@@ -31,6 +33,10 @@
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/settings">
+        </activity>
+        <activity
+            android:name=".activity.ParameterConfigurationActivity"
+            android:label="@string/parameter_config">
         </activity>
     </application>
 

@@ -3,10 +3,9 @@ package com.weisi.tool.wsnbox.processor;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 
-import com.cjq.lib.weisi.sensor.MeasurementIdentifier;
-import com.cjq.lib.weisi.sensor.Sensor;
+import com.cjq.lib.weisi.node.Sensor;
 import com.weisi.tool.wsnbox.bean.data.SensorData;
-import com.weisi.tool.wsnbox.io.SensorDatabase;
+import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -135,7 +134,7 @@ public class SensorDataExporter
     @Override
     public void onDynamicValueCapture(int address, byte dataTypeValue, int dataTypeValueIndex, long timestamp, float batteryVoltage, double rawValue) {
         mTemporarySensorData.addLast(SensorData.build(address,
-                MeasurementIdentifier.getId(address,
+                Sensor.Measurement.ID.getId(address,
                         dataTypeValue, dataTypeValueIndex),
                 timestamp, batteryVoltage, rawValue));
     }

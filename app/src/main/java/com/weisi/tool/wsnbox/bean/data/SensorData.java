@@ -1,7 +1,5 @@
 package com.weisi.tool.wsnbox.bean.data;
 
-import com.cjq.lib.weisi.sensor.Sensor;
-
 import java.util.LinkedList;
 
 /**

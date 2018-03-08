@@ -3,8 +3,8 @@ package com.weisi.tool.wsnbox.processor;
 import android.content.Context;
 
 import com.cjq.lib.weisi.protocol.BaseSensorProtocol;
-import com.cjq.lib.weisi.sensor.Sensor;
-import com.cjq.lib.weisi.sensor.SensorManager;
+import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.node.SensorManager;
 import com.cjq.tool.qbox.util.ClosableLog;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;

@@ -5,7 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="bg_data_browse">#CEB575</color>
     <color name="bg_freedom_scout">#95A895</color>
-    <color name="bg_scout_record">#F46B41</color>
+    <color name="bg_parameter_config">#F46B41</color>
     <color name="bg_scout_config">#BE98CB</color>
     <color name="bg_title">#6F1163</color>
     <color name="bg_function_panel">#F0F0F0</color>
@@ -15,4 +15,5 @@
     <color name="time_selection_previous_day">#2F6FAD</color>
     <color name="time_selection_next_day">#21314A</color>
     <color name="time_selection_custom">#1F348F</color>
+    <color name="bg_para_config">#C8BFE7</color>
 </resources>

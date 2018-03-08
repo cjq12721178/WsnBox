@@ -6,8 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.sensor.Measurement;
-import com.cjq.lib.weisi.sensor.Sensor;
+import com.cjq.lib.weisi.node.Sensor;
 import com.weisi.tool.wsnbox.R;
 
 import java.util.List;
@@ -37,9 +36,10 @@ public class SingleMeasurementSensorAdapterDelegate extends BaseSensorAdapterDel
         ViewHolder holder = (ViewHolder) viewHolder;
         setSensorNameAddressText(holder.mTvSensorNameAddress, sensor);
         setTimestampText(holder.mTvTimestamp, sensor);
-        Measurement measurement = sensor.getMeasurementCollections().get(0);
-        setMeasurementNameTypeText(holder.mTvMeasurementNameType, measurement);
-        setMeasurementValueText(holder.mTvMeasurementValue, measurement);
+        Sensor.Measurement measurement = sensor.getMeasurementCollections().get(0);
+        setMeasurementText(holder.mTvMeasurementNameType, holder.mTvMeasurementValue, measurement);
+//        setMeasurementNameTypeText(holder.mTvMeasurementNameType, measurement);
+//        setMeasurementValueText(holder.mTvMeasurementValue, measurement);
     }
 
     @Override

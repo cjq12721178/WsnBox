@@ -1,6 +1,8 @@
 package com.weisi.tool.wsnbox.bean.sorter;
 
-import com.cjq.lib.weisi.sensor.Sensor;
+import android.os.Parcelable;
+
+import com.cjq.lib.weisi.node.Sensor;
 
 import java.util.Collections;
 import java.util.Comparator;

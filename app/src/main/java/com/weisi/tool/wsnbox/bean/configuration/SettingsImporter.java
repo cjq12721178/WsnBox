@@ -15,7 +15,7 @@ import javax.xml.parsers.SAXParserFactory;
  * Created by CJQ on 2017/12/5.
  */
 
-public class ConfigurationImporter extends DefaultHandler {
+public class SettingsImporter extends DefaultHandler {
 
     private final String FILE_NAME = "configuration.xml";
     private final String COMMUNICATOR_UDP = "UDP";

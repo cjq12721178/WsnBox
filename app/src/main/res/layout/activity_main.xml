@@ -134,8 +134,8 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:id="@+id/cl_scout_record"
-        android:background="@color/bg_scout_record"
+        android:id="@+id/cl_parameter_config"
+        android:background="@color/bg_parameter_config"
         android:layout_margin="@dimen/margin_small"
         android:onClick="onClick"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -146,34 +146,34 @@
         <android.support.constraint.Guideline
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/gl_scout_record_middle_vertical"
+            android:id="@+id/gl_parameter_config_middle_vertical"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.5"/>
 
         <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_scout_record"
-            android:text="@string/scout_record"
+            android:id="@+id/tv_parameter_config"
+            android:text="@string/parameter_config"
             android:textColor="@android:color/white"
             android:padding="@dimen/padding_micro"
             android:layout_marginBottom="@dimen/margin_micro"
-            app:layout_constraintLeft_toRightOf="@id/gl_scout_record_middle_vertical"
+            app:layout_constraintLeft_toRightOf="@id/gl_parameter_config_middle_vertical"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
         <ImageView
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:id="@+id/iv_scout_record"
+            android:id="@+id/iv_parameter_config"
             android:padding="@dimen/padding_micro"
             android:layout_marginTop="@dimen/margin_micro"
-            android:src="@drawable/ic_scout_record"
+            android:src="@drawable/ic_parameter_config"
             android:scaleType="fitCenter"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/gl_scout_record_middle_vertical"
-            app:layout_constraintBottom_toTopOf="@id/tv_scout_record"/>
+            app:layout_constraintRight_toLeftOf="@id/gl_parameter_config_middle_vertical"
+            app:layout_constraintBottom_toTopOf="@id/tv_parameter_config"/>
 
     </android.support.constraint.ConstraintLayout>
 

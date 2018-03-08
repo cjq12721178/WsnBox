@@ -4,7 +4,7 @@
     <string name="home_page_title">智联之窗</string>
     <string name="data_browse">数据浏览</string>
     <string name="freedom_scout">自由巡检</string>
-    <string name="scout_record">巡检记录</string>
+    <string name="parameter_config">参数配置</string>
     <string name="scout_config">巡检配置</string>
     <string name="settings">设置</string>
     <string name="function_expect">敬请期待</string>
@@ -38,6 +38,7 @@
     <string name="serial_port">串口</string>
     <string name="usb">USB</string>
     <string name="data_store">数据保存</string>
+    <string name="sensor_protocol">协议</string>
 
     <!-- 设置相关 -->
     <string name="preference_key_udp_enable">udp_enable</string>
@@ -85,6 +86,8 @@
     <string name="preference_title_usb_parity">校验位</string>
     <string name="preference_key_usb_protocol">usb_protocol</string>
     <string name="preference_title_usb_protocol">协议选择</string>
+    <string name="preference_key_data_browse_config_provider_id">db_cfg_pvd_id</string>
+    <string name="preference_key_output_file_path">output_path</string>
 
     <!-- 提示信息 -->
     <string name="unknown_error">发生未知错误</string>
@@ -135,7 +138,26 @@
     <string name="usb_stop_bits_set_failed">USB停止位设置失败</string>
     <string name="usb_data_bits_set_failed">USB数据位设置失败</string>
     <string name="usb_parity_set_failed">USB校验位设置失败</string>
-
+    <string name="sensor_type">类型</string>
+    <string name="sensor_config">传感器配置</string>
+    <string name="sensor_config_description">本项配置可以改变数据浏览和自由巡检界面中数据的展现形式，主要有以下功能：\n1. 自定义传感器名称\n2. 为传感器及其测量量设置告警参数，支持多种告警方式</string>
+    <string name="config_list">配置列表</string>
+    <string name="scene_list">应用场景</string>
+    <string name="add_para_configs">添加配置</string>
+    <string name="import_para_configs">导入配置</string>
+    <string name="choose_config_provider">选择参数配置文件</string>
+    <string name="file_manager_open_failed">文件管理器打开失败</string>
+    <string name="grant_read_perimission">请给予文件读取权限</string>
+    <string name="lack_read_permissions">缺少读取权限</string>
+    <string name="config_provider_null">配置文件路径为空</string>
+    <string name="insert_config_provider_failed">导入配置失败</string>
+    <string name="choose_scene_config">选择场景配置</string>
+    <string name="remove_config_provider">移除配置</string>
+    <string name="delete_config_provider_failed">参数配置删除失败</string>
+    <string name="confirm_delete_config_provider">是否删除该参数配置</string>
+    <string name="modify_config_provider_name">修改参数配置名称</string>
+    <string name="config_provider_name_empty">参数配置名称不得为空</string>
+    <string name="modify_config_provider_name_failed">参数配置名称修改失败</string>
 
     <!-- 常数 -->
     <string-array name="baud_rates">
