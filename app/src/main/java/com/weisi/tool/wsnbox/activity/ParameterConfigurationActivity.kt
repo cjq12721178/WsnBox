@@ -5,7 +5,6 @@ import android.content.ContentValues
 import android.content.Intent
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase.*
-import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
@@ -13,7 +12,6 @@ import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
 import android.support.v4.app.LoaderManager
 import android.support.v4.content.Loader
-import android.support.v7.widget.CardView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
@@ -35,10 +33,10 @@ import com.weisi.tool.wsnbox.io.Constant.*
 import com.weisi.tool.wsnbox.io.database.SensorDatabase
 import com.weisi.tool.wsnbox.permission.PermissionsRequester
 import com.weisi.tool.wsnbox.permission.ReadPermissionsRequester
+import com.weisi.tool.wsnbox.util.UriHelper
 import kotlinx.android.synthetic.main.activity_parameter_configuration.*
 import kotlinx.android.synthetic.main.list_item_para_config_insert.view.*
 import kotlinx.android.synthetic.main.list_item_scene.view.*
-import java.io.File
 
 class ParameterConfigurationActivity : BaseActivity(),
         View.OnClickListener,
@@ -144,17 +142,17 @@ class ParameterConfigurationActivity : BaseActivity(),
                 expectFunction()
             }
             R.id.cv_import -> {
-                if (Build.VERSION.SDK_INT >= 24) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     ReadPermissionsRequester(this, REQUEST_CODE_READ_PEMISSION)
                             .requestPermissions(object : PermissionsRequester.OnRequestResultListener {
-                        override fun onPermissionsGranted() {
-                            chooseConfigurationProvider()
-                        }
+                                override fun onPermissionsGranted() {
+                                    chooseConfigurationProvider()
+                                }
 
-                        override fun onPermissionsDenied() {
-                            SimpleCustomizeToast.show(this@ParameterConfigurationActivity, R.string.lack_read_permissions)
-                        }
-                    })
+                                override fun onPermissionsDenied() {
+                                    SimpleCustomizeToast.show(this@ParameterConfigurationActivity, R.string.lack_read_permissions)
+                                }
+                            })
                 } else {
                     chooseConfigurationProvider()
                 }
@@ -184,8 +182,18 @@ class ParameterConfigurationActivity : BaseActivity(),
 
     private fun chooseConfigurationProvider() {
         var intent = Intent(Intent.ACTION_GET_CONTENT);
-        intent.setDataAndType(Uri.fromFile(File(baseApplication.settings.outputFilePath)), "text/xml")
+        intent.setDataAndType(UriHelper.getUriByPath(this, baseApplication.settings.outputFilePath),
+                "text/xml")
+//        var file = File(baseApplication.settings.outputFilePath)
+//        intent.setDataAndType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            FileProvider.getUriForFile(applicationContext,
+//                    BuildConfig.APPLICATION_ID + ".provider",
+//                    file)
+//        } else {
+//            Uri.fromFile(file)
+//        }, "text/xml")
         intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         try {
             startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_config_provider)), REQUEST_CODE_FILE_SELECT)
         } catch (ex: android.content.ActivityNotFoundException) {
@@ -210,17 +218,19 @@ class ParameterConfigurationActivity : BaseActivity(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_FILE_SELECT) {
-            var filePath = data?.data?.path
+            //var filePath = data?.data?.path
+            var filePath = UriHelper.getRealFilePath(this, data?.data)
             if (filePath.isNullOrEmpty()) {
                 SimpleCustomizeToast.show(this, R.string.config_provider_null);
             } else {
-                object : AsyncTask<String, Void, Int>() {
-                    override fun doInBackground(vararg params: String): Int? {
-                        return if (params === null || params.isEmpty() || params[0] !is String) {
-                            0
-                        } else {
-                            SensorDatabase.insertValueContainerConfigurationProviderFromXml(this@ParameterConfigurationActivity, params[0])
-                        }
+                object : AsyncTask<Void, Void, Int>() {
+                    override fun doInBackground(vararg params: Void): Int? {
+//                        return if (params === null || params.isEmpty() || params[0] !is String) {
+//                            0
+//                        } else {
+//                            SensorDatabase.insertValueContainerConfigurationProviderFromXml(this@ParameterConfigurationActivity, params[0])
+//                        }
+                        return SensorDatabase.insertValueContainerConfigurationProviderFromXml(filePath)
                     }
 
                     override fun onPostExecute(result: Int?) {
@@ -232,7 +242,7 @@ class ParameterConfigurationActivity : BaseActivity(),
                                     R.string.insert_config_provider_failed)
                         }
                     }
-                }.execute(filePath)
+                }.execute()
             }
         }
         super.onActivityResult(requestCode, resultCode, data)

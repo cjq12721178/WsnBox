@@ -647,7 +647,7 @@ public class SensorDatabase implements Constant {
         return null;
     }
 
-    public static int insertValueContainerConfigurationProviderFromXml(Context context, String filePath) {
+    public static int insertValueContainerConfigurationProviderFromXml(String filePath) {
         if (database == null) {
             return 0;
         }
