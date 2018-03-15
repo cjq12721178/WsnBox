@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">酒钢电机监测</string>
+    <string name="app_name_debug">酒钢电机监测DEBUG</string>
+    <string name="home_page_title">酒钢电机监测</string>
+</resources>
