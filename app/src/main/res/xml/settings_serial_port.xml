@@ -6,7 +6,7 @@
         android:switchTextOn="@string/enable"
         android:switchTextOff="@string/disable"/>
     <PreferenceCategory
-        android:key="@string/preference_key_launch_parameter_serial_port"
+        android:key="@string/preference_key_launch_parameter"
         android:title="@string/preference_title_launch_parameter">
         <ListPreference
             android:key="@string/preference_key_serial_port_name"
@@ -19,7 +19,7 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/preference_title_use_parameter"
-        android:key="@string/preference_key_use_parameter_serial_port">
+        android:key="@string/preference_key_use_parameter">
         <EditTextPreference
             android:key="@string/preference_key_serial_port_data_request_cycle"
             android:title="@string/preference_title_data_request_cycle"

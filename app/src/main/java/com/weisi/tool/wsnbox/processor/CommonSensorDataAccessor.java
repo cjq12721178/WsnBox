@@ -59,30 +59,12 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
             if (launchCommunicator(context, settings)) {
                 onPostLaunchCommunicator(context, settings, listener);
             } else {
-                listener.onStartFailed(this, ERR_LAUNCH_COMMUNICATOR_FAILED);
+                notifyStartFailed(listener, ERR_LAUNCH_COMMUNICATOR_FAILED);
             }
         } else {
-            listener.onStartFailed(this, ERR_PREPARE_START_DATA_ACCESS_FAILED);
+            notifyStartFailed(listener, ERR_PREPARE_START_DATA_ACCESS_FAILED);
         }
     }
-
-//    @Override
-//    public boolean startDataAccess(Context context, Settings settings) {
-//        if (!onPreLaunchCommunicator()) {
-//            return false;
-//        }
-//        if (!launchCommunicator(settings)) {
-//            return false;
-//        }
-//        if (!mDataReceiver.startListen(this)) {
-//            return false;
-//        }
-//        if (!onInitDataRequestTaskParameter(settings)) {
-//            return false;
-//        }
-//        startDataRequestTask(getDataRequestCycle(settings));
-//        return true;
-//    }
 
     protected boolean onPreLaunchCommunicator(Context context) {
         return true;
@@ -96,13 +78,10 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
             if (onInitDataRequestTaskParameter(settings)) {
                 startDataRequestTask(getDataRequestCycle(settings));
                 notifyStartSuccess(listener);
-                //listener.onStartSuccess(this);
             } else {
-                //listener.onStartFailed(this, ERR_INIT_DATA_REQUEST_TASK_PARAMETER_FAILED);
                 notifyStartFailed(listener, ERR_INIT_DATA_REQUEST_TASK_PARAMETER_FAILED);
             }
         } else {
-            //listener.onStartFailed(this, ERR_START_LISTEN_FAILED);
             notifyStartFailed(listener, ERR_START_LISTEN_FAILED);
         }
     }
@@ -169,16 +148,6 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
     public void onTimeSynchronizationAnalyzed(long timestamp) {
     }
 
-    //    @Override
-//    public void onDataAnalyzed(int sensorAddress, byte dataTypeValue, int dataTypeIndex, ValueBuildDelegator valueBuildDelegator) {
-//        dispatchSensorData(sensorAddress, dataTypeValue, dataTypeIndex, valueBuildDelegator);
-//    }
-//
-//    @Override
-//    public void onTimeSynchronizationFinished(int year, int month, int day, int hour, int minute, int second) {
-//
-//    }
-
     public void restartDataRequestTask(long cycle) {
         stopDataRequestTask();
         startDataRequestTask(cycle);
@@ -198,22 +167,9 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
         return mProtocol.makeDataRequestFrame();
     }
 
-//    protected byte[] getDataRequestFrame(byte addressHigh, byte addressLow) {
-//        return new ScoutUdpSensorProtocol.EmptyDataZoneFrameBuilder(ScoutUdpSensorProtocol.COMMAND_CODE_REQUEST_DATA)
-//                .setBaseStationAddress(addressHigh, addressLow)
-//                .build();
-//    }
-
     protected byte[] getTimeSynchronizationFrame() {
-//        return new ScoutUdpSensorProtocol.TimeSynchronizationFrameBuilder()
-//                .setBaseStationAddress((byte) 0xFF, (byte) 0xFF)
-//                .build();
         return mProtocol.makeTimeSynchronizationFrame();
     }
-
-//    protected byte[] getDataRequestFrame(byte addressHigh, byte addressLow) {
-//        return new
-//    }
 
     protected void executeOneTimeTimerTask(TimerTask task) {
         getDataRequestTimer().schedule(task, 0);

@@ -1,6 +1,6 @@
 package com.weisi.tool.wsnbox
 
-import com.weisi.tool.wsnbox.bean.decorator.CommonSensorDecorator
+import org.junit.Assert.*
 import org.junit.Test
 
 /**
@@ -10,7 +10,6 @@ class ValueContainerConfigurationTest {
 
     @Test
     fun testDecorator() {
-        var sensorDecorator = CommonSensorDecorator("hehe")
-        sensorDecorator.customName
+        assertEquals(4, (2 + 2).toLong())
     }
 }

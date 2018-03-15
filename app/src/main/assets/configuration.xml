@@ -10,6 +10,12 @@
 				<port>5000</port>
 				<DataRequestCycle>500</DataRequestCycle>
 			</communicator>
+			<communicator name="TCP">
+				<enable>false</enable>
+				<ip>122.225.88.90</ip>
+				<port>33361</port>
+				<DataRequestCycle>2000</DataRequestCycle>
+			</communicator>
 			<communicator name="BLE">
 				<enable>true</enable>
 				<!-- 单位秒 -->

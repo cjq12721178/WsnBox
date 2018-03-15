@@ -30,6 +30,13 @@ public class Settings {
     private String mDefaultBaseStationIp;
     private int mDefaultBaseStationPort;
     private long mDefaultUdpDataRequestCycle;   /* 单位毫秒 */
+
+    //TCP
+    boolean mDefaultTcpEnable;
+    private String mDefaultRemoteServerIp;
+    private int mDefaultRemoteServerPort;
+    private long mDefaultTcpDataRequestCycle;
+
     //Serial Port
     boolean mDefaultSerialPortEnable;
     String mDefaultSerialPortName;
@@ -68,6 +75,22 @@ public class Settings {
 
     public long getDefaultUdpDataRequestCycle() {
         return mDefaultUdpDataRequestCycle;
+    }
+
+    public boolean isDefaultTcpEnable() {
+        return mDefaultTcpEnable;
+    }
+
+    public String getDefaultRemoteServerIp() {
+        return mDefaultRemoteServerIp;
+    }
+
+    public int getDefaultRemoteServerPort() {
+        return mDefaultRemoteServerPort;
+    }
+
+    public long getDefaultTcpDataRequestCycle() {
+        return mDefaultTcpDataRequestCycle;
     }
 
     public long getDefaultSerialPortDataRequestCycle() {
@@ -202,6 +225,18 @@ public class Settings {
         return getLong(R.string.preference_key_udp_data_request_cycle, getDefaultUdpDataRequestCycle());
     }
 
+    public String getRemoteServerIp() {
+        return getString(R.string.preference_key_remote_server_ip, getDefaultRemoteServerIp());
+    }
+
+    public int getRemoteServerPort() {
+        return getInt(R.string.preference_key_remote_server_port, getDefaultRemoteServerPort());
+    }
+
+    public long getTcpDataRequestCycle() {
+        return getLong(R.string.preference_key_tcp_data_request_cycle, getDefaultTcpDataRequestCycle());
+    }
+
     public long getSerialPortDataRequestCycle() {
         return getLong(R.string.preference_key_serial_port_data_request_cycle, getDefaultSerialPortDataRequestCycle());
     }
@@ -220,6 +255,10 @@ public class Settings {
 
     public boolean isUdpEnable() {
         return getBoolean(R.string.preference_key_udp_enable, isDefaultUdpEnable());
+    }
+
+    public boolean isTcpEnable() {
+        return getBoolean(R.string.preference_key_tcp_enable, isDefaultTcpEnable());
     }
 
     public boolean isSerialPortEnable() {
@@ -247,6 +286,11 @@ public class Settings {
         mDefaultBaseStationIp = ip;
     }
 
+    void setDefaultRemoteServerIp(String ip) {
+        checkIp(ip);
+        mDefaultRemoteServerIp = ip;
+    }
+
     public void checkIp(String ip) {
         if (!Pattern.matches("^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d?)(.(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]?\\d?)){3}$",
                 ip)) {
@@ -259,6 +303,11 @@ public class Settings {
         mDefaultBaseStationPort = port;
     }
 
+    void setDefaultRemoteServerPort(int port) {
+        checkPort(port);
+        mDefaultRemoteServerPort = port;
+    }
+
     public void checkPort(int port) {
         if (port < 0 || port > 65535) {
             throw new IllegalArgumentException("port out of bounds");
@@ -268,6 +317,11 @@ public class Settings {
     void setDefaultUdpDataRequestCycle(long cycle) {
         checkDataRequestCycle(cycle);
         mDefaultUdpDataRequestCycle = cycle;
+    }
+
+    void setDefaultTcpDataRequestCycle(long cycle) {
+        checkDataRequestCycle(cycle);
+        mDefaultTcpDataRequestCycle = cycle;
     }
 
     public void checkDataRequestCycle(long cycle) {

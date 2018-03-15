@@ -13,6 +13,7 @@ import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.fragment.BleSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.DataStoreSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.SerialPortSettingsFragment;
+import com.weisi.tool.wsnbox.fragment.TcpSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.UdpSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.UsbSettingsFragment;
 
@@ -77,7 +78,8 @@ public class SettingsActivity extends BasePreferenceActivity {
                 || UdpSettingsFragment.class.getName().equals(fragmentName)
                 || UsbSettingsFragment.class.getName().equals(fragmentName)
                 || SerialPortSettingsFragment.class.getName().equals(fragmentName)
-                || DataStoreSettingsFragment.class.getName().equals(fragmentName);
+                || DataStoreSettingsFragment.class.getName().equals(fragmentName)
+                || TcpSettingsFragment.class.getName().equals(fragmentName);
     }
 
     @Override

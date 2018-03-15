@@ -39,7 +39,7 @@ public class VersionChecker {
         SharedPreferences userInfo = context.getSharedPreferences("user_info", Context.MODE_PRIVATE);
         int previousVersionCode = userInfo.getInt(PREVIOUS_VERSION_CODE_KEY, VU);
         if (previousVersionCode == VU) {
-            //检查版本号是否大于等于V6
+            //检查版本号是否大于等于V6，小于V14
             if (userInfo.getBoolean("first_run", false)) {
                 userInfo.edit().clear().commit();
                 SharedPreferences oldSettings = context.getSharedPreferences("settings", Context.MODE_PRIVATE);

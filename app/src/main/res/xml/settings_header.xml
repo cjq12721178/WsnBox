@@ -13,6 +13,9 @@
         android:title="@string/usb"
         android:fragment="com.weisi.tool.wsnbox.fragment.UsbSettingsFragment"/>
     <header
+        android:title="@string/tcp"
+        android:fragment="com.weisi.tool.wsnbox.fragment.TcpSettingsFragment"/>
+    <header
         android:title="@string/data_store"
         android:fragment="com.weisi.tool.wsnbox.fragment.DataStoreSettingsFragment"/>
 </preference-headers>

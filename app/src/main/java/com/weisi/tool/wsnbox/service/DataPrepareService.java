@@ -20,6 +20,7 @@ import com.weisi.tool.wsnbox.processor.CommonSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.SensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.SensorDataExporter;
 import com.weisi.tool.wsnbox.processor.SerialPortSensorDataAccessor;
+import com.weisi.tool.wsnbox.processor.TcpSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.UdpSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.UsbSensorDataAccessor;
 
@@ -33,6 +34,7 @@ public class DataPrepareService extends Service implements SensorDataAccessor.On
     private UdpSensorDataAccessor mUdpSensorDataAccessor;
     private SerialPortSensorDataAccessor mSerialPortSensorDataAccessor;
     private UsbSensorDataAccessor mUsbSensorDataAccessor;
+    private TcpSensorDataAccessor mTcpSensorDataAccessor;
 
     private final Handler mEventHandler = new Handler() {
 
@@ -113,6 +115,16 @@ public class DataPrepareService extends Service implements SensorDataAccessor.On
                     toastStringRes = R.string.usb_parameter_set_failed;
             }
         }
+        if (accessor instanceof TcpSensorDataAccessor) {
+            switch (cause) {
+                case TcpSensorDataAccessor.ERR_LAUNCH_COMMUNICATOR_FAILED:
+                    toastStringRes = R.string.tcp_launch_failed;
+                    break;
+                case TcpSensorDataAccessor.ERR_START_LISTEN_FAILED:
+                    toastStringRes = R.string.start_tcp_listen_failed;
+                    break;
+            }
+        }
         if (toastStringRes != 0) {
             SimpleCustomizeToast.show(this, toastStringRes);
         }
@@ -145,7 +157,12 @@ public class DataPrepareService extends Service implements SensorDataAccessor.On
 
     public SerialPortSensorDataAccessor getSerialPortSensorDataAccessor() {
         if (mSerialPortSensorDataAccessor == null) {
-            mSerialPortSensorDataAccessor = new SerialPortSensorDataAccessor();
+            //mSerialPortSensorDataAccessor = new SerialPortSensorDataAccessorImpl();
+            try {
+                mSerialPortSensorDataAccessor = (SerialPortSensorDataAccessor) Class.forName("com.weisi.tool.wsnbox.processor.SerialPortSensorDataAccessorImpl").newInstance();
+            } catch (Exception e) {
+                mSerialPortSensorDataAccessor = new SerialPortSensorDataAccessor();
+            }
         }
         return mSerialPortSensorDataAccessor;
     }
@@ -155,6 +172,13 @@ public class DataPrepareService extends Service implements SensorDataAccessor.On
             mUsbSensorDataAccessor = new UsbSensorDataAccessor();
         }
         return mUsbSensorDataAccessor;
+    }
+
+    public TcpSensorDataAccessor getTcpSensorDataAccessor() {
+        if (mTcpSensorDataAccessor == null) {
+            mTcpSensorDataAccessor = new TcpSensorDataAccessor();
+        }
+        return mTcpSensorDataAccessor;
     }
 
     public boolean importSensorConfigurations() {
@@ -178,6 +202,9 @@ public class DataPrepareService extends Service implements SensorDataAccessor.On
         if (settings.isUsbEnable()) {
             getUsbSensorDataAccessor().startDataAccess(this, settings, null, this);
         }
+        if (settings.isTcpEnable()) {
+            getTcpSensorDataAccessor().startDataAccess(this, settings, null, this);
+        }
     }
 
     public void stopAccessSensorData() {
@@ -193,10 +220,13 @@ public class DataPrepareService extends Service implements SensorDataAccessor.On
             mSerialPortSensorDataAccessor.stopDataAccess(this);
             mSerialPortSensorDataAccessor = null;
         }
-
         if (mUsbSensorDataAccessor != null) {
             mUsbSensorDataAccessor.stopDataAccess(this);
             mUsbSensorDataAccessor = null;
+        }
+        if (mTcpSensorDataAccessor != null) {
+            mTcpSensorDataAccessor.stopDataAccess(this);
+            mTcpSensorDataAccessor = null;
         }
         CommonSensorDataAccessor.release();
     }

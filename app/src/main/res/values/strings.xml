@@ -34,6 +34,7 @@
     <string name="sensor_info_date" formatted="false">日期：%tF</string>
     <string name="communicator">通讯模块</string>
     <string name="udp">UDP</string>
+    <string name="tcp">TCP</string>
     <string name="ble">BLE</string>
     <string name="serial_port">串口</string>
     <string name="usb">USB</string>
@@ -45,6 +46,10 @@
     <string name="preference_key_base_station_ip">base_ip</string>
     <string name="preference_key_base_station_port">base_port</string>
     <string name="preference_key_udp_data_request_cycle">udp_data_request</string>
+    <string name="preference_key_tcp_enable">tcp_enable</string>
+    <string name="preference_key_remote_server_ip">server_ip</string>
+    <string name="preference_key_remote_server_port">server_port</string>
+    <string name="preference_key_tcp_data_request_cycle">tcp_data_request</string>
     <string name="preference_key_serial_port_enable">serial_port_enable</string>
     <string name="preference_key_serial_port_name">serial_port_name</string>
     <string name="preference_key_serial_port_baud_rate">serial_port_baud_rate</string>
@@ -58,6 +63,9 @@
     <string name="preference_title_udp">UDP通信</string>
     <string name="preference_title_base_station_ip">基站IP地址</string>
     <string name="preference_title_base_station_port">基站端口号</string>
+    <string name="preference_title_tcp">TCP通信</string>
+    <string name="preference_title_remote_server_ip">服务器IP地址</string>
+    <string name="preference_title_remote_server_port">服务器端口号</string>
     <string name="preference_title_data_request_cycle">数据申请周期（毫秒）</string>
     <string name="preference_title_ble">BLE通信</string>
     <string name="preference_title_ble_scan_cycle">设备搜索周期（秒）</string>
@@ -76,8 +84,8 @@
     <string name="preference_key_usb_parity">usb_parity</string>
     <string name="preference_key_usb_data_request_cycle">usb_data_request</string>
     <string name="preference_title_use_parameter">使用参数</string>
-    <string name="preference_key_launch_parameter_serial_port">launch_para_sp</string>
-    <string name="preference_key_use_parameter_serial_port">use_para_sp</string>
+    <string name="preference_key_launch_parameter">launch_para</string>
+    <string name="preference_key_use_parameter">use_para</string>
     <string name="preference_title_usb">USB通信</string>
     <string name="preference_title_usb_vendor_product_id">设备型号</string>
     <string name="preference_title_usb_baud_rate">波特率</string>
@@ -99,6 +107,8 @@
     <string name="import_sensor_history_value_failed">导入当前传感器历史数据失败</string>
     <string name="udp_launch_succeed">UDP通讯模块启动成功</string>
     <string name="udp_launch_failed">UDP通讯模块启动失败</string>
+    <string name="tcp_launch_succeed">TCP通讯模块启动成功</string>
+    <string name="tcp_launch_failed">TCP通讯模块启动失败</string>
     <string name="ble_launch_succeed">蓝牙通讯模块启动成功</string>
     <string name="ble_launch_failed">蓝牙通讯模块启动失败</string>
     <string name="serial_port_launch_failed">串口通讯模块启动失败</string>
@@ -111,6 +121,7 @@
     <string name="time_format_error">时间参数格式错误</string>
     <string name="data_request_less_than_min_cycle">数据申请周期最小为100毫秒</string>
     <string name="udp_shutdown">UDP通讯模块关闭</string>
+    <string name="tcp_shutdown">TCP通讯模块关闭</string>
     <string name="ble_shutdown">蓝牙通讯模块关闭</string>
     <string name="ble_scan_cycle_out_of_bounds">蓝牙设备搜索周期不能小于0</string>
     <string name="ble_scan_duration_out_of_bounds">蓝牙设备搜索周期不得小于10秒</string>
@@ -126,6 +137,7 @@
     <string name="lack_ble_permissions">缺少部分蓝牙权限</string>
     <string name="ble_scan_failed">蓝牙设备扫描失败</string>
     <string name="start_udp_listen_failed">启动UDP数据监听失败</string>
+    <string name="start_tcp_listen_failed">启动TCP数据监听失败</string>
     <string name="udp_data_request_parameter_set_failed">UDP数据请求参数设置错误</string>
     <string name="prepare_start_data_access_failed">准备加入传感器数据失败</string>
     <string name="start_serial_port_listen_failed">启动串口数据监听失败</string>

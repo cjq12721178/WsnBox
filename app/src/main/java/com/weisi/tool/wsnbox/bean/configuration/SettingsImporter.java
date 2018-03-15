@@ -22,6 +22,7 @@ public class SettingsImporter extends DefaultHandler {
     private final String COMMUNICATOR_BLE = "BLE";
     private final String COMMUNICATOR_SERIAL_PORT = "SerialPort";
     private final String COMMUNICATOR_USB = "USB";
+    private final String COMMUNICATOR_TCP = "TCP";
     private final String DATA_PROCESSOR = "DataProcessor";
 
     private StringBuilder mBuilder;
@@ -86,13 +87,30 @@ public class SettingsImporter extends DefaultHandler {
                     case DATA_PROCESSOR:
                         mSettings.mDefaultSensorDataGatherEnable = Boolean.parseBoolean(mBuilder.toString());
                         break;
+                    case COMMUNICATOR_TCP:
+                        mSettings.mDefaultTcpEnable = Boolean.parseBoolean(mBuilder.toString());
+                        break;
                 }
                 break;
             case "ip":
-                mSettings.setDefaultBaseStationIp(mBuilder.toString());
+                switch (mSettingType) {
+                    case COMMUNICATOR_UDP:
+                        mSettings.setDefaultBaseStationIp(mBuilder.toString());
+                        break;
+                    case COMMUNICATOR_TCP:
+                        mSettings.setDefaultRemoteServerIp(mBuilder.toString());
+                        break;
+                }
                 break;
             case "port":
-                mSettings.setDefaultBaseStationPort(Integer.parseInt(mBuilder.toString()));
+                switch (mSettingType) {
+                    case COMMUNICATOR_UDP:
+                        mSettings.setDefaultBaseStationPort(Integer.parseInt(mBuilder.toString()));
+                        break;
+                    case COMMUNICATOR_TCP:
+                        mSettings.setDefaultRemoteServerPort(Integer.parseInt(mBuilder.toString()));
+                        break;
+                }
                 break;
             case "DataRequestCycle":
                 switch (mSettingType) {
@@ -104,6 +122,9 @@ public class SettingsImporter extends DefaultHandler {
                         break;
                     case COMMUNICATOR_USB:
                         mSettings.setDefaultUsbDataRequestCycle(Long.parseLong(mBuilder.toString()));
+                        break;
+                    case COMMUNICATOR_TCP:
+                        mSettings.setDefaultTcpDataRequestCycle(Long.parseLong(mBuilder.toString()));
                         break;
                 }
                 break;

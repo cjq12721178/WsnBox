@@ -26,8 +26,8 @@ public class UsbSettingsFragment extends BaseSettingsFragment implements SensorD
 
         @Override
         protected void onInitialize(SwitchPreference preference) {
-            mLaunchParameterCategory = (PreferenceCategory) findPreference(getString(R.string.preference_key_launch_parameter_serial_port));
-            mUseParameterCategory = (PreferenceCategory) findPreference(getString(R.string.preference_key_use_parameter_serial_port));
+            mLaunchParameterCategory = (PreferenceCategory) findPreference(getString(R.string.preference_key_launch_parameter));
+            mUseParameterCategory = (PreferenceCategory) findPreference(getString(R.string.preference_key_use_parameter));
             setChecked(getSettings().isUsbEnable());
         }
 
