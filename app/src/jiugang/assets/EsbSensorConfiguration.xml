@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="0.001" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
 <!-- 本文件适用于BLE协议族 -->
 <!-- 数值解释方式目前为止有5种-->
@@ -10,12 +10,6 @@
 <!-- 自定义数据类型名称的type，0时为在默认名称之后附加，1为替换 -->
 <!-- ValueCorrector提供对原始值的修正功能 -->
 <Sensor>
-	<ValueCorrectos>
-		<ScriptValueCorrector>
-			<label>devide1000</label>
-			<function>v / 1000</function>
-		</ScriptValueCorrector>
-	</ValueCorrectos>
 	<DataTypes>
 		<DataType>
 			<value>05</value>
@@ -24,7 +18,7 @@
 			<signed>true</signed>
 			<decimal>1</decimal>
 			<unit>℃</unit>
-            <coefficient>0.0078125</coefficient>
+			<coefficient>0.0078125</coefficient>
 		</DataType>
 		<DataType>
 			<value>40</value>
@@ -33,7 +27,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>%RH</unit>
-            <coefficient>0.5</coefficient>
+			<coefficient>0.5</coefficient>
 		</DataType>
 		<DataType>
 			<value>A6</value>
@@ -42,8 +36,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm/s</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>A7</value>
@@ -52,8 +45,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm/s</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>A8</value>
@@ -62,8 +54,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>A9</value>
@@ -72,8 +63,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>B6</value>
@@ -82,8 +72,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm/s</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>B7</value>
@@ -92,8 +81,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm/s</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>B8</value>
@@ -102,8 +90,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>B9</value>
@@ -112,8 +99,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>C6</value>
@@ -122,8 +108,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm/s</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>C7</value>
@@ -132,8 +117,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm/s</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>C8</value>
@@ -142,8 +126,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
 			<value>C9</value>
@@ -152,8 +135,7 @@
 			<signed>true</signed>
 			<decimal>3</decimal>
 			<unit>mm</unit>
-            <coefficient>1.0</coefficient>
-			<ScriptValueCorrectorLabel>devide1000</ScriptValueCorrectorLabel>
+			<coefficient>0.001</coefficient>
 		</DataType>
 	</DataTypes>
 	<SensorTypes>
