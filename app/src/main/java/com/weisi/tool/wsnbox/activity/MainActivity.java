@@ -10,6 +10,7 @@ import android.view.View;
 import com.cjq.tool.qbox.ui.dialog.BaseDialog;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.weisi.tool.wsnbox.R;
+import com.weisi.tool.wsnbox.activity.data_browse.DataBrowseActivity;
 import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 

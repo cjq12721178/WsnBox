@@ -6,7 +6,10 @@ package com.weisi.tool.wsnbox
 
 class UseJavaScript {
 
-    fun invokeJsFunction() {
-
-    }
+//    fun invokeJsFunction() {
+//        val list = mutableListOf<String>()
+//        for (i in list.indices) {
+//
+//        }
+//    }
 }

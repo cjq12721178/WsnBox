@@ -27,7 +27,7 @@
         </service>
 
         <activity
-            android:name=".activity.DataBrowseActivity"
+            android:name=".activity.data_browse.DataBrowseActivity"
             android:label="@string/data_browse">
         </activity>
         <activity

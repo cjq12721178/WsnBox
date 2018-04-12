@@ -15,7 +15,7 @@ import com.weisi.tool.wsnbox.preference.SwitchPreferenceHelper;
 
 public class DataStoreSettingsFragment extends BaseSettingsFragment {
 
-    private SwitchPreferenceHelper mEnablePrefenrenceHelper = new SwitchPreferenceHelper() {
+    private SwitchPreferenceHelper mEnablePreferenceHelper = new SwitchPreferenceHelper() {
 
         @Override
         protected void onCheckedChanged(boolean checked) {
@@ -60,7 +60,7 @@ public class DataStoreSettingsFragment extends BaseSettingsFragment {
                         .setSensorDataGatherCycle(newCycle);
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.sensor_data_gather_cycle_out_of_bounds);
+                SimpleCustomizeToast.show(R.string.sensor_data_gather_cycle_out_of_bounds);
             }
             return false;
         }
@@ -73,6 +73,6 @@ public class DataStoreSettingsFragment extends BaseSettingsFragment {
         setHasOptionsMenu(true);
 
         mGatherCyclePreferenceHelper.initialize(this, R.string.preference_key_sensor_data_gather_cycle);
-        mEnablePrefenrenceHelper.initialize(this, R.string.preference_key_sensor_data_gather_enable);
+        mEnablePreferenceHelper.initialize(this, R.string.preference_key_sensor_data_gather_enable);
     }
 }

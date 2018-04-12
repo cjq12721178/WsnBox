@@ -3,7 +3,8 @@ package com.weisi.tool.wsnbox.adapter;
 import android.view.View;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.iot.LogicalSensor;
+import com.cjq.lib.weisi.iot.PhysicalSensor;
 import com.cjq.tool.qbox.ui.adapter.AdapterDelegate;
 import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor;
 
@@ -14,7 +15,7 @@ import java.util.Date;
  * Created by CJQ on 2017/9/22.
  */
 
-public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<Sensor> {
+public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<PhysicalSensor> {
 
     public static final int UPDATE_TYPE_VALUE_CHANGED = 1;
     public static final int UPDATE_TYPE_SENSOR_LABEL_CHANGED = 2;
@@ -43,36 +44,36 @@ public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<Senso
         warnProcessor = commonWarnProcessor;
     }
 
-    protected void setSensorNameAddressText(TextView tvSensorNameAddress, Sensor sensor) {
+    protected void setSensorNameAddressText(TextView tvSensorNameAddress, PhysicalSensor sensor) {
         tvSensorNameAddress.setText(showSensorNameOrAddress
                 ? sensor.getName()
                 : sensor.getFormatAddress());
     }
 
-    protected void setTimestampText(TextView tvTimestamp, Sensor sensor) {
+    protected void setTimestampText(TextView tvTimestamp, PhysicalSensor sensor) {
         TIMESTAMP_SETTER.setTime(getValue(sensor).getTimestamp());
         tvTimestamp.setText(DATE_FORMAT.format(TIMESTAMP_SETTER));
     }
 
-    private Sensor.Value getValue(Sensor sensor) {
+    private PhysicalSensor.Value getValue(PhysicalSensor sensor) {
         return realTime
                 ? sensor.getRealTimeValue()
-                : sensor.getEarliestHistoryValue();
+                : sensor.getHistoryValueContainer().getEarliestValue();
     }
 
-    protected void setMeasurementText(TextView tvMeasurementNameType, TextView tvMeasurementValue, Sensor.Measurement measurement) {
+    protected void setMeasurementText(TextView tvMeasurementNameType, TextView tvMeasurementValue, LogicalSensor measurement) {
         setMeasurementNameTypeText(tvMeasurementNameType, measurement);
         setMeasurementValueText(tvMeasurementValue, measurement);
     }
 
-    protected void setMeasurementNameTypeText(TextView tvMeasurementNameType, Sensor.Measurement measurement) {
+    protected void setMeasurementNameTypeText(TextView tvMeasurementNameType, LogicalSensor measurement) {
         tvMeasurementNameType.setText(showMeasurementNameOrType
                 ? measurement.getName()
                 : measurement.getDataType().getFormattedValue());
     }
 
-    protected void setMeasurementValueText(TextView tvMeasurementValue, Sensor.Measurement measurement) {
-        Sensor.Measurement.Value value = getValue(measurement);
+    protected void setMeasurementValueText(TextView tvMeasurementValue, LogicalSensor measurement) {
+        LogicalSensor.Value value = getValue(measurement);
         if (value != null) {
             tvMeasurementValue.setText(measurement.formatValueWithUnit(value));
             if (warnProcessor != null) {
@@ -83,9 +84,9 @@ public abstract class BaseSensorAdapterDelegate implements AdapterDelegate<Senso
         }
     }
 
-    private Sensor.Measurement.Value getValue(Sensor.Measurement measurement) {
+    private LogicalSensor.Value getValue(LogicalSensor measurement) {
         return realTime
                 ? measurement.getRealTimeValue()
-                : measurement.getEarliestHistoryValue();
+                : measurement.getHistoryValueContainer().getEarliestValue();
     }
 }

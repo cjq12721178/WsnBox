@@ -1,6 +1,6 @@
 package com.weisi.tool.wsnbox.adapter;
 
-import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.iot.PhysicalSensor;
 import com.cjq.tool.qbox.ui.adapter.AdapterDelegateManager;
 import com.cjq.tool.qbox.ui.adapter.RecyclerViewBaseAdapter;
 import com.weisi.tool.wsnbox.bean.storage.BaseSensorStorage;
@@ -11,18 +11,18 @@ import static com.weisi.tool.wsnbox.adapter.BaseSensorAdapterDelegate.*;
  * Created by CJQ on 2017/9/18.
  */
 
-public class DataBrowseSensorAdapter extends RecyclerViewBaseAdapter<Sensor> {
+public class DataBrowseSensorAdapter extends RecyclerViewBaseAdapter<PhysicalSensor> {
 
-    private final BaseSensorStorage mSensorStorage;
+    private final BaseSensorStorage<PhysicalSensor> mSensorStorage;
 
-    public DataBrowseSensorAdapter(AdapterDelegateManager<Sensor> manager,
-                                   BaseSensorStorage storage) {
+    public DataBrowseSensorAdapter(AdapterDelegateManager<PhysicalSensor> manager,
+                                   BaseSensorStorage<PhysicalSensor> storage) {
         super(manager);
         mSensorStorage = storage;
     }
 
     @Override
-    public Sensor getItemByPosition(int position) {
+    public PhysicalSensor getItemByPosition(int position) {
         return mSensorStorage.getSensor(position);
     }
 

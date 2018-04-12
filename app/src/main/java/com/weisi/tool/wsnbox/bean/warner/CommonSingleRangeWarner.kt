@@ -1,18 +1,18 @@
 package com.weisi.tool.wsnbox.bean.warner
 
-import com.cjq.lib.weisi.node.Sensor
-import com.cjq.lib.weisi.node.Sensor.Measurement.SingleRangeWarner.*
+import com.cjq.lib.weisi.iot.LogicalSensor
+import com.cjq.lib.weisi.iot.LogicalSensor.SingleRangeWarner.*
 
 /**
  * Created by CJQ on 2018/2/8.
  */
-open class CommonSingleRangeWarner : Sensor.Measurement.SingleRangeWarner {
+open class CommonSingleRangeWarner : LogicalSensor.SingleRangeWarner {
 
     var highLimit = 0.0
     var lowLimit = 0.0
 
-    override fun test(value: Sensor.Measurement.Value?): Int {
-        var rawValue = value!!.rawValue
+    override fun test(value: LogicalSensor.Value): Int {
+        var rawValue = value.rawValue
         return if (rawValue > highLimit) {
             RESULT_ABOVE_HIGH_LIMIT
         } else if (rawValue < lowLimit) {

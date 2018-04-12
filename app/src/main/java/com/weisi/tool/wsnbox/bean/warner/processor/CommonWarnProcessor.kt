@@ -1,17 +1,15 @@
 package com.weisi.tool.wsnbox.bean.warner.processor
 
-import com.cjq.lib.weisi.node.Sensor
-import com.cjq.lib.weisi.node.Sensor.Measurement.SingleRangeWarner.RESULT_ABOVE_HIGH_LIMIT
-import com.cjq.lib.weisi.node.Sensor.Measurement.SingleRangeWarner.RESULT_BELOW_LOW_LIMIT
-import com.cjq.lib.weisi.node.ValueContainer
-import com.cjq.lib.weisi.node.Sensor.Measurement.SwitchWarner.RESULT_IN_NORMAL_STATE
-import com.cjq.lib.weisi.node.ValueContainer.Warner.RESULT_NORMAL
+import com.cjq.lib.weisi.iot.LogicalSensor
+import com.cjq.lib.weisi.iot.LogicalSensor.SingleRangeWarner.RESULT_ABOVE_HIGH_LIMIT
+import com.cjq.lib.weisi.iot.LogicalSensor.SingleRangeWarner.RESULT_BELOW_LOW_LIMIT
+import com.cjq.lib.weisi.iot.LogicalSensor.SwitchWarner.RESULT_IN_NORMAL_STATE
+import com.cjq.lib.weisi.iot.Warner
+import com.cjq.lib.weisi.iot.Warner.RESULT_NORMAL
 import com.weisi.tool.wsnbox.bean.warner.executor.BackgroundNormalWarnExecutor
 import com.weisi.tool.wsnbox.bean.warner.executor.NormalWarnExecutor
 import com.weisi.tool.wsnbox.bean.warner.executor.SingleRangeWarnExecutor
 import com.weisi.tool.wsnbox.bean.warner.executor.SwitchWarnExecutor
-import com.weisi.tool.wsnbox.bean.warner.executor.browse.*
-import java.util.ArrayList
 import kotlin.reflect.KClass
 
 /**
@@ -48,13 +46,13 @@ class CommonWarnProcessor<E> {
         }
     }
 
-    fun process(value: Sensor.Measurement.Value?,
-                warner: ValueContainer.Warner<Sensor.Measurement.Value>?,
+    fun process(value: LogicalSensor.Value?,
+                warner: Warner<LogicalSensor.Value>?,
                 env: E) {
-        if (value != null && warner !== null) {
+        if (value != null && warner != null) {
             var warnResult = warner.test(value)
             when (warner) {
-                is Sensor.Measurement.SingleRangeWarner -> when (warnResult) {
+                is LogicalSensor.SingleRangeWarner -> when (warnResult) {
                     RESULT_NORMAL -> processNormalResult(env)
                     RESULT_ABOVE_HIGH_LIMIT -> singleRangeWarnExecutors.forEach {
                         executor -> executor.onResultAboveHighLimit(env)
@@ -63,7 +61,7 @@ class CommonWarnProcessor<E> {
                         executor -> executor.onResultBelowLowLimit(env)
                     }
                 }
-                is Sensor.Measurement.SwitchWarner -> if (warnResult == RESULT_IN_NORMAL_STATE) {
+                is LogicalSensor.SwitchWarner -> if (warnResult == RESULT_IN_NORMAL_STATE) {
                     processNormalResult(env)
                 } else {
                     switchWarnExecutors.forEach {

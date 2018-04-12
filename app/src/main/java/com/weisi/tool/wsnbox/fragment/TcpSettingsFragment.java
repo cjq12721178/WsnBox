@@ -1,5 +1,6 @@
 package com.weisi.tool.wsnbox.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceCategory;
 import android.preference.SwitchPreference;
@@ -9,13 +10,14 @@ import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.preference.EditPreferenceHelper;
 import com.weisi.tool.wsnbox.preference.SwitchPreferenceHelper;
-import com.weisi.tool.wsnbox.processor.SensorDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.SensorDynamicDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.TcpSensorDataAccessor;
 
 /**
  * Created by CJQ on 2018/1/4.
  */
 
-public class TcpSettingsFragment extends BaseSettingsFragment implements SensorDataAccessor.OnStartResultListener {
+public class TcpSettingsFragment extends BaseSettingsFragment {
 
     private SwitchPreferenceHelper mEnablePreferenceHelper = new SwitchPreferenceHelper() {
 
@@ -38,21 +40,35 @@ public class TcpSettingsFragment extends BaseSettingsFragment implements SensorD
         @Override
         public boolean onPreferenceChange(Object newValue) {
             boolean enabled = (boolean) newValue;
+            TcpSensorDataAccessor accessor = getPreferenceActivity()
+                    .getDataPrepareService()
+                    .getTcpSensorDataAccessor();
+            Context context = getActivity();
             if (enabled) {
-                getPreferenceActivity()
-                        .getDataPrepareService()
-                        .getTcpSensorDataAccessor()
-                        .startDataAccess(
-                                getActivity(),
-                                getSettings(),
-                                getPreferenceActivity(),
-                                TcpSettingsFragment.this);
+                accessor.startDataAccess(
+                        context,
+                        getSettings(),
+                        getPreferenceActivity(),
+                        new SensorDynamicDataAccessor.OnStartResultListener() {
+                            @Override
+                            public void onStartSuccess(SensorDynamicDataAccessor accessor) {
+                                SimpleCustomizeToast.show(R.string.tcp_launch_succeed);
+                            }
+
+                            @Override
+                            public void onStartFailed(SensorDynamicDataAccessor accessor, int cause) {
+                                if (cause == TcpSensorDataAccessor.ERR_IS_CONNECTING) {
+                                    SimpleCustomizeToast.show(R.string.tcp_connecting);
+                                } else {
+                                    SimpleCustomizeToast.show(R.string.tcp_launch_failed);
+                                    accessor.stopDataAccess(context);
+                                    mEnablePreferenceHelper.setChecked(false);
+                                }
+                            }
+                        });
             } else {
-                getPreferenceActivity()
-                        .getDataPrepareService()
-                        .getTcpSensorDataAccessor()
-                        .stopDataAccess(getActivity());
-                SimpleCustomizeToast.show(getActivity(), getString(R.string.tcp_shutdown));
+                accessor.stopDataAccess(getActivity());
+                SimpleCustomizeToast.show(R.string.tcp_shutdown);
             }
             return true;
         }
@@ -72,7 +88,7 @@ public class TcpSettingsFragment extends BaseSettingsFragment implements SensorD
                 getSettings().checkIp(newIp);
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.ip_format_error);
+                SimpleCustomizeToast.show(R.string.ip_format_error);
             }
             return false;
         }
@@ -92,7 +108,7 @@ public class TcpSettingsFragment extends BaseSettingsFragment implements SensorD
                 getSettings().checkPort(newPort);
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.port_out_of_bounds);
+                SimpleCustomizeToast.show(R.string.port_out_of_bounds);
             }
             return false;
         }
@@ -116,7 +132,7 @@ public class TcpSettingsFragment extends BaseSettingsFragment implements SensorD
                         .restartDataRequestTask(newCycle);
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.data_request_less_than_min_cycle);
+                SimpleCustomizeToast.show(R.string.data_request_less_than_min_cycle);
             }
             return false;
         }
@@ -132,17 +148,5 @@ public class TcpSettingsFragment extends BaseSettingsFragment implements SensorD
         mPortPreferenceHelper.initialize(this, R.string.preference_key_remote_server_port);
         mTcpDataRequestPreferenceHelper.initialize(this, R.string.preference_key_tcp_data_request_cycle);
         mEnablePreferenceHelper.initialize(this, R.string.preference_key_tcp_enable);
-    }
-
-    @Override
-    public void onStartSuccess(SensorDataAccessor accessor) {
-        SimpleCustomizeToast.show(getActivity(), getString(R.string.tcp_launch_succeed));
-    }
-
-    @Override
-    public void onStartFailed(SensorDataAccessor accessor, int cause) {
-        SimpleCustomizeToast.show(getActivity(), getString(R.string.tcp_launch_failed));
-        accessor.stopDataAccess(getActivity());
-        mEnablePreferenceHelper.setChecked(false);
     }
 }

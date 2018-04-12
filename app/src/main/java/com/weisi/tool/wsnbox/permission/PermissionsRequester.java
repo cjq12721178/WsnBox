@@ -16,12 +16,6 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public abstract class PermissionsRequester implements EasyPermissions.PermissionCallbacks {
 
-    public static final int TYPE_NONE = 0;
-    public static final int TYPE_BLE = 1;
-    public static final int TYPE_UDP = 2;
-    public static final int TYPE_SERIAL_PORT = 3;
-    public static final int TYPE_USB = 4;
-
     protected static final int PREPARE_SUCCESS = 0;
     protected static final int PREPARE_FAILED = 1;
     protected static final int PREPARE_PENDING = 2;
@@ -120,6 +114,32 @@ public abstract class PermissionsRequester implements EasyPermissions.Permission
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof PermissionsRequester) {
+            return REQUEST_CODE == ((PermissionsRequester) obj).REQUEST_CODE;
+        }
+        return false;
+    }
+
+    public static void performRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        PermissionsRequester requester = Manager.find(requestCode);
+        if (requester != null) {
+            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, requester);
+        }
+    }
+
+    public static void onActivityResult(int requestCode, int resultCode, Intent data) {
+        PermissionsRequester requester = Manager.find(requestCode);
+        if (requester != null) {
+            requester.onActivityResult(resultCode, data);
+        }
     }
 
     public interface OnRequestResultListener {
@@ -127,15 +147,14 @@ public abstract class PermissionsRequester implements EasyPermissions.Permission
         void onPermissionsDenied();
     }
 
-    public interface Builder {
-        PermissionsRequester build(int type);
-    }
-
-    public static class Manager {
+    private static class Manager {
 
         private static List<PermissionsRequester> permissionsRequesters = new ArrayList<>();
 
         public static void register(PermissionsRequester requester) {
+            if (permissionsRequesters.contains(requester)) {
+                throw new IllegalArgumentException("each requester need unique request code, at least no using at the same time");
+            }
             permissionsRequesters.add(requester);
         }
 

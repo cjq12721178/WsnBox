@@ -2,6 +2,8 @@ package com.weisi.tool.wsnbox.processor;
 
 import android.content.Context;
 
+import com.cjq.lib.weisi.protocol.GuomiEsbAnalyzer;
+import com.cjq.lib.weisi.protocol.UdpSensorProtocol;
 import com.cjq.tool.qbox.util.ExceptionLog;
 
 import java.io.IOException;
@@ -11,6 +13,10 @@ import java.io.IOException;
  */
 
 public class SerialPortSensorDataAccessorImpl extends SerialPortSensorDataAccessor {
+
+    public SerialPortSensorDataAccessorImpl() {
+        super(new UdpSensorProtocol(new GuomiEsbAnalyzer()));
+    }
 
     @Override
     protected boolean onPreLaunchCommunicator(Context context) {

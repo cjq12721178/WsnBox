@@ -4,20 +4,20 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.iot.PhysicalSensor;
+import com.cjq.lib.weisi.iot.Sensor;
 import com.weisi.tool.wsnbox.bean.filter.BleProtocolFilter;
 import com.weisi.tool.wsnbox.bean.filter.EsbProtocolFilter;
-import com.weisi.tool.wsnbox.bean.filter.SensorMeasurementNameFilter;
+import com.weisi.tool.wsnbox.bean.filter.PhysicalSensorNameFilter;
 import com.weisi.tool.wsnbox.bean.filter.SensorProtocolFilter;
-import com.weisi.tool.wsnbox.bean.filter.SensorTypeFilter;
-import com.weisi.tool.wsnbox.bean.filter.SensorUseForRealtimeFilter;
+import com.weisi.tool.wsnbox.bean.filter.PhysicalSensorTypeFilter;
+import com.weisi.tool.wsnbox.bean.filter.SensorUseForRealTimeFilter;
 import com.weisi.tool.wsnbox.bean.filter.SensorWithHistoryValueFilter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorAddressSorter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorEarliestValueTimeSorter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorNetInTimeSorter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorSorter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,15 +25,15 @@ import java.util.List;
  * 注意，本类中凡是方法中带listener的都会自动commit，否则需手动commit
  */
 
-public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcelable {
+public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> implements Parcelable {
 
     public static final int SORTED_BY_ADDRESS = 1;
     public static final int SORTED_BY_TIME = 2;
 
-    private Sensor.Filter mDataSourceFilter;
-    private Sensor.Filter mSensorProtocolFilter;
-    private SensorTypeFilter mSensorTypeFilter;
-    private SensorMeasurementNameFilter mSensorMeasurementNameFilter;
+    private Sensor.Filter<PhysicalSensor> mDataSourceFilter;
+    private Sensor.Filter<PhysicalSensor> mSensorProtocolFilter;
+    private PhysicalSensorTypeFilter mPhysicalSensorTypeFilter;
+    private PhysicalSensorNameFilter mPhysicalSensorNameFilter;
 
     public DataBrowseSensorStorage(boolean isRealTime) {
         super();
@@ -70,10 +70,10 @@ public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcel
     }
 
     private void setDataSource(boolean isRealTime, boolean changeSorter, boolean isCommit, OnSensorDataSourceChangeListener listener) {
-        Sensor.Filter oldDataSourceFilter = mDataSourceFilter;
+        Sensor.Filter<PhysicalSensor> oldDataSourceFilter = mDataSourceFilter;
         if (isRealTime) {
-            if (!(mDataSourceFilter instanceof SensorUseForRealtimeFilter)) {
-                mDataSourceFilter = new SensorUseForRealtimeFilter();
+            if (!(mDataSourceFilter instanceof SensorUseForRealTimeFilter)) {
+                mDataSourceFilter = new SensorUseForRealTimeFilter();
             }
         } else {
             if (!(mDataSourceFilter instanceof SensorWithHistoryValueFilter)) {
@@ -89,10 +89,6 @@ public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcel
             }
             if (isCommit) {
                 commitDataSourceChange(listener);
-//                commitFilter(listener);
-//                if (listener != null) {
-//                    listener.onDataSourceChange(isRealTime);
-//                }
             }
         }
     }
@@ -105,7 +101,7 @@ public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcel
     }
 
     public boolean getDataSource() {
-        if (mDataSourceFilter instanceof SensorUseForRealtimeFilter) {
+        if (mDataSourceFilter instanceof SensorUseForRealTimeFilter) {
             return true;
         } else if (mDataSourceFilter instanceof SensorWithHistoryValueFilter) {
             return false;
@@ -211,8 +207,8 @@ public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcel
     }
 
     public List<Integer> getSensorTypeNos() {
-        return mSensorTypeFilter != null
-                ? mSensorTypeFilter.getSelectedSensorTypeNos()
+        return mPhysicalSensorTypeFilter != null
+                ? mPhysicalSensorTypeFilter.getSelectedSensorTypeNos()
                 : null;
     }
 
@@ -227,22 +223,22 @@ public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcel
     private void setSensorType(List<Integer> selectedSensorTypeNos, boolean isCommit, OnSensorTypeChangeListener listener) {
         boolean changed = false;
         if (selectedSensorTypeNos == null) {
-            if (mSensorTypeFilter != null) {
-                if (!mSensorTypeFilter.getSelectedSensorTypeNos().isEmpty()) {
+            if (mPhysicalSensorTypeFilter != null) {
+                if (!mPhysicalSensorTypeFilter.getSelectedSensorTypeNos().isEmpty()) {
                     changed = true;
                 }
-                removeFilter(mSensorTypeFilter);
-                mSensorTypeFilter = null;
+                removeFilter(mPhysicalSensorTypeFilter);
+                mPhysicalSensorTypeFilter = null;
             }
         } else {
-            if (mSensorTypeFilter != null) {
-                if (!mSensorTypeFilter.getSelectedSensorTypeNos().equals(selectedSensorTypeNos)) {
-                    mSensorTypeFilter.setSelectedSensorTypeNos(selectedSensorTypeNos);
+            if (mPhysicalSensorTypeFilter != null) {
+                if (!mPhysicalSensorTypeFilter.getSelectedSensorTypeNos().equals(selectedSensorTypeNos)) {
+                    mPhysicalSensorTypeFilter.setSelectedSensorTypeNos(selectedSensorTypeNos);
                     changed = true;
                 }
             } else {
-                mSensorTypeFilter = new SensorTypeFilter(selectedSensorTypeNos);
-                addFilter(mSensorTypeFilter);
+                mPhysicalSensorTypeFilter = new PhysicalSensorTypeFilter(selectedSensorTypeNos);
+                addFilter(mPhysicalSensorTypeFilter);
                 changed = true;
             }
         }
@@ -255,8 +251,8 @@ public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcel
     }
 
     public String getSearchContent() {
-        return mSensorMeasurementNameFilter != null
-                ? mSensorMeasurementNameFilter.getKeyWord()
+        return mPhysicalSensorNameFilter != null
+                ? mPhysicalSensorNameFilter.getKeyWord()
                 : "";
     }
 
@@ -271,22 +267,22 @@ public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcel
     private void setSearchContent(String keyWord, boolean isCommit, OnSearchKeyWordChangeListener listener) {
         boolean changed = false;
         if (TextUtils.isEmpty(keyWord)) {
-            if (mSensorMeasurementNameFilter != null) {
-                if (!TextUtils.isEmpty(mSensorMeasurementNameFilter.getKeyWord())) {
+            if (mPhysicalSensorNameFilter != null) {
+                if (!TextUtils.isEmpty(mPhysicalSensorNameFilter.getKeyWord())) {
                     changed = true;
                 }
-                removeFilter(mSensorMeasurementNameFilter);
-                mSensorMeasurementNameFilter = null;
+                removeFilter(mPhysicalSensorNameFilter);
+                mPhysicalSensorNameFilter = null;
             }
         } else {
-            if (mSensorMeasurementNameFilter != null) {
-                if (!mSensorMeasurementNameFilter.getKeyWord().equals(keyWord)) {
-                    mSensorMeasurementNameFilter.setKeyWord(keyWord);
+            if (mPhysicalSensorNameFilter != null) {
+                if (!mPhysicalSensorNameFilter.getKeyWord().equals(keyWord)) {
+                    mPhysicalSensorNameFilter.setKeyWord(keyWord);
                     changed = true;
                 }
             } else {
-                mSensorMeasurementNameFilter = new SensorMeasurementNameFilter(keyWord);
-                addFilter(mSensorMeasurementNameFilter);
+                mPhysicalSensorNameFilter = new PhysicalSensorNameFilter(keyWord);
+                addFilter(mPhysicalSensorNameFilter);
                 changed = true;
             }
         }
@@ -315,7 +311,7 @@ public class DataBrowseSensorStorage extends BaseSensorStorage implements Parcel
 
     public interface OnSensorDataSourceChangeListener
             extends OnSensorFilterChangeListener,
-            OnSensorSorterChangeListener {
+            OnSensorSorterChangeListener<PhysicalSensor> {
         void onDataSourceChange(boolean isRealTime);
     }
 

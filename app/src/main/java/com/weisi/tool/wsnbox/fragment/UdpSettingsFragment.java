@@ -1,5 +1,6 @@
 package com.weisi.tool.wsnbox.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
@@ -8,7 +9,8 @@ import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.preference.EditPreferenceHelper;
 import com.weisi.tool.wsnbox.preference.SwitchPreferenceHelper;
-import com.weisi.tool.wsnbox.processor.SensorDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.SensorDynamicDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.UdpSensorDataAccessor;
 
 import java.net.UnknownHostException;
 
@@ -16,7 +18,7 @@ import java.net.UnknownHostException;
  * Created by CJQ on 2018/1/4.
  */
 
-public class UdpSettingsFragment extends BaseSettingsFragment implements SensorDataAccessor.OnStartResultListener {
+public class UdpSettingsFragment extends BaseSettingsFragment {
 
     private SwitchPreferenceHelper mEnablePreferenceHelper = new SwitchPreferenceHelper() {
 
@@ -35,21 +37,31 @@ public class UdpSettingsFragment extends BaseSettingsFragment implements SensorD
         @Override
         public boolean onPreferenceChange(Object newValue) {
             boolean enabled = (boolean) newValue;
+            UdpSensorDataAccessor accessor = getPreferenceActivity()
+                    .getDataPrepareService()
+                    .getUdpSensorDataAccessor();
+            Context context = getActivity();
             if (enabled) {
-                getPreferenceActivity()
-                        .getDataPrepareService()
-                        .getUdpSensorDataAccessor()
-                        .startDataAccess(
-                                getActivity(),
-                                getSettings(),
-                                getPreferenceActivity(),
-                                UdpSettingsFragment.this);
+                accessor.startDataAccess(
+                        getActivity(),
+                        getSettings(),
+                        getPreferenceActivity(),
+                        new SensorDynamicDataAccessor.OnStartResultListener() {
+                            @Override
+                            public void onStartSuccess(SensorDynamicDataAccessor accessor) {
+                                SimpleCustomizeToast.show(R.string.udp_launch_succeed);
+                            }
+
+                            @Override
+                            public void onStartFailed(SensorDynamicDataAccessor accessor, int cause) {
+                                SimpleCustomizeToast.show(R.string.udp_launch_failed);
+                                accessor.stopDataAccess(context);
+                                mEnablePreferenceHelper.setChecked(false);
+                            }
+                        });
             } else {
-                getPreferenceActivity()
-                        .getDataPrepareService()
-                        .getUdpSensorDataAccessor()
-                        .stopDataAccess(getActivity());
-                SimpleCustomizeToast.show(getActivity(), getString(R.string.udp_shutdown));
+                accessor.stopDataAccess(context);
+                SimpleCustomizeToast.show(R.string.udp_shutdown);
             }
             return true;
         }
@@ -73,9 +85,9 @@ public class UdpSettingsFragment extends BaseSettingsFragment implements SensorD
                         .setDataRequestTaskTargetIp(newIp);
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.ip_format_error);
+                SimpleCustomizeToast.show(R.string.ip_format_error);
             } catch (UnknownHostException e) {
-                SimpleCustomizeToast.show(getActivity(), R.string.set_base_station_ip_failed);
+                SimpleCustomizeToast.show(R.string.set_base_station_ip_failed);
             }
             return false;
         }
@@ -99,7 +111,7 @@ public class UdpSettingsFragment extends BaseSettingsFragment implements SensorD
                         .setDataRequestTaskTargetPort(newPort);
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.port_out_of_bounds);
+                SimpleCustomizeToast.show(R.string.port_out_of_bounds);
             }
             return false;
         }
@@ -123,7 +135,7 @@ public class UdpSettingsFragment extends BaseSettingsFragment implements SensorD
                         .restartDataRequestTask(newCycle);
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.data_request_less_than_min_cycle);
+                SimpleCustomizeToast.show(R.string.data_request_less_than_min_cycle);
             }
             return false;
         }
@@ -139,20 +151,5 @@ public class UdpSettingsFragment extends BaseSettingsFragment implements SensorD
         mPortPreferenceHelper.initialize(this, R.string.preference_key_base_station_port);
         mUdpDataRequestPreferenceHelper.initialize(this, R.string.preference_key_udp_data_request_cycle);
         mEnablePreferenceHelper.initialize(this, R.string.preference_key_udp_enable);
-    }
-
-    @Override
-    public void onStartSuccess(SensorDataAccessor accessor) {
-        SimpleCustomizeToast.show(getActivity(), getString(R.string.udp_launch_succeed));
-    }
-
-    @Override
-    public void onStartFailed(SensorDataAccessor accessor, int cause) {
-        SimpleCustomizeToast.show(getActivity(), getString(R.string.udp_launch_failed));
-        getPreferenceActivity()
-                .getDataPrepareService()
-                .getUdpSensorDataAccessor()
-                .stopDataAccess(getActivity());
-        mEnablePreferenceHelper.setChecked(false);
     }
 }

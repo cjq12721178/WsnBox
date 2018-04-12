@@ -109,6 +109,7 @@
     <string name="udp_launch_failed">UDP通讯模块启动失败</string>
     <string name="tcp_launch_succeed">TCP通讯模块启动成功</string>
     <string name="tcp_launch_failed">TCP通讯模块启动失败</string>
+    <string name="tcp_connecting">正在连接服务器...</string>
     <string name="ble_launch_succeed">蓝牙通讯模块启动成功</string>
     <string name="ble_launch_failed">蓝牙通讯模块启动失败</string>
     <string name="serial_port_launch_failed">串口通讯模块启动失败</string>

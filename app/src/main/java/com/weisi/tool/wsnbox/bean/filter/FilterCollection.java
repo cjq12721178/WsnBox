@@ -1,6 +1,6 @@
 package com.weisi.tool.wsnbox.bean.filter;
 
-import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.iot.Sensor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +9,11 @@ import java.util.List;
  * Created by CJQ on 2017/9/14.
  */
 
-public class FilterCollection implements Sensor.Filter {
+public class FilterCollection<S extends Sensor> implements Sensor.Filter<S> {
 
-    private List<Sensor.Filter> mFilters = new ArrayList<>();
+    private List<Sensor.Filter<S>> mFilters = new ArrayList<>();
 
-    public FilterCollection add(Sensor.Filter filter) {
+    public FilterCollection add(Sensor.Filter<S> filter) {
         if (filter != null) {
             mFilters.add(filter);
         }
@@ -24,7 +24,7 @@ public class FilterCollection implements Sensor.Filter {
         mFilters.clear();
     }
 
-    public void remove(Sensor.Filter filter) {
+    public void remove(Sensor.Filter<S> filter) {
         mFilters.remove(filter);
     }
 
@@ -33,7 +33,7 @@ public class FilterCollection implements Sensor.Filter {
     }
 
     @Override
-    public boolean isMatch(Sensor sensor) {
+    public boolean isMatch(S sensor) {
         for (int i = 0, size = mFilters.size();i < size;++i) {
             if (!mFilters.get(i).isMatch(sensor)) {
                 return false;

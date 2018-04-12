@@ -56,10 +56,10 @@ public abstract class PreferenceHelper<P extends Preference>
         try {
             return onPreferenceChange(newValue);
         } catch (NumberFormatException nfe) {
-            SimpleCustomizeToast.show(mPreference.getContext(), R.string.parameter_format_error);
+            SimpleCustomizeToast.show(R.string.parameter_format_error);
         } catch (Exception e) {
             ExceptionLog.record(e);
-            SimpleCustomizeToast.show(mPreference.getContext(), R.string.set_failed);
+            SimpleCustomizeToast.show(R.string.set_failed);
         }
         return false;
     }

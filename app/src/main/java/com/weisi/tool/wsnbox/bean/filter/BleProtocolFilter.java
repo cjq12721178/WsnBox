@@ -1,6 +1,6 @@
 package com.weisi.tool.wsnbox.bean.filter;
 
-import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.iot.PhysicalSensor;
 
 /**
  * Created by CJQ on 2017/9/14.
@@ -18,7 +18,7 @@ public class BleProtocolFilter implements SensorProtocolFilter {
 //    }
 
     @Override
-    public boolean isMatch(Sensor sensor) {
-        return sensor.isBleProtocolFamily();
+    public boolean isMatch(PhysicalSensor sensor) {
+        return sensor.getId().isBleProtocolFamily();
     }
 }

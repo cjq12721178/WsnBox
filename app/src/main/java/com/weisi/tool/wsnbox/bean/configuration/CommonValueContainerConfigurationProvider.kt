@@ -1,21 +1,17 @@
 package com.weisi.tool.wsnbox.bean.configuration
 
-import com.cjq.lib.weisi.node.Sensor
-import com.cjq.lib.weisi.node.SensorManager
+import com.cjq.lib.weisi.iot.Sensor
+import com.cjq.lib.weisi.iot.SensorManager
+
 
 /**
  * Created by CJQ on 2018/2/9.
  */
 class CommonValueContainerConfigurationProvider(
-        private val sensorConfigurations: Map<Int, Sensor.Configuration>,
-        private val measurementConfigurations: Map<Long, Sensor.Measurement.Configuration>
-) : SensorManager.ValueContainerConfigurationProvider {
+        private val sensorConfigurations: Map<Sensor.ID?, Sensor.Configuration<*>?>
+) : SensorManager.SensorConfigurationProvider {
 
-    override fun getSensorConfiguration(address: Int): Sensor.Configuration? {
-        return sensorConfigurations.get(address)
-    }
-
-    override fun getMeasurementConfiguration(address: Int, dataTypeValue: Byte, dataTypeValueIndex: Int): Sensor.Measurement.Configuration? {
-        return measurementConfigurations.get(Sensor.Measurement.ID.getId(address, dataTypeValue, dataTypeValueIndex))
+    override fun <C : Sensor.Configuration<*>?> getSensorConfiguration(id: Sensor.ID?): C {
+        return sensorConfigurations.get(id) as C
     }
 }

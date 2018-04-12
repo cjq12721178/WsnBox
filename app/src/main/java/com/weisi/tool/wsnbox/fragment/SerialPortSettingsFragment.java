@@ -1,5 +1,6 @@
 package com.weisi.tool.wsnbox.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceCategory;
@@ -12,13 +13,14 @@ import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.preference.EditPreferenceHelper;
 import com.weisi.tool.wsnbox.preference.ListPreferenceHelper;
 import com.weisi.tool.wsnbox.preference.SwitchPreferenceHelper;
-import com.weisi.tool.wsnbox.processor.SensorDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.SensorDynamicDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.SerialPortSensorDataAccessor;
 
 /**
  * Created by CJQ on 2018/1/4.
  */
 
-public class SerialPortSettingsFragment extends BaseSettingsFragment implements SensorDataAccessor.OnStartResultListener {
+public class SerialPortSettingsFragment extends BaseSettingsFragment {
 
     private SwitchPreferenceHelper mEnablePreferenceHelper = new SwitchPreferenceHelper() {
 
@@ -44,21 +46,31 @@ public class SerialPortSettingsFragment extends BaseSettingsFragment implements 
         @Override
         public boolean onPreferenceChange(Object newValue) {
             boolean enabled = (boolean) newValue;
+            SerialPortSensorDataAccessor accessor = getPreferenceActivity()
+                    .getDataPrepareService()
+                    .getSerialPortSensorDataAccessor();
+            Context context = getActivity();
             if (enabled) {
-                getPreferenceActivity()
-                        .getDataPrepareService()
-                        .getSerialPortSensorDataAccessor()
-                        .startDataAccess(
-                                getActivity(),
-                                getSettings(),
-                                getPreferenceActivity(),
-                                SerialPortSettingsFragment.this);
+                accessor.startDataAccess(
+                        context,
+                        getSettings(),
+                        getPreferenceActivity(),
+                        new SensorDynamicDataAccessor.OnStartResultListener() {
+                            @Override
+                            public void onStartSuccess(SensorDynamicDataAccessor accessor) {
+                                SimpleCustomizeToast.show(R.string.serial_port_launch_succeed);
+                            }
+
+                            @Override
+                            public void onStartFailed(SensorDynamicDataAccessor accessor, int cause) {
+                                SimpleCustomizeToast.show(R.string.serial_port_launch_failed);
+                                accessor.stopDataAccess(context);
+                                mEnablePreferenceHelper.setChecked(false);
+                            }
+                        });
             } else {
-                getPreferenceActivity()
-                        .getDataPrepareService()
-                        .getSerialPortSensorDataAccessor()
-                        .stopDataAccess(getActivity());
-                SimpleCustomizeToast.show(getActivity(), getString(R.string.serial_port_shutdown));
+                accessor.stopDataAccess(context);
+                SimpleCustomizeToast.show(R.string.serial_port_shutdown);
             }
             return true;
         }
@@ -114,7 +126,7 @@ public class SerialPortSettingsFragment extends BaseSettingsFragment implements 
                         .restartDataRequestTask(newCycle);
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.data_request_less_than_min_cycle);
+                SimpleCustomizeToast.show(R.string.data_request_less_than_min_cycle);
             }
             return false;
         }
@@ -130,21 +142,5 @@ public class SerialPortSettingsFragment extends BaseSettingsFragment implements 
         mBaudRatePreferenceHelper.initialize(this, R.string.preference_key_serial_port_baud_rate);
         mDataRequestPreferenceHelper.initialize(this, R.string.preference_key_serial_port_data_request_cycle);
         mEnablePreferenceHelper.initialize(this, R.string.preference_key_serial_port_enable);
-
-    }
-
-    @Override
-    public void onStartSuccess(SensorDataAccessor accessor) {
-        SimpleCustomizeToast.show(getActivity(), R.string.serial_port_launch_succeed);
-    }
-
-    @Override
-    public void onStartFailed(SensorDataAccessor accessor, int cause) {
-        SimpleCustomizeToast.show(getActivity(), R.string.serial_port_launch_failed);
-        getPreferenceActivity()
-                .getDataPrepareService()
-                .getSerialPortSensorDataAccessor()
-                .stopDataAccess(getActivity());
-        mEnablePreferenceHelper.setChecked(false);
     }
 }

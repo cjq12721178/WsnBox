@@ -6,7 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.iot.LogicalSensor;
+import com.cjq.lib.weisi.iot.PhysicalSensor;
 import com.weisi.tool.wsnbox.R;
 
 import java.util.List;
@@ -32,18 +33,18 @@ public class SingleMeasurementSensorAdapterDelegate extends BaseSensorAdapterDel
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Sensor sensor, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, PhysicalSensor sensor, int position) {
         ViewHolder holder = (ViewHolder) viewHolder;
         setSensorNameAddressText(holder.mTvSensorNameAddress, sensor);
         setTimestampText(holder.mTvTimestamp, sensor);
-        Sensor.Measurement measurement = sensor.getMeasurementCollections().get(0);
+        LogicalSensor measurement = sensor.getMeasurementCollections().get(0);
         setMeasurementText(holder.mTvMeasurementNameType, holder.mTvMeasurementValue, measurement);
 //        setMeasurementNameTypeText(holder.mTvMeasurementNameType, measurement);
 //        setMeasurementValueText(holder.mTvMeasurementValue, measurement);
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Sensor sensor, int position, List payloads) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, PhysicalSensor sensor, int position, List payloads) {
         ViewHolder holder = (ViewHolder) viewHolder;
         switch ((int)payloads.get(0)) {
             case UPDATE_TYPE_VALUE_CHANGED: {

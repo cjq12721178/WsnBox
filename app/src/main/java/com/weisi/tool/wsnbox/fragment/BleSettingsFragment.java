@@ -1,5 +1,6 @@
 package com.weisi.tool.wsnbox.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
@@ -8,13 +9,14 @@ import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.preference.EditPreferenceHelper;
 import com.weisi.tool.wsnbox.preference.SwitchPreferenceHelper;
-import com.weisi.tool.wsnbox.processor.SensorDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.BleSensorDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.SensorDynamicDataAccessor;
 
 /**
  * Created by CJQ on 2018/1/4.
  */
 
-public class BleSettingsFragment extends BaseSettingsFragment implements SensorDataAccessor.OnStartResultListener {
+public class BleSettingsFragment extends BaseSettingsFragment {
 
     private SwitchPreferenceHelper mEnablePreferenceHelper = new SwitchPreferenceHelper() {
 
@@ -32,21 +34,31 @@ public class BleSettingsFragment extends BaseSettingsFragment implements SensorD
         @Override
         public boolean onPreferenceChange(Object newValue) {
             boolean enabled = (boolean) newValue;
+            final BleSensorDataAccessor accessor = getPreferenceActivity()
+                    .getDataPrepareService()
+                    .getBleSensorDataAccessor();
+            final Context context = getActivity();
             if (enabled) {
-                getPreferenceActivity()
-                        .getDataPrepareService()
-                        .getBleSensorDataAccessor()
-                        .startDataAccess(
-                                getActivity(),
-                                getSettings(),
-                                getPreferenceActivity(),
-                                BleSettingsFragment.this);
+                accessor.startDataAccess(
+                        getActivity(),
+                        getSettings(),
+                        getPreferenceActivity(),
+                        new SensorDynamicDataAccessor.OnStartResultListener() {
+                            @Override
+                            public void onStartSuccess(SensorDynamicDataAccessor accessor) {
+                                SimpleCustomizeToast.show(R.string.ble_launch_succeed);
+                            }
+
+                            @Override
+                            public void onStartFailed(SensorDynamicDataAccessor accessor, int cause) {
+                                SimpleCustomizeToast.show(R.string.ble_launch_failed);
+                                accessor.stopDataAccess(context);
+                                mEnablePreferenceHelper.setChecked(false);
+                            }
+                        });
             } else {
-                getPreferenceActivity()
-                        .getDataPrepareService()
-                        .getBleSensorDataAccessor()
-                        .stopDataAccess(getActivity());
-                SimpleCustomizeToast.show(getActivity(), getString(R.string.ble_shutdown));
+                accessor.stopDataAccess(context);
+                SimpleCustomizeToast.show(getString(R.string.ble_shutdown));
             }
             return true;
         }
@@ -73,7 +85,7 @@ public class BleSettingsFragment extends BaseSettingsFragment implements SensorD
                 }
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.ble_scan_cycle_out_of_bounds);
+                SimpleCustomizeToast.show(R.string.ble_scan_cycle_out_of_bounds);
             }
             return false;
         }
@@ -99,7 +111,7 @@ public class BleSettingsFragment extends BaseSettingsFragment implements SensorD
                 }
                 return true;
             } catch (IllegalArgumentException iae) {
-                SimpleCustomizeToast.show(getActivity(), R.string.ble_scan_duration_out_of_bounds);
+                SimpleCustomizeToast.show(R.string.ble_scan_duration_out_of_bounds);
             }
             return false;
         }
@@ -114,20 +126,5 @@ public class BleSettingsFragment extends BaseSettingsFragment implements SensorD
         mScanCyclePreferenceHelper.initialize(this, R.string.preference_key_ble_scan_cycle);
         mScanDurationPreferenceHelper.initialize(this, R.string.preference_key_ble_scan_duration);
         mEnablePreferenceHelper.initialize(this, R.string.preference_key_ble_enable);
-    }
-
-    @Override
-    public void onStartSuccess(SensorDataAccessor accessor) {
-        SimpleCustomizeToast.show(getActivity(), R.string.ble_launch_succeed);
-    }
-
-    @Override
-    public void onStartFailed(SensorDataAccessor accessor, int cause) {
-        SimpleCustomizeToast.show(getActivity(), R.string.ble_launch_failed);
-        getPreferenceActivity()
-                .getDataPrepareService()
-                .getBleSensorDataAccessor()
-                .stopDataAccess(getActivity());
-        mEnablePreferenceHelper.setChecked(false);
     }
 }

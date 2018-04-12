@@ -20,9 +20,8 @@ import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.application.BaseApplication;
 import com.weisi.tool.wsnbox.permission.BlePermissionsRequester;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;
+import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
-
-import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by CJQ on 2018/1/4.
@@ -120,28 +119,30 @@ public class ActivityFunctionDelegate {
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        PermissionsRequester requester = PermissionsRequester.Manager.find(requestCode);
-        if (requester != null) {
-            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, requester);
-        }
+        PermissionsRequester.performRequestPermissionsResult(requestCode, permissions, grantResults);
+//        PermissionsRequester requester = PermissionsRequester.Manager.find(requestCode);
+//        if (requester != null) {
+//            EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, requester);
+//        }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        PermissionsRequester requester = PermissionsRequester.Manager.find(requestCode);
-        if (requester != null) {
-            requester.onActivityResult(resultCode, data);
-        }
+        PermissionsRequester.onActivityResult(requestCode, resultCode, data);
+//        PermissionsRequester requester = PermissionsRequester.Manager.find(requestCode);
+//        if (requester != null) {
+//            requester.onActivityResult(resultCode, data);
+//        }
     }
 
     public PermissionsRequester build(int type) {
         switch (type) {
-            case PermissionsRequester.TYPE_BLE:
+            case PermissionsRequesterBuilder.TYPE_BLE:
                 return new BlePermissionsRequester(mActivity);
             default:return null;
         }
     }
 
-    public interface CallBack extends PermissionsRequester.Builder {
+    public interface CallBack extends PermissionsRequesterBuilder {
         void onServiceConnectionCreate(DataPrepareService service);
         void onServiceConnectionStart(DataPrepareService service);
         void onServiceConnectionStop(DataPrepareService service);

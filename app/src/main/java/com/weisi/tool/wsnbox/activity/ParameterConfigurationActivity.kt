@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase.*
+import android.database.sqlite.SQLiteDatabase.CONFLICT_NONE
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
@@ -150,7 +150,7 @@ class ParameterConfigurationActivity : BaseActivity(),
                                 }
 
                                 override fun onPermissionsDenied() {
-                                    SimpleCustomizeToast.show(this@ParameterConfigurationActivity, R.string.lack_read_permissions)
+                                    SimpleCustomizeToast.show(R.string.lack_read_permissions)
                                 }
                             })
                 } else {
@@ -197,7 +197,7 @@ class ParameterConfigurationActivity : BaseActivity(),
         try {
             startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_config_provider)), REQUEST_CODE_FILE_SELECT)
         } catch (ex: android.content.ActivityNotFoundException) {
-            SimpleCustomizeToast.show(this, R.string.file_manager_open_failed)
+            SimpleCustomizeToast.show(R.string.file_manager_open_failed)
         }
     }
 
@@ -221,7 +221,7 @@ class ParameterConfigurationActivity : BaseActivity(),
             //var filePath = data?.data?.path
             var filePath = UriHelper.getRealFilePath(this, data?.data)
             if (filePath.isNullOrEmpty()) {
-                SimpleCustomizeToast.show(this, R.string.config_provider_null);
+                SimpleCustomizeToast.show(R.string.config_provider_null);
             } else {
                 object : AsyncTask<Void, Void, Int>() {
                     override fun doInBackground(vararg params: Void): Int? {
@@ -238,8 +238,7 @@ class ParameterConfigurationActivity : BaseActivity(),
                             adapter.scheduleItemRangeInsert(adapter.itemCount, result)
                             refreshConfigProviderList()
                         } else {
-                            SimpleCustomizeToast.show(this@ParameterConfigurationActivity,
-                                    R.string.insert_config_provider_failed)
+                            SimpleCustomizeToast.show(R.string.insert_config_provider_failed)
                         }
                     }
                 }.execute()
@@ -287,7 +286,7 @@ class ParameterConfigurationActivity : BaseActivity(),
                     adapter.scheduleItemRemove(position)
                     refreshConfigProviderList()
                 } else {
-                    SimpleCustomizeToast.show(this, R.string.delete_config_provider_failed)
+                    SimpleCustomizeToast.show(R.string.delete_config_provider_failed)
                 }
             }
         }
@@ -310,7 +309,7 @@ class ParameterConfigurationActivity : BaseActivity(),
                     adapter.scheduleItemChange(position)
                     refreshConfigProviderList()
                 } else {
-                    SimpleCustomizeToast.show(this, R.string.modify_config_provider_name_failed)
+                    SimpleCustomizeToast.show(R.string.modify_config_provider_name_failed)
                 }
             }
         }

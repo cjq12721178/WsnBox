@@ -1,5 +1,7 @@
 package com.weisi.tool.wsnbox.bean.data;
 
+import com.cjq.lib.weisi.iot.Sensor;
+
 import java.util.LinkedList;
 
 /**
@@ -12,21 +14,37 @@ public class SensorData {
 
     private boolean mRecycled;
     private int mAddress;
-    private long mId;
+    //private long mId;
+    private byte mDataTypeValue;
+    private int mDataTypeValueIndex;
     private long mTimestamp;
     private float mBatteryVoltage;
     private double mRawValue;
 
+    public static SensorData build(long sensorId,
+                                   long timestamp,
+                                   float batteryVoltage,
+                                   double rawValue) {
+        return build(Sensor.ID.getAddress(sensorId),
+                Sensor.ID.getDataTypeValue(sensorId),
+                Sensor.ID.getDataTypeValueIndex(sensorId),
+                timestamp,
+                batteryVoltage,
+                rawValue);
+    }
+
     public static SensorData build(SensorData src) {
         return build(src.mAddress,
-                src.mId,
+                src.mDataTypeValue,
+                src.mDataTypeValueIndex,
                 src.mTimestamp,
                 src.mBatteryVoltage,
                 src.mRawValue);
     }
 
     public static SensorData build(int address,
-                                   long id,
+                                   byte dataTypeValue,
+                                   int dataTypeValueIndex,
                                    long timestamp,
                                    float batteryVoltage,
                                    double rawValue) {
@@ -40,7 +58,8 @@ public class SensorData {
             }
         }
         sensorData.mAddress = address;
-        sensorData.mId = id;
+        sensorData.mDataTypeValue = dataTypeValue;
+        sensorData.mDataTypeValueIndex = dataTypeValueIndex;
         sensorData.mTimestamp = timestamp;
         sensorData.mBatteryVoltage = batteryVoltage;
         sensorData.mRawValue = rawValue;
@@ -54,6 +73,14 @@ public class SensorData {
         return mAddress;
     }
 
+    public byte getDataTypeValue() {
+        return mDataTypeValue;
+    }
+
+    public int getDataTypeValueIndex() {
+        return mDataTypeValueIndex;
+    }
+
     public long getTimestamp() {
         return mTimestamp;
     }
@@ -63,7 +90,7 @@ public class SensorData {
     }
 
     public long getId() {
-        return mId;
+        return Sensor.ID.getId(mAddress, mDataTypeValue, mDataTypeValueIndex);
     }
 
     public double getRawValue() {

@@ -11,20 +11,28 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.iot.LogicalSensor;
+import com.cjq.lib.weisi.iot.PhysicalSensor;
+import com.cjq.lib.weisi.iot.SubValueContainer;
+import com.cjq.lib.weisi.iot.ValueContainer;
 import com.cjq.tool.qbox.ui.adapter.RecyclerViewBaseAdapter;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import static com.cjq.lib.weisi.iot.ValueContainer.LOOP_VALUE_ADDED;
+import static com.cjq.lib.weisi.iot.ValueContainer.NEW_VALUE_ADDED;
+import static com.cjq.lib.weisi.iot.ValueContainer.VALUE_UPDATED;
 
 /**
  * Created by CJQ on 2017/11/6.
  */
 
-public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
+public class SensorInfoAdapter extends RecyclerViewBaseAdapter<PhysicalSensor.Value> {
 
     public static final int MAX_DISPLAY_COUNT = 3;
     public static final int HAS_NO_EXCESS_DISPLAY_ITEM = 0;
@@ -37,7 +45,10 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     private final Drawable mSensorValueBackground;
     private final Date mTimeSetter = new Date();
     private final SimpleDateFormat mDateFormat = new SimpleDateFormat("HH:mm:ss");
-    private final Sensor mSensor;
+    private final SensorInfo mSensorInfo;
+    //private final PhysicalSensor mSensor;
+    //private ValueContainer<PhysicalSensor.Value> mSensorValueContainer;
+    //private final ValueContainer<LogicalSensor.Value>[] mMeasurementValueContainers;
     //这个属性的作用主要是将mSensor.getMeasurementCollections().size() + 1值固定，
     //以防unknown sensor在动态监听时发生变化出错，
     //所以SensorInformationFragment的onCreateView方法中须尽早生成SensorInfoAdapter类，
@@ -49,14 +60,60 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     private OnDisplayStateChangeListener mOnDisplayStateChangeListener;
 
     public SensorInfoAdapter(Context context,
-                             Sensor sensor,
+                             PhysicalSensor sensor,
                              boolean isRealTime,
                              int displayStartIndex) {
         mSensorValueBackground = new ColorDrawable(ContextCompat.getColor(context, R.color.bg_li_sensor_data));
-        mSensor = sensor;
+        //mSensor = sensor;
         mIsRealTime = isRealTime;
-        mDisplayCount = mSensor.getMeasurementCollections().size() + 1;
+        mDisplayCount = sensor.getMeasurementCollections().size() + 1;
         mDisplayStartIndex = displayStartIndex;
+        mSensorInfo = new SensorInfo(sensor, isRealTime);
+//        if (isRealTime) {
+//            mSensorValueContainer = mSensor.getDynamicValueContainer();
+//        } else {
+//            mSensorValueContainer = mSensor.getHistoryValueContainer();
+//        }
+//        mMeasurementValueContainers = new ValueContainer[mSensor.getMeasurementCollections().size()];
+    }
+
+    public long getIntraday() {
+        if (!(mSensorInfo.mPhysicalSensorValueContainer instanceof SubValueContainer)) {
+            return 0;
+        }
+        return ((SubValueContainer) mSensorInfo.mPhysicalSensorValueContainer).getStartTime();
+    }
+
+    public void setIntraday(long date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long startTime = calendar.getTimeInMillis();
+        calendar.add(Calendar.DATE, 1);
+        long endTime = calendar.getTimeInMillis();
+        mSensorInfo.setValueContainers(startTime, endTime);
+        //mSensorValueContainer.detachSubValueContainer(mSensorValueContainer);
+        //detachSensorValueContainer();
+        //mSensorValueContainer = mSensorValueContainer.applyForSubValueContainer(startTime, endTime);
+    }
+
+    public void detachSensorValueContainer() {
+        mSensorInfo.detachSubValueContainer();
+//        mSensorValueContainer.detachSubValueContainer(mSensorValueContainer);
+//        for (ValueContainer container :
+//                mMeasurementValueContainers) {
+//            container.detachSubValueContainer(container);
+//        }
+    }
+
+    public boolean isIntraday(long date) {
+        if (!(mSensorInfo.mPhysicalSensorValueContainer instanceof SubValueContainer)) {
+            throw new UnsupportedOperationException("do not invoke this method in real time");
+        }
+        return ((SubValueContainer) mSensorInfo.mPhysicalSensorValueContainer).contains(date);
     }
 
     public static void setWarnProcessor(CommonWarnProcessor warnProcessor) {
@@ -114,6 +171,20 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
         }
     }
 
+    public void notifySensorValueUpdate(int valueLogicalPosition) {
+        switch (mSensorInfo.mPhysicalSensorValueContainer.interpretAddResult(valueLogicalPosition)) {
+            case NEW_VALUE_ADDED:
+                notifyItemInserted(mSensorInfo.mPhysicalSensorValueContainer.getPhysicalPositionByLogicalPosition(valueLogicalPosition));
+                break;
+            case LOOP_VALUE_ADDED:
+                notifyItemRangeChanged(0, getItemCount());
+                break;
+            case VALUE_UPDATED:
+                notifyItemChanged(mSensorInfo.mPhysicalSensorValueContainer.getPhysicalPositionByLogicalPosition(valueLogicalPosition));
+                break;
+        }
+    }
+
     public int getInfoDisplayState() {
         if (mDisplayCount <= MAX_DISPLAY_COUNT) {
             return HAS_NO_EXCESS_DISPLAY_ITEM;
@@ -128,17 +199,19 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     }
 
     @Override
-    public Sensor.Value getItemByPosition(int position) {
-        return mIsRealTime
-                ? mSensor.getDynamicValue(position)
-                : mSensor.getIntradayHistoryValue(position);
+    public PhysicalSensor.Value getItemByPosition(int position) {
+//        return mIsRealTime
+//                ? mSensor.getDynamicValue(position)
+//                : mSensor.getIntradayHistoryValue(position);
+        return mSensorInfo.mPhysicalSensorValueContainer.getValue(position);
     }
 
     @Override
     public int getItemCount() {
-        return mIsRealTime
-                ? mSensor.getDynamicValueSize()
-                : mSensor.getIntradayHistoryValueSize();
+//        return mIsRealTime
+//                ? mSensor.getDynamicValueSize()
+//                : mSensor.getIntradayHistoryValueSize();
+        return mSensorInfo.mPhysicalSensorValueContainer.size();
     }
 
     @Override
@@ -152,22 +225,25 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Sensor.Value value, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, PhysicalSensor.Value value, int position) {
         ViewHolder holder = (ViewHolder) viewHolder;
         mTimeSetter.setTime(value.getTimestamp());
         holder.mTvTimestamp.setText(mDateFormat.format(mTimeSetter));
         setDisplayItems(value, position, holder);
     }
 
-    private void setDisplayItems(Sensor.Value value, int position, ViewHolder holder) {
+    private void setDisplayItems(PhysicalSensor.Value value, int position, ViewHolder holder) {
         holder.itemView.setBackground(position % 2 == 1
                 ? mSensorValueBackground
                 : null);
         long timestamp = value.getTimestamp();
-        List<Sensor.Measurement> measurements = mSensor.getMeasurementCollections();
-        Sensor.Measurement.Value measurementValue;
+        //List<LogicalSensor> measurements = mSensor.getMeasurementCollections();
+        LogicalSensor[] measurements = mSensorInfo.mLogicalSensors;
+        ValueContainer<LogicalSensor.Value>[] valueContainers = mSensorInfo.mLogicalSensorValueContainers;
+        LogicalSensor.Value measurementValue;
         TextView tvValueContent;
-        Sensor.Measurement measurement;
+        LogicalSensor measurement;
+        ValueContainer<LogicalSensor.Value> valueContainer;
         for (int i = 0,
              valueContentSize = holder.mTvValueContents.length,
              measurementSize = mDisplayCount - 1;
@@ -175,8 +251,10 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
              ++i) {
             tvValueContent = holder.mTvValueContents[i];
             if (mDisplayStartIndex + i < measurementSize) {
-                measurement = measurements.get(mDisplayStartIndex + i);
-                measurementValue = getCorrespondValue(measurement, timestamp, position);
+                measurement = measurements[mDisplayStartIndex + i];
+                valueContainer = valueContainers[mDisplayStartIndex + i];
+                //measurementValue = getCorrespondValue(measurement, timestamp, position);
+                measurementValue = valueContainer.findValue(position, timestamp);
                 if (measurementValue != null) {
                     tvValueContent.setText(measurement.formatValueWithUnit(measurementValue));
                     if (mWarnProcessor != null) {
@@ -196,7 +274,7 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, Sensor.Value value, int position, List payloads) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, PhysicalSensor.Value value, int position, List payloads) {
         Object payload = payloads.get(0);
         if (payload instanceof Boolean) {
             if ((Boolean) payload) {
@@ -207,14 +285,14 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
         }
     }
 
-    private Sensor.Measurement.Value getCorrespondValue(Sensor.Measurement measurement, long timestamp, int position) {
-        return mIsRealTime
-                ? measurement.findDynamicValue(position, timestamp)
-                : measurement.findHistoryValue(position, timestamp);
-    }
+//    private LogicalSensor.Value getCorrespondValue(LogicalSensor measurement, long timestamp, int position) {
+//        return mIsRealTime
+//                ? measurement.getDynamicValueContainer().findValue(position, timestamp)
+//                : measurement.getHistoryValueContainer().findValue(position, timestamp);
+//    }
 
-//    private String getCorrespondFormattedValueWithUnit(Sensor.Measurement measurement, long timestamp, int position) {
-//        Sensor.Measurement.Value value = mIsRealTime
+//    private String getCorrespondFormattedValueWithUnit(LogicalSensor measurement, long timestamp, int position) {
+//        LogicalSensor.Value value = mIsRealTime
 //                ? measurement.findDynamicValue(position, timestamp)
 //                : measurement.findHistoryValue(position, timestamp);
 //        return value != null ? measurement.formatValueWithUnit(value)
@@ -222,6 +300,53 @@ public class SensorInfoAdapter extends RecyclerViewBaseAdapter<Sensor.Value> {
 ////        return value != null ? measurement.getDataType().getDecoratedValueWithUnit(value)
 ////                : "";
 //    }
+
+    private static class SensorInfo {
+        public final PhysicalSensor mPhysicalSensor;
+        public ValueContainer<PhysicalSensor.Value> mPhysicalSensorValueContainer;
+        public final LogicalSensor[] mLogicalSensors;
+        public final ValueContainer<LogicalSensor.Value>[] mLogicalSensorValueContainers;
+
+        public SensorInfo(PhysicalSensor physicalSensor, boolean isRealTime) {
+            mPhysicalSensor = physicalSensor;
+            mLogicalSensors = new LogicalSensor[physicalSensor.getMeasurementCollections().size()];
+            physicalSensor.getMeasurementCollections().toArray(mLogicalSensors);
+            if (isRealTime) {
+                mPhysicalSensorValueContainer = physicalSensor.getDynamicValueContainer();
+            } else {
+                mPhysicalSensorValueContainer = physicalSensor.getHistoryValueContainer();
+            }
+            mLogicalSensorValueContainers = new ValueContainer[mLogicalSensors.length];
+            if (isRealTime) {
+                for (int i = 0;i < mLogicalSensors.length;++i) {
+                    mLogicalSensorValueContainers[i] = mLogicalSensors[i].getDynamicValueContainer();
+                }
+            } else {
+                for (int i = 0;i < mLogicalSensors.length;++i) {
+                    mLogicalSensorValueContainers[i] = mLogicalSensors[i].getHistoryValueContainer();
+                }
+            }
+        }
+
+        public void setValueContainers(long startTime, long endTime) {
+            detachSubValueContainer();
+            mPhysicalSensorValueContainer = mPhysicalSensor.getHistoryValueContainer().applyForSubValueContainer(startTime, endTime);
+            for (int i = 0;i < mLogicalSensors.length;++i) {
+                mLogicalSensorValueContainers[i] = mLogicalSensors[i]
+                        .getHistoryValueContainer()
+                        .applyForSubValueContainer(startTime, endTime);
+            }
+        }
+
+        public void detachSubValueContainer() {
+            mPhysicalSensor.getHistoryValueContainer().detachSubValueContainer(mPhysicalSensorValueContainer);
+            for (int i = 0;i < mLogicalSensors.length;++i) {
+                mLogicalSensors[i]
+                        .getHistoryValueContainer()
+                        .detachSubValueContainer(mLogicalSensorValueContainers[i]);
+            }
+        }
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 

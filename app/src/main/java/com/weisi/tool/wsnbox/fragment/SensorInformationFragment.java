@@ -1,7 +1,6 @@
 package com.weisi.tool.wsnbox.fragment;
 
 import android.app.DatePickerDialog;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -19,14 +18,17 @@ import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cjq.lib.weisi.node.Sensor;
+import com.cjq.lib.weisi.iot.LogicalSensor;
+import com.cjq.lib.weisi.iot.PhysicalSensor;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.adapter.SensorInfoAdapter;
-import com.weisi.tool.wsnbox.io.database.SensorDatabase;
+import com.weisi.tool.wsnbox.processor.accessor.SensorHistoryDataAccessor;
 
 import java.util.Calendar;
 import java.util.List;
+
+import static com.cjq.lib.weisi.iot.ValueContainer.ADD_VALUE_FAILED;
 
 
 /**
@@ -34,14 +36,14 @@ import java.util.List;
  */
 
 public class SensorInformationFragment
-        extends DialogFragment
+        extends BaseFragment
         implements SensorInfoAdapter.OnDisplayStateChangeListener,
-        View.OnTouchListener, View.OnClickListener, DatePickerDialog.OnDateSetListener {
+        View.OnTouchListener, View.OnClickListener, DatePickerDialog.OnDateSetListener, SensorHistoryDataAccessor.OnMissionFinishedListener {
 
     private static final String ARGUMENT_KEY_START_MEASUREMENT_INDEX = "smi";
     public static final String TAG = "sensor_info";
     private boolean mRealTime;
-    private Sensor mSensor;
+    private PhysicalSensor mSensor;
     private SensorInfoAdapter mSensorInfoAdapter;
     private ImageView mIvInfoOrientation;
     private TextView[] mTvValueLabels = new TextView[SensorInfoAdapter.MAX_DISPLAY_COUNT];
@@ -51,11 +53,11 @@ public class SensorInformationFragment
     private Calendar mDateOperator = Calendar.getInstance();
     private DatePickerDialog mDatePickerDialog;
 
-    public void setSensor(Sensor sensor) {
+    public void setSensor(PhysicalSensor sensor) {
         mSensor = sensor;
     }
 
-    public Sensor getSensor() {
+    public PhysicalSensor getSensor() {
         return mSensor;
     }
 
@@ -85,19 +87,10 @@ public class SensorInformationFragment
         TextView tvAddress = view.findViewById(R.id.tv_sensor_address);
         tvAddress.setText(getString(R.string.sensor_info_address, mSensor.getFormatAddress()));
         TextView tvState = view.findViewById(R.id.tv_sensor_state);
-        tvState.setText(mSensor.getState() == Sensor.State.ON_LINE
+        tvState.setText(mSensor.getState() == PhysicalSensor.State.ON_LINE
                         ? R.string.sensor_info_state_on
                         : R.string.sensor_info_state_off);
         mTvDate = view.findViewById(R.id.tv_date);
-//        if (mSensor.getIntraday() == 0) {
-//            mSensor.setIntraday(System.currentTimeMillis());
-//        }
-//        if ()
-//        chooseDate(mSensor.getIntraday());
-//        tvDate.setText("来源："
-//                + (ConfigurationManager.isBleSensor(mCurrentSensor.getFormatAddress())
-//                ? "BLE"
-//                : "WIFI"));
 
         //设置日期标签及选择面板（历史）
         if (mRealTime) {
@@ -113,7 +106,7 @@ public class SensorInformationFragment
         }
 
         //设置RecyclerView header
-        List<Sensor.Measurement> measurements = mSensor.getMeasurementCollections();
+        List<LogicalSensor> measurements = mSensor.getMeasurementCollections();
         mTvValueLabels[0] = (TextView) view.findViewById(R.id.tv_measurement1);
         mTvValueLabels[1] = (TextView) view.findViewById(R.id.tv_measurement2);
         if (mSensorInfoAdapter.getScheduledDisplayCount() >= SensorInfoAdapter.MAX_DISPLAY_COUNT) {
@@ -138,40 +131,57 @@ public class SensorInformationFragment
         return view;
     }
 
+    @Override
+    public void onDestroy() {
+        getBaseActivity().getDataPrepareService().getDataTransferStation().payNoAttentionToSensor(mSensor);
+        mSensorInfoAdapter.detachSensorValueContainer();
+        super.onDestroy();
+    }
+
     private void chooseDate(long date) {
         boolean isDateChanged = true;
         if (date == 0) {
-            if (mSensor.getIntraday() == 0) {
-                mSensor.setIntraday(System.currentTimeMillis());
+            if (mSensorInfoAdapter.getIntraday() == 0) {
+                mSensorInfoAdapter.setIntraday(System.currentTimeMillis());
             } else {
                 isDateChanged = false;
             }
         } else if (date > 0) {
-            if (mSensor.isIntraday(date)) {
+            if (mSensorInfoAdapter.isIntraday(date)) {
                 isDateChanged = false;
             } else {
-                int previousSize = mSensor.getIntradayHistoryValueSize();
-                mSensor.setIntraday(date);
-                int currentSize = mSensor.getIntradayHistoryValueSize();
-                if (previousSize >= currentSize) {
-                    mSensorInfoAdapter.notifyItemRangeChanged(0, currentSize);
-                    mSensorInfoAdapter.notifyItemRangeRemoved(currentSize, previousSize - currentSize);
-                } else {
-                    mSensorInfoAdapter.notifyItemRangeChanged(0, previousSize);
-                    mSensorInfoAdapter.notifyItemRangeInserted(previousSize, currentSize - previousSize);
-                }
+                int previousSize = mSensorInfoAdapter.getItemCount();
+                mSensorInfoAdapter.setIntraday(date);
+                mSensorInfoAdapter.notifyDataSetChanged(previousSize);
+//                int previousSize = mSensor.getIntradayHistoryValueSize();
+//                mSensor.setIntraday(date);
+//                int currentSize = mSensor.getIntradayHistoryValueSize();
+//                if (previousSize >= currentSize) {
+//                    mSensorInfoAdapter.notifyItemRangeChanged(0, currentSize);
+//                    mSensorInfoAdapter.notifyItemRangeRemoved(currentSize, previousSize - currentSize);
+//                } else {
+//                    mSensorInfoAdapter.notifyItemRangeChanged(0, previousSize);
+//                    mSensorInfoAdapter.notifyItemRangeInserted(previousSize, currentSize - previousSize);
+//                }
                 //mSensorInfoAdapter.notifyDataSetChanged();
             }
         } else {
             throw new IllegalArgumentException("intraday start time may not be less than 0");
         }
         if (isDateChanged) {
-            long dateTime = mSensor.getIntraday();
+            long dateTime = mSensorInfoAdapter.getIntraday();
             setDateLabel(dateTime);
-            ImportSensorHistoryDataTask task = new ImportSensorHistoryDataTask();
-            task.execute(mSensor, dateTime);
+            if (mSensorInfoAdapter.getItemCount() <= 1) {
+                getBaseActivity()
+                        .getDataPrepareService()
+                        .getSensorHistoryDataAccessor()
+                        .importSensorHistoryValue(mSensor.getRawAddress(),
+                                dateTime, getNextDayTime(dateTime), this);
+//                ImportSensorHistoryDataTask task = new ImportSensorHistoryDataTask();
+//                task.execute(mSensor, dateTime);
+            }
         } else if (TextUtils.isEmpty(mTvDate.getText())) {
-            setDateLabel(mSensor.getIntraday());
+            setDateLabel(mSensorInfoAdapter.getIntraday());
         }
     }
 
@@ -179,14 +189,14 @@ public class SensorInformationFragment
         mTvDate.setText(getString(R.string.sensor_info_date, date));
     }
 
-    private void setValueLabels(List<Sensor.Measurement> measurements) {
+    private void setValueLabels(List<LogicalSensor> measurements) {
         for (int i = 0,
              measurementSize = mSensorInfoAdapter.getScheduledDisplayCount() - 1,
              displayCount = mSensorInfoAdapter.getActualDisplayCount(),
              offset = mSensorInfoAdapter.getDisplayStartIndex();
              i < displayCount;
              ++i) {
-            Sensor.Measurement measurement = offset + i < measurementSize
+            LogicalSensor measurement = offset + i < measurementSize
                     ? measurements.get(offset + i)
                     : null;
             mTvValueLabels[i].setText(measurement != null
@@ -215,13 +225,13 @@ public class SensorInformationFragment
         outState.putInt(ARGUMENT_KEY_START_MEASUREMENT_INDEX, mSensorInfoAdapter.getDisplayStartIndex());
     }
 
-    public int show(FragmentTransaction transaction, Sensor sensor, boolean realTime) {
+    public int show(FragmentTransaction transaction, PhysicalSensor sensor, boolean realTime) {
         mSensor = sensor;
         mRealTime = realTime;
         return super.show(transaction, TAG);
     }
 
-    public void show(FragmentManager manager, Sensor sensor, boolean realTime) {
+    public void show(FragmentManager manager, PhysicalSensor sensor, boolean realTime) {
         mSensor = sensor;
         mRealTime = realTime;
         super.show(manager, TAG);
@@ -229,15 +239,15 @@ public class SensorInformationFragment
 
     @Override
     public int show(FragmentTransaction transaction, String tag) {
-        throw new UnsupportedOperationException("use show(FragmentTransaction transaction, Sensor sensor) for instead");
+        throw new UnsupportedOperationException("use show(FragmentTransaction transaction, PhysicalSensor sensor) for instead");
     }
 
     @Override
     public void show(FragmentManager manager, String tag) {
-        throw new UnsupportedOperationException("use show(FragmentManager manager, Sensor sensor) for instead");
+        throw new UnsupportedOperationException("use show(FragmentManager manager, PhysicalSensor sensor) for instead");
     }
 
-    private boolean canNotifyValueChanged(Sensor sensor) {
+    private boolean canNotifyValueChanged(PhysicalSensor sensor) {
         return mSensor == sensor
                 && isDialogShow();
     }
@@ -248,23 +258,42 @@ public class SensorInformationFragment
                 && getDialog().isShowing();
     }
 
-    public void notifySensorDataChanged(Sensor sensor, int position) {
+//    public void notifySensorDynamicValueChanged(PhysicalSensor sensor, int position) {
+//        if (!canNotifyValueChanged(sensor)) {
+//            return;
+//        }
+//        switch (mSensor.getDynamicValueContainer().interpretAddResult(position)) {
+//            case NEW_VALUE_ADDED:
+//                mSensorInfoAdapter.notifyItemInserted(position);
+//                break;
+//            case LOOP_VALUE_ADDED:
+//                mSensorInfoAdapter.notifyItemRangeChanged(0, mSensorInfoAdapter.getItemCount());
+//                break;
+//            case VALUE_UPDATED:
+//                mSensorInfoAdapter.notifyItemChanged(-position - 1);
+//                break;
+//        }
+//    }
+//
+//    public void notifySensorHistoryValueChanged(PhysicalSensor sensor, int valuePosition) {
+//        if (!canNotifyValueChanged(sensor)) {
+//            return;
+//        }
+//        switch (mSensor.getHistoryValueContainer().interpretAddResult(valuePosition)) {
+//            case NEW_VALUE_ADDED:
+//                mSensorInfoAdapter.notifyItemInserted(valuePosition);
+//                break;
+//            case VALUE_UPDATED:
+//                mSensorInfoAdapter.notifyItemChanged(-valuePosition-1);
+//                break;
+//        }
+//    }
+
+    public void notifySensorValueChanged(PhysicalSensor sensor, int valuePosition) {
         if (!canNotifyValueChanged(sensor)) {
             return;
         }
-        switch (mSensor.interpretAddResult(position, mRealTime)) {
-            case Sensor.NEW_VALUE_ADDED:
-                mSensorInfoAdapter.notifyItemInserted(position);
-                break;
-            case Sensor.LOOP_VALUE_ADDED:
-                mSensorInfoAdapter.notifyItemRangeChanged(0, mSensorInfoAdapter.getItemCount());
-                break;
-            case Sensor.VALUE_UPDATED:
-                mSensorInfoAdapter.notifyItemChanged(position);
-                break;
-            default:
-                break;
-        }
+        mSensorInfoAdapter.notifySensorValueUpdate(valuePosition);
     }
 
     public void notifyWarnProcessorLoaded() {
@@ -273,12 +302,12 @@ public class SensorInformationFragment
         }
     }
 
-    public void notifyMeasurementDataChanged(Sensor sensor, int position, long timestamp) {
+    public void notifyMeasurementDataChanged(PhysicalSensor sensor, int position, long timestamp) {
         if (!canNotifyValueChanged(sensor)
-                || mSensor.interpretAddResult(position, mRealTime) == Sensor.Measurement.ADD_VALUE_FAILED) {
+                || mSensor.getHistoryValueContainer().interpretAddResult(position) == ADD_VALUE_FAILED) {
             return;
         }
-        int sensorValuePosition = mSensor.findHistoryValuePosition(position, timestamp);
+        int sensorValuePosition = mSensor.getHistoryValueContainer().findValuePosition(position, timestamp);
         if (sensorValuePosition >= 0) {
             mSensorInfoAdapter.notifyItemChanged(position);
         }
@@ -324,14 +353,14 @@ public class SensorInformationFragment
                 chooseDate(System.currentTimeMillis());
                 break;
             case R.id.btn_previous_day:
-                chooseDate(getPreviousDayTime(mSensor.getIntraday()));
+                chooseDate(getPreviousDayTime(mSensorInfoAdapter.getIntraday()));
                 break;
             case R.id.btn_next_day:
-                chooseDate(getNextDayTime(mSensor.getIntraday()));
+                chooseDate(getNextDayTime(mSensorInfoAdapter.getIntraday()));
                 break;
             case R.id.btn_custom_day:
                 if (mDatePickerDialog == null) {
-                    mDateOperator.setTimeInMillis(mSensor.getIntraday());
+                    mDateOperator.setTimeInMillis(mSensorInfoAdapter.getIntraday());
                     mDatePickerDialog = new DatePickerDialog(getContext(),
                             this,
                             mDateOperator.get(Calendar.YEAR),
@@ -363,86 +392,91 @@ public class SensorInformationFragment
         chooseDate(mDateOperator.getTimeInMillis());
     }
 
-    private class ImportSensorHistoryDataTask
-            extends AsyncTask<Object, Object, Boolean>
-            implements SensorDatabase.SensorHistoryInfoReceiver {
-
-        private static final int TASK_SENSOR_DATA_RECEIVED = 1;
-        private static final int TASK_MEASUREMENT_DATA_RECEIVED = 2;
-
-        private Sensor mCurrentSensor;
-
-        @Override
-        protected Boolean doInBackground(Object... params) {
-            if (params == null) {
-                return false;
-            }
-            if (params.length < 2) {
-                return false;
-            }
-            if (!(params[0] instanceof Sensor)) {
-                return false;
-            }
-            if (!(params[1] instanceof Long)) {
-                return false;
-            }
-            mCurrentSensor = (Sensor) params[0];
-            if (mCurrentSensor.getIntradayHistoryValueSize() > 1) {
-                return true;
-            }
-            //Calendar calendar = Calendar.getInstance();
-            //calendar.setTimeInMillis((long) params[1]);
-            long today = (long) params[1];
-            //calendar.add(Calendar.DAY_OF_MONTH, 1);
-            long tomorrow = getNextDayTime(today);
-            return SensorDatabase.importSensorHistoryValues(
-                    mCurrentSensor.getRawAddress(),
-                    today,
-                    tomorrow,
-                    0,
-                    this
-            );
-        }
-
-        @Override
-        protected void onProgressUpdate(Object... values) {
-            switch ((int) values[0]) {
-                case TASK_SENSOR_DATA_RECEIVED:
-                    notifySensorDataChanged(
-                            mCurrentSensor,
-                            mCurrentSensor.addHistoryValue((long) values[1],
-                                    (float) values[2]));
-                    break;
-                case TASK_MEASUREMENT_DATA_RECEIVED:
-                    notifyMeasurementDataChanged(
-                            mCurrentSensor,
-                            mCurrentSensor.addHistoryValue((long) values[1],
-                                    (long) values[2],
-                                    (double) values[3]),
-                            (long) values[2]
-                    );
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if (!result) {
-                ConfirmDialog dialog = new ConfirmDialog();
-                dialog.setTitle(R.string.import_sensor_history_value_failed);
-                dialog.setDrawCancelButton(false);
-                dialog.show(getChildFragmentManager(),
-                        "import_sensor_history_value_failed");
-            }
-        }
-
-        @Override
-        public void onSensorDataReceived(int address, long timestamp, float batteryVoltage) {
-            publishProgress(TASK_SENSOR_DATA_RECEIVED, timestamp, batteryVoltage);
-        }
-
-        @Override
-        public void onMeasurementDataReceived(long measurementValueId, long timestamp, double rawValue) {
-            publishProgress(TASK_MEASUREMENT_DATA_RECEIVED, measurementValueId, timestamp, rawValue);
+    @Override
+    public void onMissionFinished(boolean result) {
+        if (!result) {
+            ConfirmDialog dialog = new ConfirmDialog();
+            dialog.setTitle(R.string.import_sensor_history_value_failed);
+            dialog.setDrawCancelButton(false);
+            dialog.show(getChildFragmentManager(),
+                    "import_sensor_history_value_failed");
         }
     }
+
+//    private class ImportSensorHistoryDataTask
+//            extends AsyncTask<Object, Object, Boolean>
+//            implements SensorDatabase.SensorHistoryInfoReceiver {
+//
+//        private static final int TASK_SENSOR_DATA_RECEIVED = 1;
+//        private static final int TASK_MEASUREMENT_DATA_RECEIVED = 2;
+//
+//        private PhysicalSensor mCurrentSensor;
+//
+//        @Override
+//        protected Boolean doInBackground(Object... params) {
+//            if (params == null) {
+//                return false;
+//            }
+//            if (params.length < 2) {
+//                return false;
+//            }
+//            if (!(params[0] instanceof PhysicalSensor)) {
+//                return false;
+//            }
+//            if (!(params[1] instanceof Long)) {
+//                return false;
+//            }
+//            mCurrentSensor = (PhysicalSensor) params[0];
+//            long today = (long) params[1];
+//            long tomorrow = getNextDayTime(today);
+//            return SensorDatabase.importSensorHistoryValues(
+//                    mCurrentSensor.getRawAddress(),
+//                    today,
+//                    tomorrow,
+//                    0,
+//                    this
+//            );
+//        }
+//
+//        @Override
+//        protected void onProgressUpdate(Object... values) {
+//            switch ((int) values[0]) {
+//                case TASK_SENSOR_DATA_RECEIVED:
+//                    notifySensorDynamicValueChanged(
+//                            mCurrentSensor,
+//                            mCurrentSensor.addPhysicalHistoryValue((long) values[1],
+//                                    (float) values[2]));
+//                    break;
+//                case TASK_MEASUREMENT_DATA_RECEIVED:
+//                    notifyMeasurementDataChanged(
+//                            mCurrentSensor,
+//                            mCurrentSensor.addLogicalHistoryValue((long) values[1],
+//                                    (long) values[2],
+//                                    (double) values[3]),
+//                            (long) values[2]
+//                    );
+//            }
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Boolean result) {
+//            if (!result) {
+//                ConfirmDialog dialog = new ConfirmDialog();
+//                dialog.setTitle(R.string.import_sensor_history_value_failed);
+//                dialog.setDrawCancelButton(false);
+//                dialog.show(getChildFragmentManager(),
+//                        "import_sensor_history_value_failed");
+//            }
+//        }
+//
+//        @Override
+//        public void onSensorDataReceived(int address, long timestamp, float batteryVoltage) {
+//            publishProgress(TASK_SENSOR_DATA_RECEIVED, timestamp, batteryVoltage);
+//        }
+//
+//        @Override
+//        public void onMeasurementDataReceived(long measurementValueId, long timestamp, double rawValue) {
+//            publishProgress(TASK_MEASUREMENT_DATA_RECEIVED, measurementValueId, timestamp, rawValue);
+//        }
+//    }
 }

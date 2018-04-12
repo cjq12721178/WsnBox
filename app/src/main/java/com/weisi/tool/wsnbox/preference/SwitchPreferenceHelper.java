@@ -3,10 +3,6 @@ package com.weisi.tool.wsnbox.preference;
 import android.preference.Preference;
 import android.preference.SwitchPreference;
 
-import com.weisi.tool.wsnbox.fragment.BaseSettingsFragment;
-import com.weisi.tool.wsnbox.preference.PreferenceHelper;
-import com.weisi.tool.wsnbox.processor.SensorDataAccessor;
-
 
 /**
  * Created by CJQ on 2018/1/4.
@@ -28,8 +24,11 @@ public abstract class SwitchPreferenceHelper extends PreferenceHelper<SwitchPref
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if (getPreference().isChecked() == (boolean) newValue) {
+            return false;
+        }
         if (super.onPreferenceChange(preference, newValue)) {
-            onCheckedChanged((Boolean) newValue);
+            onCheckedChanged((boolean) newValue);
             return true;
         }
         return false;

@@ -32,7 +32,7 @@ public class BlePermissionsRequester extends PermissionsRequester {
     protected int onPreNotifyRequestResultListener() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
-            SimpleCustomizeToast.show(getActivity(), R.string.ble_not_supported);
+            SimpleCustomizeToast.show(R.string.ble_not_supported);
             return PREPARE_FAILED;
         }
         if (!bluetoothAdapter.isEnabled()) {
@@ -61,7 +61,7 @@ public class BlePermissionsRequester extends PermissionsRequester {
                 new AppSettingsDialog.Builder(getActivity()).build().show();
             } else {
                 notifyPermissionsDenied();
-                SimpleCustomizeToast.show(getActivity(), R.string.lack_ble_permissions);
+                SimpleCustomizeToast.show(R.string.lack_ble_permissions);
             }
         }
     }
@@ -70,7 +70,7 @@ public class BlePermissionsRequester extends PermissionsRequester {
     public void onActivityResult(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_CANCELED) {
             notifyPermissionsDenied();
-            SimpleCustomizeToast.show(getActivity(), R.string.need_ble_permission);
+            SimpleCustomizeToast.show(R.string.need_ble_permission);
         } else {
             notifyPermissionsGranted();
         }

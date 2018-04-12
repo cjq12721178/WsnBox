@@ -5,21 +5,21 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
 import android.text.TextUtils;
 
-import com.cjq.lib.weisi.node.Sensor;
-import com.cjq.lib.weisi.node.SensorManager;
-import com.cjq.lib.weisi.node.ValueContainer;
+import com.cjq.lib.weisi.iot.LogicalSensor;
+import com.cjq.lib.weisi.iot.Sensor;
+import com.cjq.lib.weisi.iot.SensorManager;
+import com.cjq.lib.weisi.iot.Warner;
 import com.cjq.tool.qbox.database.SQLiteResolverDelegate;
 import com.cjq.tool.qbox.database.SimpleSQLiteAsyncEventHandler;
 import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.bean.configuration.CommonValueContainerConfigurationProvider;
-import com.weisi.tool.wsnbox.bean.configuration.MeasurementConfiguration;
-import com.weisi.tool.wsnbox.bean.configuration.SensorConfiguration;
+import com.weisi.tool.wsnbox.bean.configuration.LogicalSensorConfiguration;
+import com.weisi.tool.wsnbox.bean.configuration.PhysicalSensorConfiguration;
 import com.weisi.tool.wsnbox.bean.data.SensorData;
-import com.weisi.tool.wsnbox.bean.decorator.CommonMeasurementDecorator;
-import com.weisi.tool.wsnbox.bean.decorator.CommonSensorDecorator;
+import com.weisi.tool.wsnbox.bean.decorator.CommonLogicalSensorDecorator;
+import com.weisi.tool.wsnbox.bean.decorator.CommonPhysicalSensorDecorator;
 import com.weisi.tool.wsnbox.bean.warner.CommonSingleRangeWarner;
 import com.weisi.tool.wsnbox.bean.warner.CommonSwitchWarner;
 import com.weisi.tool.wsnbox.io.Constant;
@@ -28,9 +28,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.Closeable;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -450,24 +448,29 @@ public class SensorDatabase implements Constant {
         return 0;
     }
 
-    public static SensorManager.ValueContainerConfigurationProvider importValueContainerConfigurationProvider(long providerId) {
+    public static SensorManager.SensorConfigurationProvider importValueContainerConfigurationProvider(long providerId) {
         if (database == null || providerId <= 0) {
             return null;
         }
         StringBuilder builder = new StringBuilder();
+        Map<Sensor.ID, Sensor.Configuration<?>> configurationMap = new HashMap<>();
         //查找provider_id=providerId的所有传感器配置
-        Map<Integer, Sensor.Configuration> sensorConfigs = importSensorConfigurations(providerId, builder);
-        if (sensorConfigs == null) {
-            return null;
-        }
-        Map<Long, Sensor.Measurement.Configuration> measurementConfigs = importMeasurementConfigurations(providerId, builder);
-        if (measurementConfigs == null) {
-            return null;
-        }
-        return new CommonValueContainerConfigurationProvider(sensorConfigs, measurementConfigs);
+        importSensorConfigurations(providerId, builder, configurationMap);
+        importMeasurementConfigurations(providerId, builder, configurationMap);
+//        Map<Integer, Sensor.Configuration> sensorConfigs = importSensorConfigurations(providerId, builder);
+//        if (sensorConfigs == null) {
+//            return null;
+//        }
+//        Map<Long, LogicalSensor.Configuration> measurementConfigs = importMeasurementConfigurations(providerId, builder);
+//        if (measurementConfigs == null) {
+//            return null;
+//        }
+        return new CommonValueContainerConfigurationProvider(configurationMap);
     }
 
-    private static Map<Integer, Sensor.Configuration> importSensorConfigurations(long providerId, StringBuilder builder) {
+    private static void importSensorConfigurations(
+            long providerId, StringBuilder builder,
+            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
             builder.setLength(0);
@@ -478,20 +481,20 @@ public class SensorDatabase implements Constant {
                     .append(" = ").append(providerId);
             cursor = database.rawQuery(builder.toString(), null);
             if (cursor == null) {
-                return null;
+                return;
             }
-            Map<Integer, Sensor.Configuration> sensorConfigs = new HashMap<>();
+            //Map<Integer, Sensor.Configuration> sensorConfigs = new HashMap<>();
             int addressIndex = cursor.getColumnIndex(COLUMN_SENSOR_ADDRESS);
             int customNameIndex = cursor.getColumnIndex(COLUMN_CUSTOM_NAME);
             while (cursor.moveToNext()) {
                 String customName = cursor.getString(customNameIndex);
-                SensorConfiguration configuration = new SensorConfiguration();
+                PhysicalSensorConfiguration configuration = new PhysicalSensorConfiguration();
                 if (!TextUtils.isEmpty(customName)) {
-                    configuration.setDecorator(new CommonSensorDecorator(customName));
+                    configuration.setDecorator(new CommonPhysicalSensorDecorator(customName));
                 }
-                sensorConfigs.put(cursor.getInt(addressIndex), configuration);
+                //sensorConfigs.put(cursor.getInt(addressIndex), configuration);
+                configurationMap.put(new Sensor.ID(cursor.getInt(addressIndex)), configuration);
             }
-            return sensorConfigs;
         } catch (Exception e) {
             ExceptionLog.record(e);
         } finally {
@@ -499,21 +502,21 @@ public class SensorDatabase implements Constant {
                 cursor.close();
             }
         }
-        return null;
     }
 
-    private static Map<Long, Sensor.Measurement.Configuration> importMeasurementConfigurations(long providerId, StringBuilder builder) {
-        Map<Long, Sensor.Measurement.Configuration> measurementConfigs = new HashMap<>();
-        importMeasurementConfigurationsWithSingleRangeWarner(providerId, builder, measurementConfigs);
-        importMeasurementConfigurationsWithSwitchWarner(providerId, builder, measurementConfigs);
-        importMeasurementConfigurationsWithoutWarner(builder, measurementConfigs);
-        return measurementConfigs;
+    private static void importMeasurementConfigurations(
+            long providerId, StringBuilder builder,
+            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
+        //Map<Long, LogicalSensor.Configuration> measurementConfigs = new HashMap<>();
+        importMeasurementConfigurationsWithSingleRangeWarner(providerId, builder, configurationMap);
+        importMeasurementConfigurationsWithSwitchWarner(providerId, builder, configurationMap);
+        importMeasurementConfigurationsWithoutWarner(builder, configurationMap);
     }
 
     private static void importMeasurementConfigurationsWithSingleRangeWarner(
             long providerId,
             StringBuilder builder,
-            Map<Long, Sensor.Measurement.Configuration> measurementConfigs) {
+            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
             builder.setLength(0);
@@ -540,7 +543,7 @@ public class SensorDatabase implements Constant {
                     CommonSingleRangeWarner warner = new CommonSingleRangeWarner();
                     warner.setLowLimit(cursor.getDouble(lowLimitIndex));
                     warner.setHighLimit(cursor.getDouble(highLimitIndex));
-                    importMeasurementConfiguration(measurementConfigs, cursor, measurementIdIndex, customNameIndex, warner);
+                    importMeasurementConfiguration(configurationMap, cursor, measurementIdIndex, customNameIndex, warner);
                 }
             }
         } catch (Exception e) {
@@ -552,7 +555,9 @@ public class SensorDatabase implements Constant {
         }
     }
 
-    private static void importMeasurementConfigurationsWithSwitchWarner(long providerId, StringBuilder builder, Map<Long, Sensor.Measurement.Configuration> measurementConfigs) {
+    private static void importMeasurementConfigurationsWithSwitchWarner(
+            long providerId, StringBuilder builder,
+            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
             builder.setLength(0);
@@ -576,7 +581,7 @@ public class SensorDatabase implements Constant {
                 while (cursor.moveToNext()) {
                     CommonSwitchWarner warner = new CommonSwitchWarner();
                     warner.setAbnormalValue(cursor.getDouble(abnormalValueIndex));
-                    importMeasurementConfiguration(measurementConfigs, cursor, measurementIdIndex, customNameIndex, warner);
+                    importMeasurementConfiguration(configurationMap, cursor, measurementIdIndex, customNameIndex, warner);
                 }
             }
         } catch (Exception e) {
@@ -588,7 +593,9 @@ public class SensorDatabase implements Constant {
         }
     }
 
-    private static void importMeasurementConfigurationsWithoutWarner(StringBuilder builder, Map<Long, Sensor.Measurement.Configuration> measurementConfigs) {
+    private static void importMeasurementConfigurationsWithoutWarner(
+            StringBuilder builder,
+            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
             builder.setLength(0);
@@ -606,7 +613,7 @@ public class SensorDatabase implements Constant {
                 int measurementIdIndex = cursor.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
                 int customNameIndex = cursor.getColumnIndex(COLUMN_CUSTOM_NAME);
                 while (cursor.moveToNext()) {
-                    importMeasurementConfiguration(measurementConfigs, cursor, measurementIdIndex, customNameIndex, null);
+                    importMeasurementConfiguration(configurationMap, cursor, measurementIdIndex, customNameIndex, null);
                 }
             }
         } catch (Exception e) {
@@ -618,19 +625,17 @@ public class SensorDatabase implements Constant {
         }
     }
 
-    private static void importMeasurementConfiguration(Map<Long, Sensor.Measurement.Configuration> measurementConfigs,
-                                                       Cursor cursor,
-                                                       int measurementIdIndex,
-                                                       int customNameIndex,
-                                                       ValueContainer.Warner<Sensor.Measurement.Value> warner) {
-        MeasurementConfiguration configuration = new MeasurementConfiguration();
+    private static void importMeasurementConfiguration(
+            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap,
+            Cursor cursor, int measurementIdIndex, int customNameIndex,
+            Warner<LogicalSensor.Value> warner) {
+        LogicalSensorConfiguration configuration = new LogicalSensorConfiguration();
         String customName = cursor.getString(customNameIndex);
         if (!TextUtils.isEmpty(customName)) {
-            configuration.setDecorator(new CommonMeasurementDecorator(customName));
+            configuration.setDecorator(new CommonLogicalSensorDecorator(customName));
         }
-        //warner = new CommonSingleRangeWarner();
         configuration.setWarner(warner);
-        measurementConfigs.put(cursor.getLong(measurementIdIndex), configuration);
+        configurationMap.put(new Sensor.ID(cursor.getLong(measurementIdIndex)), configuration);
     }
 
     public static Cursor importValueContainerConfigurationProviders() {
@@ -900,7 +905,7 @@ public class SensorDatabase implements Constant {
                 case TAG_MEASUREMENT:
                     mIntoMeasurementElement = true;
                     String index = attributes.getValue("index");
-                    mMeasurementValueId = Sensor.Measurement.ID.getId(mAddress,
+                    mMeasurementValueId = LogicalSensor.ID.getId(mAddress,
                             Byte.parseByte(attributes.getValue(TAG_TYPE), 16),
                             TextUtils.isEmpty(index) ? 0 : Integer.parseInt(index));
                     break;

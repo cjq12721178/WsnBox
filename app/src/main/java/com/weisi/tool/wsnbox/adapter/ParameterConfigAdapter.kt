@@ -24,7 +24,7 @@ class ParameterConfigAdapter : RecyclerViewCursorAdapter() {
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder?, item: Cursor?, position: Int) {
         var holder = viewHolder as ViewHolder
-        holder?.tvName?.text = getProviderName(item!!)
+        holder.tvName?.text = getProviderName(item!!)
     }
 
     fun getProviderName(position: Int) : String {
