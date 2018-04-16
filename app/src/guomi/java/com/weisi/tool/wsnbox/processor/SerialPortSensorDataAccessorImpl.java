@@ -5,6 +5,7 @@ import android.content.Context;
 import com.cjq.lib.weisi.protocol.GuomiEsbAnalyzer;
 import com.cjq.lib.weisi.protocol.UdpSensorProtocol;
 import com.cjq.tool.qbox.util.ExceptionLog;
+import com.weisi.tool.wsnbox.processor.accessor.SerialPortSensorDataAccessor;
 
 import java.io.IOException;
 

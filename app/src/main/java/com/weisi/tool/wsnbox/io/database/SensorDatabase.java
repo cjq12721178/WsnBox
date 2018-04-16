@@ -906,7 +906,7 @@ public class SensorDatabase implements Constant {
                     mIntoMeasurementElement = true;
                     String index = attributes.getValue("index");
                     mMeasurementValueId = LogicalSensor.ID.getId(mAddress,
-                            Byte.parseByte(attributes.getValue(TAG_TYPE), 16),
+                            (byte) Integer.parseInt(attributes.getValue(TAG_TYPE), 16),
                             TextUtils.isEmpty(index) ? 0 : Integer.parseInt(index));
                     break;
                 case TAG_WARNER:
