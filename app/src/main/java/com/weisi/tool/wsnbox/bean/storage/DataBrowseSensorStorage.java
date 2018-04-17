@@ -15,6 +15,7 @@ import com.weisi.tool.wsnbox.bean.filter.SensorUseForRealTimeFilter;
 import com.weisi.tool.wsnbox.bean.filter.SensorWithHistoryValueFilter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorAddressSorter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorEarliestValueTimeSorter;
+import com.weisi.tool.wsnbox.bean.sorter.SensorNameSorter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorNetInTimeSorter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorSorter;
 
@@ -29,6 +30,7 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
 
     public static final int SORTED_BY_ADDRESS = 1;
     public static final int SORTED_BY_TIME = 2;
+    public static final int SORTED_BY_NAME = 3;
 
     private Sensor.Filter<PhysicalSensor> mDataSourceFilter;
     private Sensor.Filter<PhysicalSensor> mSensorProtocolFilter;
@@ -117,6 +119,8 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
             return SORTED_BY_TIME;
         } else if (sorter instanceof SensorAddressSorter) {
             return SORTED_BY_ADDRESS;
+        } else if (sorter instanceof SensorNameSorter) {
+            return SORTED_BY_NAME;
         }
         return SORTED_BY_TIME;
     }
@@ -145,6 +149,9 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
         switch (type) {
             case SORTED_BY_ADDRESS:
                 setSorter(new SensorAddressSorter(), isDescend, isCommit, listener);
+                break;
+            case SORTED_BY_NAME:
+                setSorter(new SensorNameSorter(), isDescend, isCommit, listener);
                 break;
             case SORTED_BY_TIME:
             default:

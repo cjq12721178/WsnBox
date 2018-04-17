@@ -9,6 +9,7 @@
     <string name="settings">设置</string>
     <string name="function_expect">敬请期待</string>
     <string name="timestamp">时间</string>
+    <string name="name">名称</string>
     <string name="measurement_name">测量名称</string>
     <string name="measurement_type">测量类型</string>
     <string name="value">数值</string>

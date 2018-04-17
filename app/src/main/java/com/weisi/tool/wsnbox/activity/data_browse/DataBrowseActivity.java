@@ -341,6 +341,7 @@ public class DataBrowseActivity
                     mSortDialog = new SortDialog();
                     mSortDialog.addSortType(R.id.rb_address, R.string.address, this)
                             .addSortType(R.id.rb_time, R.string.timestamp, this)
+                            .addSortType(R.id.rb_name, R.string.name, this)
                             .setDefaultSelectedId(mSensorStorage.getSensorSortType() == DataBrowseSensorStorage.SORTED_BY_TIME ? R.id.rb_time : R.id.rb_address);
                 }
                 mSortDialog.show(getSupportFragmentManager(), "sort_dialog");
@@ -423,6 +424,9 @@ public class DataBrowseActivity
                 break;
             case R.id.rb_time:
                 mSensorStorage.setSorter(DataBrowseSensorStorage.SORTED_BY_TIME, !isAscending, this);
+                break;
+            case R.id.rb_name:
+                mSensorStorage.setSorter(DataBrowseSensorStorage.SORTED_BY_NAME, !isAscending, this);
                 break;
             default:
                 break;

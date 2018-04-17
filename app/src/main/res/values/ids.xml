@@ -2,4 +2,5 @@
 <resources>
     <item name="rb_address" type="id"/>
     <item name="rb_time" type="id"/>
+    <item name="rb_name" type="id"/>
 </resources>
