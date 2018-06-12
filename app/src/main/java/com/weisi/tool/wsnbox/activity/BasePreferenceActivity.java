@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -89,29 +90,21 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
     }
 
     @Override
-    protected void onTitleChanged(CharSequence title, int color) {
-        super.onTitleChanged(title, color);
-        //getDelegate().setTitle(title);
-        getFunctionDelegate().setTitle(title);
-    }
-
-    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         getDelegate().onConfigurationChanged(newConfig);
     }
 
-//    @Override
-//    public void setTitle(CharSequence title) {
-//        super.setTitle(title);
-//        getFunctionDelegate().setTitle(title);
-//    }
-//
-//    @Override
-//    public void setTitle(int titleId) {
-//        super.setTitle(titleId);
-//        getFunctionDelegate().setTitle(titleId);
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            return super.onOptionsItemSelected(item);
+        }
+        if (getFunctionDelegate().onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onResume() {

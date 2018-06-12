@@ -4,11 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.annotation.StringRes;
 
 import com.weisi.tool.wsnbox.R;
 
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.regex.Pattern;
 
 /**
@@ -427,10 +430,36 @@ public class Settings {
     }
 
     public void setDataBrowseValueContainerConfigurationProviderId(long id) {
-        getSharedPreferences().edit().putLong(mContext.getString(R.string.preference_key_data_browse_config_provider_id), id).commit();
+        getSharedPreferences()
+                .edit()
+                .putLong(mContext.getString(R.string.preference_key_data_browse_config_provider_id), id)
+                .commit();
     }
 
     public String getOutputFilePath() {
         return getString(R.string.preference_key_output_file_path, Environment.getExternalStorageDirectory() + File.separator + "WsnBox");
+    }
+
+    @IntDef({VM_PHYSICAL_SENSOR, VM_LOGICAL_SENSOR, VM_DEVICE_NODE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ViewMode{}
+    public static final int VM_PHYSICAL_SENSOR = 1;
+    public static final int VM_LOGICAL_SENSOR = 2;
+    public static final int VM_DEVICE_NODE = 3;
+
+    //数据浏览设置
+    public @ViewMode int getLastDataBrowseViewMode() {
+        return getSharedPreferences().getInt("view_mode", VM_PHYSICAL_SENSOR);
+    }
+
+    public void setLastDataBrowseViewMode(@ViewMode int mode) {
+        getSharedPreferences()
+                .edit()
+                .putInt("view_mode", mode)
+                .commit();
+    }
+
+    public void clearLastDataBrowseViewMode() {
+        getSharedPreferences().edit().remove("view_mode").commit();
     }
 }

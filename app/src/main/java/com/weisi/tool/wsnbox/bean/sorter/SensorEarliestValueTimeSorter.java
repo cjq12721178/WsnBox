@@ -1,15 +1,16 @@
 package com.weisi.tool.wsnbox.bean.sorter;
 
-import com.cjq.lib.weisi.iot.PhysicalSensor;
+import com.cjq.lib.weisi.data.Sorter;
+import com.cjq.lib.weisi.iot.Sensor;
 
 /**
  * Created by CJQ on 2017/9/14.
  */
 
-public class SensorEarliestValueTimeSorter extends SensorSorter<PhysicalSensor> {
+public class SensorEarliestValueTimeSorter<S extends Sensor> extends Sorter<S> {
 
     @Override
-    public int compare(PhysicalSensor s1, PhysicalSensor s2) {
+    public int compare(S s1, S s2) {
         return Long.compare(s1.getHistoryValueContainer().getEarliestValue().getTimestamp(),
                 s2.getHistoryValueContainer().getEarliestValue().getTimestamp());
 //        long t1 = s1.getEarliestHistoryValue().getTimestamp();

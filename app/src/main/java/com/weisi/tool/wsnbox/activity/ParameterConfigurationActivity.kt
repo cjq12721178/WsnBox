@@ -35,8 +35,8 @@ import com.weisi.tool.wsnbox.permission.PermissionsRequester
 import com.weisi.tool.wsnbox.permission.ReadPermissionsRequester
 import com.weisi.tool.wsnbox.util.UriHelper
 import kotlinx.android.synthetic.main.activity_parameter_configuration.*
-import kotlinx.android.synthetic.main.list_item_para_config_insert.view.*
-import kotlinx.android.synthetic.main.list_item_scene.view.*
+import kotlinx.android.synthetic.main.li_para_config_insert.view.*
+import kotlinx.android.synthetic.main.li_scene.view.*
 
 class ParameterConfigurationActivity : BaseActivity(),
         View.OnClickListener,
@@ -70,7 +70,7 @@ class ParameterConfigurationActivity : BaseActivity(),
 
         var wrapper = HeaderAndFooterWrapper(adapter)
         var inflater = LayoutInflater.from(this);
-        wrapper.addHeaderView(inflater.inflate(R.layout.list_item_para_config_description, rv_para_config, false))
+        wrapper.addHeaderView(inflater.inflate(R.layout.li_para_config_description, rv_para_config, false))
         wrapper.addHeaderView(getGroupLabelView(inflater, R.string.config_list))
         wrapper.addFootView(getConfigInsertView(inflater))
         wrapper.addFootView(getGroupLabelView(inflater, R.string.scene_list))
@@ -112,14 +112,14 @@ class ParameterConfigurationActivity : BaseActivity(),
     }
 
     private fun getConfigInsertView(inflater: LayoutInflater): View {
-        var view = inflater.inflate(R.layout.list_item_para_config_insert, rv_para_config, false)
+        var view = inflater.inflate(R.layout.li_para_config_insert, rv_para_config, false)
         view.cv_add.setOnClickListener(this)
         view.cv_import.setOnClickListener(this)
         return view
     }
 
     private fun getGroupLabelView(inflater: LayoutInflater, @StringRes labelResId: Int): View {
-        var view = inflater.inflate(R.layout.list_item_group_label, rv_para_config, false)
+        var view = inflater.inflate(R.layout.li_group_label, rv_para_config, false)
         if (view is TextView) {
             view.setText(labelResId)
         }
@@ -127,7 +127,7 @@ class ParameterConfigurationActivity : BaseActivity(),
     }
 
     private fun getSceneView(inflater: LayoutInflater, @StringRes labelResId: Int, @DrawableRes logoRes: Int): View {
-        var view = inflater.inflate(R.layout.list_item_scene, rv_para_config, false)
+        var view = inflater.inflate(R.layout.li_scene, rv_para_config, false)
         view.tv_scene_label.setText(labelResId)
         view.iv_scene_logo.setImageResource(logoRes)
         view.setOnClickListener(this)

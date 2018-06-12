@@ -1,9 +1,10 @@
 package com.weisi.tool.wsnbox.bean.storage;
 
+import com.cjq.lib.weisi.data.Filter;
+import com.cjq.lib.weisi.data.FilterCollection;
 import com.cjq.lib.weisi.iot.Sensor;
 import com.cjq.lib.weisi.iot.SensorManager;
 import com.cjq.lib.weisi.util.SimpleReflection;
-import com.weisi.tool.wsnbox.bean.filter.FilterCollection;
 import com.weisi.tool.wsnbox.bean.sorter.SensorSorter;
 
 import java.util.ArrayList;
@@ -85,9 +86,9 @@ public abstract class BaseSensorStorage<S extends Sensor> {
         }
     }
 
-    public BaseSensorStorage<S> addFilter(Sensor.Filter<S> filter) {
+    public BaseSensorStorage<S> addFilter(Filter<S> filter) {
         if (filter != null) {
-            mSensorFilters.add(filter);
+            //mSensorFilters.add(filter);
         }
         return this;
     }
@@ -99,8 +100,8 @@ public abstract class BaseSensorStorage<S extends Sensor> {
 //        return mSensorFilters;
 //    }
 
-    public BaseSensorStorage<S> removeFilter(Sensor.Filter<S> filter) {
-        mSensorFilters.remove(filter);
+    public BaseSensorStorage<S> removeFilter(Filter<S> filter) {
+        //mSensorFilters.remove(filter);
         return this;
     }
 
@@ -137,7 +138,7 @@ public abstract class BaseSensorStorage<S extends Sensor> {
 
     private boolean match(S sensor) {
         return mSensorFilters != null
-                ? mSensorFilters.isMatch(sensor)
+                ? mSensorFilters.match(sensor)
                 : true;
     }
 

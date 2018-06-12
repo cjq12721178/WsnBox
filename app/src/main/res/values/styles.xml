@@ -1,11 +1,39 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="BaseActivityTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="actionBarStyle">@style/BaseActionBarTheme</item>
+        <item name="actionOverflowMenuStyle">@style/BasePopupMenuTheme</item>
+        <item name="textAppearanceSmallPopupMenu">@style/BaseMenuTextAppearance</item>
+        <item name="textAppearanceLargePopupMenu">@style/BaseMenuTextAppearance</item>
+        <item name="android:dropDownListViewStyle">@style/BaseMenuDividerTheme</item>
+    </style>
+
+    <style name="BaseActionBarTheme" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <!-- 修改ActionBar背景 -->
+        <item name="background">@color/bg_actionbar</item>
+    </style>
+
+    <style name="BasePopupMenuTheme" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <!-- 修改PopupMenu背景 -->
+        <item name="android:popupBackground">@color/bg_actionbar</item>
+        <!-- 修改PopupMenu是否遮住折叠按钮 -->
+        <item name="overlapAnchor">false</item>
+    </style>
+
+    <style name="BaseMenuTextAppearance" parent="TextAppearance.AppCompat.Menu">
+        <!-- 修改PopupMenu字体颜色 -->
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <!-- 为PopupMenu设置分隔线 -->
+    <style name="BaseMenuDividerTheme">
+        <item name="android:divider">@color/bg_menu_divider</item>
+        <item name="android:dividerHeight">1px</item>
     </style>
 
     <style name="DialogTheme" parent="@android:style/Theme.Dialog">

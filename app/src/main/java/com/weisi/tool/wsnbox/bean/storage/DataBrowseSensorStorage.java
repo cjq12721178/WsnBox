@@ -4,19 +4,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.cjq.lib.weisi.data.Filter;
 import com.cjq.lib.weisi.iot.PhysicalSensor;
-import com.cjq.lib.weisi.iot.Sensor;
-import com.weisi.tool.wsnbox.bean.filter.BleProtocolFilter;
-import com.weisi.tool.wsnbox.bean.filter.EsbProtocolFilter;
-import com.weisi.tool.wsnbox.bean.filter.PhysicalSensorNameFilter;
-import com.weisi.tool.wsnbox.bean.filter.SensorProtocolFilter;
+import com.weisi.tool.wsnbox.bean.filter.PhysicalSensorInfoFilter;
 import com.weisi.tool.wsnbox.bean.filter.PhysicalSensorTypeFilter;
 import com.weisi.tool.wsnbox.bean.filter.SensorUseForRealTimeFilter;
 import com.weisi.tool.wsnbox.bean.filter.SensorWithHistoryValueFilter;
-import com.weisi.tool.wsnbox.bean.sorter.SensorAddressSorter;
-import com.weisi.tool.wsnbox.bean.sorter.SensorEarliestValueTimeSorter;
-import com.weisi.tool.wsnbox.bean.sorter.SensorNameSorter;
-import com.weisi.tool.wsnbox.bean.sorter.SensorNetInTimeSorter;
 import com.weisi.tool.wsnbox.bean.sorter.SensorSorter;
 
 import java.util.List;
@@ -32,10 +25,10 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
     public static final int SORTED_BY_TIME = 2;
     public static final int SORTED_BY_NAME = 3;
 
-    private Sensor.Filter<PhysicalSensor> mDataSourceFilter;
-    private Sensor.Filter<PhysicalSensor> mSensorProtocolFilter;
+    private Filter<PhysicalSensor> mDataSourceFilter;
+    private Filter<PhysicalSensor> mSensorProtocolFilter;
     private PhysicalSensorTypeFilter mPhysicalSensorTypeFilter;
-    private PhysicalSensorNameFilter mPhysicalSensorNameFilter;
+    private PhysicalSensorInfoFilter mPhysicalSensorInfoFilter;
 
     public DataBrowseSensorStorage(boolean isRealTime) {
         super();
@@ -72,7 +65,7 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
     }
 
     private void setDataSource(boolean isRealTime, boolean changeSorter, boolean isCommit, OnSensorDataSourceChangeListener listener) {
-        Sensor.Filter<PhysicalSensor> oldDataSourceFilter = mDataSourceFilter;
+        Filter<PhysicalSensor> oldDataSourceFilter = mDataSourceFilter;
         if (isRealTime) {
             if (!(mDataSourceFilter instanceof SensorUseForRealTimeFilter)) {
                 mDataSourceFilter = new SensorUseForRealTimeFilter();
@@ -84,8 +77,8 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
         }
         boolean changed = oldDataSourceFilter != mDataSourceFilter;
         if (changed) {
-            removeFilter(oldDataSourceFilter);
-            addFilter(mDataSourceFilter);
+            //removeFilter(oldDataSourceFilter);
+            //addFilter(mDataSourceFilter);
             if (changeSorter) {
                 setSorter(getSensorSortType(), getSensorOrder());
             }
@@ -113,15 +106,15 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
 
     public int getSensorSortType() {
         SensorSorter sorter = getSensorSorter();
-        if (sorter instanceof SensorNetInTimeSorter) {
-            return SORTED_BY_TIME;
-        } else if (sorter instanceof SensorEarliestValueTimeSorter) {
-            return SORTED_BY_TIME;
-        } else if (sorter instanceof SensorAddressSorter) {
-            return SORTED_BY_ADDRESS;
-        } else if (sorter instanceof SensorNameSorter) {
-            return SORTED_BY_NAME;
-        }
+//        if (sorter instanceof SensorNetInTimeSorter) {
+//            return SORTED_BY_TIME;
+//        } else if (sorter instanceof SensorEarliestValueTimeSorter) {
+//            return SORTED_BY_TIME;
+//        } else if (sorter instanceof SensorAddressSorter) {
+//            return SORTED_BY_ADDRESS;
+//        } else if (sorter instanceof SensorNameSorter) {
+//            return SORTED_BY_NAME;
+//        }
         return SORTED_BY_TIME;
     }
 
@@ -146,33 +139,33 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
                            boolean isDescend,
                            boolean isCommit,
                            OnSensorSorterChangeListener listener) {
-        switch (type) {
-            case SORTED_BY_ADDRESS:
-                setSorter(new SensorAddressSorter(), isDescend, isCommit, listener);
-                break;
-            case SORTED_BY_NAME:
-                setSorter(new SensorNameSorter(), isDescend, isCommit, listener);
-                break;
-            case SORTED_BY_TIME:
-            default:
-                if (getDataSource()) {
-                    setSorter(new SensorNetInTimeSorter(), isDescend, isCommit, listener);
-                } else {
-                    setSorter(new SensorEarliestValueTimeSorter(), isDescend, isCommit, listener);
-                }
-                break;
-        }
+//        switch (type) {
+//            case SORTED_BY_ADDRESS:
+//                setSorter(new SensorAddressSorter(), isDescend, isCommit, listener);
+//                break;
+//            case SORTED_BY_NAME:
+//                setSorter(new SensorNameSorter(), isDescend, isCommit, listener);
+//                break;
+//            case SORTED_BY_TIME:
+//            default:
+//                if (getDataSource()) {
+//                    setSorter(new SensorNetInTimeSorter(), isDescend, isCommit, listener);
+//                } else {
+//                    setSorter(new SensorEarliestValueTimeSorter(), isDescend, isCommit, listener);
+//                }
+//                break;
+//        }
     }
 
-    public int getSensorProtocolType() {
-        if (mSensorProtocolFilter instanceof BleProtocolFilter) {
-            return SensorProtocolFilter.BLE_PROTOCOL;
-        } else if (mSensorProtocolFilter instanceof EsbProtocolFilter) {
-            return SensorProtocolFilter.ESB_PROTOCOL;
-        } else {
-            return SensorProtocolFilter.ALL_PROTOCOL;
-        }
-    }
+//    public int getSensorProtocolType() {
+//        if (mSensorProtocolFilter instanceof BleProtocolFilter) {
+//            return SensorProtocolFilter.BLE_PROTOCOL;
+//        } else if (mSensorProtocolFilter instanceof EsbProtocolFilter) {
+//            return SensorProtocolFilter.ESB_PROTOCOL;
+//        } else {
+//            return SensorProtocolFilter.ALL_PROTOCOL;
+//        }
+//    }
 
     public void setSensorProtocol(int sensorProtocolType) {
         setSensorProtocol(sensorProtocolType, false, null);
@@ -183,34 +176,34 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
     }
 
     private void setSensorProtocol(int sensorProtocolType, boolean isCommit, OnSensorProtocolChangeListener listener) {
-        if (sensorProtocolType < SensorProtocolFilter.ALL_PROTOCOL || sensorProtocolType > SensorProtocolFilter.ESB_PROTOCOL) {
-            throw new IllegalArgumentException("invalid sensor protocol type");
-        }
-        if (sensorProtocolType != getSensorProtocolType()) {
-            if (mSensorProtocolFilter != null) {
-                removeFilter(mSensorProtocolFilter);
-            }
-            switch (sensorProtocolType) {
-                case SensorProtocolFilter.ALL_PROTOCOL:
-                    mSensorProtocolFilter = null;
-                    break;
-                case SensorProtocolFilter.BLE_PROTOCOL:
-                    mSensorProtocolFilter = new BleProtocolFilter();
-                    break;
-                case SensorProtocolFilter.ESB_PROTOCOL:
-                    mSensorProtocolFilter = new EsbProtocolFilter();
-                    break;
-            }
-            if (mSensorProtocolFilter != null) {
-                addFilter(mSensorProtocolFilter);
-            }
-            if (isCommit) {
-                commitFilter(listener);
-                if (listener != null) {
-                    listener.onSensorProtocolChange(sensorProtocolType);
-                }
-            }
-        }
+//        if (sensorProtocolType < SensorProtocolFilter.ALL_PROTOCOL || sensorProtocolType > SensorProtocolFilter.ESB_PROTOCOL) {
+//            throw new IllegalArgumentException("invalid sensor protocol type");
+//        }
+//        if (sensorProtocolType != getSensorProtocolType()) {
+//            if (mSensorProtocolFilter != null) {
+//                removeFilter(mSensorProtocolFilter);
+//            }
+//            switch (sensorProtocolType) {
+//                case SensorProtocolFilter.ALL_PROTOCOL:
+//                    mSensorProtocolFilter = null;
+//                    break;
+//                case SensorProtocolFilter.BLE_PROTOCOL:
+//                    mSensorProtocolFilter = new BleProtocolFilter();
+//                    break;
+//                case SensorProtocolFilter.ESB_PROTOCOL:
+//                    mSensorProtocolFilter = new EsbProtocolFilter();
+//                    break;
+//            }
+//            if (mSensorProtocolFilter != null) {
+//                addFilter(mSensorProtocolFilter);
+//            }
+//            if (isCommit) {
+//                commitFilter(listener);
+//                if (listener != null) {
+//                    listener.onSensorProtocolChange(sensorProtocolType);
+//                }
+//            }
+//        }
     }
 
     public List<Integer> getSensorTypeNos() {
@@ -234,7 +227,7 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
                 if (!mPhysicalSensorTypeFilter.getSelectedSensorTypeNos().isEmpty()) {
                     changed = true;
                 }
-                removeFilter(mPhysicalSensorTypeFilter);
+                //removeFilter(mPhysicalSensorTypeFilter);
                 mPhysicalSensorTypeFilter = null;
             }
         } else {
@@ -245,7 +238,7 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
                 }
             } else {
                 mPhysicalSensorTypeFilter = new PhysicalSensorTypeFilter(selectedSensorTypeNos);
-                addFilter(mPhysicalSensorTypeFilter);
+                //addFilter(mPhysicalSensorTypeFilter);
                 changed = true;
             }
         }
@@ -258,8 +251,8 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
     }
 
     public String getSearchContent() {
-        return mPhysicalSensorNameFilter != null
-                ? mPhysicalSensorNameFilter.getKeyWord()
+        return mPhysicalSensorInfoFilter != null
+                ? mPhysicalSensorInfoFilter.getKeyWord()
                 : "";
     }
 
@@ -274,22 +267,22 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
     private void setSearchContent(String keyWord, boolean isCommit, OnSearchKeyWordChangeListener listener) {
         boolean changed = false;
         if (TextUtils.isEmpty(keyWord)) {
-            if (mPhysicalSensorNameFilter != null) {
-                if (!TextUtils.isEmpty(mPhysicalSensorNameFilter.getKeyWord())) {
+            if (mPhysicalSensorInfoFilter != null) {
+                if (!TextUtils.isEmpty(mPhysicalSensorInfoFilter.getKeyWord())) {
                     changed = true;
                 }
-                removeFilter(mPhysicalSensorNameFilter);
-                mPhysicalSensorNameFilter = null;
+                //removeFilter(mPhysicalSensorInfoFilter);
+                mPhysicalSensorInfoFilter = null;
             }
         } else {
-            if (mPhysicalSensorNameFilter != null) {
-                if (!mPhysicalSensorNameFilter.getKeyWord().equals(keyWord)) {
-                    mPhysicalSensorNameFilter.setKeyWord(keyWord);
+            if (mPhysicalSensorInfoFilter != null) {
+                if (!mPhysicalSensorInfoFilter.getKeyWord().equals(keyWord)) {
+                    mPhysicalSensorInfoFilter.setKeyWord(keyWord);
                     changed = true;
                 }
             } else {
-                mPhysicalSensorNameFilter = new PhysicalSensorNameFilter(keyWord);
-                addFilter(mPhysicalSensorNameFilter);
+                mPhysicalSensorInfoFilter = new PhysicalSensorInfoFilter(keyWord);
+                //addFilter(mPhysicalSensorInfoFilter);
                 changed = true;
             }
         }
@@ -311,7 +304,7 @@ public class DataBrowseSensorStorage extends BaseSensorStorage<PhysicalSensor> i
         dest.writeByte((byte) (mDataSourceFilter != null ? (getDataSource() ? 1 : 0) : 1));
         dest.writeInt(getSensorSortType());
         dest.writeByte((byte) (getSensorOrder() ? 1 : 0));
-        dest.writeInt(getSensorProtocolType());
+        //dest.writeInt(getSensorProtocolType());
         dest.writeList(getSensorTypeNos());
         dest.writeString(getSearchContent());
     }

@@ -2,7 +2,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:title="@string/switch_data_source"
         android:id="@+id/mi_data_source"
-        app:showAsAction="always|withText">
+        android:icon="@drawable/ic_switch"
+        app:showAsAction="never|withText">
+    </item>
+    <item
+        android:title="@string/sort"
+        android:id="@+id/mi_sort"
+        android:icon="@drawable/ic_sort"
+        app:showAsAction="never|withText">
+    </item>
+    <item
+        android:title="@string/filtrate"
+        android:id="@+id/mi_filter"
+        android:icon="@drawable/ic_filter"
+        app:showAsAction="never|withText">
+    </item>
+    <item
+        android:title="@string/search"
+        android:id="@+id/mi_search"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="never|withText">
     </item>
 </menu>

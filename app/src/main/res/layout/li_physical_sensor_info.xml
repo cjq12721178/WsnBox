@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:id="@+id/li_sensor_info"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/padding_micro"
+    android:paddingBottom="@dimen/padding_micro"
+    android:background="@color/bg_lh_sensor_data">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_timestamp"
+        android:text="@string/timestamp"
+        android:textSize="@dimen/size_text_dialog"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_measurement1"
+        android:textSize="@dimen/size_text_dialog"
+        android:gravity="center"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_measurement2"
+        android:textSize="@dimen/size_text_dialog"
+        android:gravity="center"/>
+
+    <ViewStub
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:id="@+id/vs_measurement"
+        android:layout="@layout/vs_measurement"/>
+
+</LinearLayout>

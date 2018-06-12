@@ -11,6 +11,9 @@ public interface Constant {
     String TAG_NAME = "name";
     String TAG_TYPE = "type";
     String TAG_WARNER = "warner";
+    String TAG_DEVICE = "device";
+    String TAG_NODE = "node";
+    String TAG_INDEX = "index";
     String TABLE_SENSOR_INIT_DATA = "sensor_init_data";
     String TABLE_MEASUREMENT_INIT_DATA = "measurement_init_data";
     String TABLE_SENSOR_DATA = "sensor_data";
@@ -20,6 +23,8 @@ public interface Constant {
     String TABLE_MEASUREMENT_CONFIGURATION = "measurement_config";
     String TABLE_GENERAL_SINGLE_RANGE_WARNER = "gsr_warner";
     String TABLE_GENERAL_SWITCH_WARNER = "gs_warner";
+    String TABLE_DEVICE = TAG_DEVICE;
+    String TABLE_NODE = TAG_NODE;
     String COLUMN_SENSOR_ADDRESS = TAG_ADDRESS;
     String COLUMN_TIMESTAMP = "time";
     String COLUMN_BATTER_VOLTAGE = "voltage";
@@ -37,4 +42,7 @@ public interface Constant {
     String COLUMN_LOW_LIMIT = "low_limit";
     String COLUMN_HIGH_LIMIT = "high_limit";
     String COLUMN_ABNORMAL_VALUE = "abnormal_value";
+    String COLUMN_DEVICE_NAME = TAG_NAME;
+    String COLUMN_NODE_NAME = TAG_NAME;
+    String COLUMN_DEVICE_ID = "device_id";
 }

@@ -27,7 +27,7 @@ public class SingleMeasurementSensorAdapterDelegate extends BaseSensorAdapterDel
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent) {
         return new ViewHolder(LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.list_item_single_measurement_sensor,
+                .inflate(R.layout.li_single_measurement_sensor,
                         parent,
                         false));
     }

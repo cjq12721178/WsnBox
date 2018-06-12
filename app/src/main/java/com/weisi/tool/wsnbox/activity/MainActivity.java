@@ -2,6 +2,7 @@ package com.weisi.tool.wsnbox.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -10,7 +11,6 @@ import android.view.View;
 import com.cjq.tool.qbox.ui.dialog.BaseDialog;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.weisi.tool.wsnbox.R;
-import com.weisi.tool.wsnbox.activity.data_browse.DataBrowseActivity;
 import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 
@@ -27,6 +27,11 @@ public class MainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setTitle(R.string.home_page_title);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+        }
 
         if (getBaseApplication().isConfigurationPrepared()) {
             startService(new Intent(this, DataPrepareService.class));
@@ -85,9 +90,10 @@ public class MainActivity
         switch (item.getItemId()) {
             case R.id.mi_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
-                break;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

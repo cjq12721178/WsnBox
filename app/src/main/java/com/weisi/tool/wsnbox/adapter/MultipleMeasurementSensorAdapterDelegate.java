@@ -38,7 +38,7 @@ public class MultipleMeasurementSensorAdapterDelegate extends BaseSensorAdapterD
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent) {
         return new ViewHolder(LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.list_item_multiple_measurement_sensor,
+                .inflate(R.layout.li_multiple_measurement_sensor,
                         parent,
                         false),
                 mMeasurementSize);

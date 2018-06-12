@@ -93,6 +93,8 @@ class DataTransferStation {
                         recordSensorNetIn(logicalSensor.physicalSensor)
                         if (enableDetectLogicalSensorNetIn) {
                             sendLogicalSensorNetInMessage(logicalSensor)
+                        } else if (enableDetectLogicalSensorValueUpdate) {
+                            sendLogicalSensorValueUpdateMessage(logicalSensor, valueLogicalPosition)
                         }
                     } else {
                         if (enableDetectLogicalSensorValueUpdate) {
@@ -112,6 +114,8 @@ class DataTransferStation {
                         recordSensorNetIn(physicalSensor.getMeasurementByDataTypeValue(dataTypeValue, dataTypeValueIndex))
                         if (enableDetectPhysicalSensorNetIn) {
                             sendPhysicalSensorNetInMessage(physicalSensor)
+                        } else if (enableDetectPhysicalSensorValueUpdate) {
+                            sendPhysicalSensorValueUpdateMessage(physicalSensor, valueLogicalPosition)
                         }
                     } else {
                         if (enableDetectPhysicalSensorValueUpdate) {
@@ -226,8 +230,8 @@ class DataTransferStation {
         notifyLogicalSensorHistoryValueUpdate(sensor, position)
     }
 
-    private fun recordSensorNetIn(sensor: Sensor<*, *>): Boolean {
-        if (sensor.getNetInTimestamp() == 0L) {
+    private fun recordSensorNetIn(sensor: Sensor<*, *>?): Boolean {
+        if (sensor?.getNetInTimestamp() == 0L) {
             synchronized(LAST_NET_IN_TIME_LOCKER) {
                 var currentNetInTimestamp = System.currentTimeMillis()
                 if (lastNetInTimestamp >= currentNetInTimestamp) {

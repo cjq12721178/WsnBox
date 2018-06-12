@@ -11,7 +11,7 @@
         android:label="${appName}"
         android:roundIcon="@drawable/ic_logo"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/BaseActivityTheme">
         <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -27,21 +27,24 @@
         </service>
 
         <activity
-            android:name=".activity.data_browse.DataBrowseActivity"
-            android:label="@string/data_browse">
+            android:name=".activity.DataBrowseActivity"
+            android:label="@string/data_browse"
+            android:parentActivityName=".activity.MainActivity">
         </activity>
         <activity
             android:name=".activity.SettingsActivity"
-            android:label="@string/settings">
+            android:label="@string/settings"
+            android:parentActivityName=".activity.MainActivity">
         </activity>
         <activity
             android:name=".activity.ParameterConfigurationActivity"
-            android:label="@string/parameter_config">
+            android:label="@string/parameter_config"
+            android:parentActivityName=".activity.MainActivity">
         </activity>
-        
+
         <provider
-            android:authorities="${applicationId}.provider"
             android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

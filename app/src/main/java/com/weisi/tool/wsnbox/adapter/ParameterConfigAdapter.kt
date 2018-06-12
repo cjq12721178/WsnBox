@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import com.cjq.tool.qbox.ui.adapter.RecyclerViewCursorAdapter
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.io.Constant
-import kotlinx.android.synthetic.main.list_item_para_config.view.*
+import kotlinx.android.synthetic.main.li_para_config.view.*
 
 /**
  * Created by CJQ on 2018/3/5.
@@ -17,7 +17,7 @@ class ParameterConfigAdapter : RecyclerViewCursorAdapter() {
 
     override fun onCreateViewHolder(parent: ViewGroup?): RecyclerView.ViewHolder {
         return ViewHolder(LayoutInflater.from(parent?.context)
-                .inflate(R.layout.list_item_para_config,
+                .inflate(R.layout.li_para_config,
                         parent,
                         false))
     }

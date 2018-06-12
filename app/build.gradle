@@ -14,8 +14,8 @@ android {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 23
-        versionName "1.5.3"
+        versionCode 24
+        versionName "1.6.0"
         flavorDimensions "wsn"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -24,13 +24,13 @@ android {
         }
         guomi {
             applicationIdSuffix ".guomi"
-            versionCode 19
-            versionName "0.6.4"
+            versionCode 20
+            versionName "0.7.0"
         }
         jiugang {
             applicationIdSuffix ".jiugang"
-            versionCode 6
-            versionName "0.1.5"
+            versionCode 7
+            versionName "0.2.0"
         }
     }
     buildTypes {
@@ -81,11 +81,13 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile(name: 'com.cjq.tool.qbox-1.6.0', ext: 'aar')
-    compile(name: 'com.cjq.lib.weisi-5.0.4', ext: 'aar')
+    compile(name: 'com.cjq.tool.qbox-1.6.3', ext: 'aar')
+    compile(name: 'com.cjq.lib.weisi-5.2.5', ext: 'aar')
     compile 'com.android.support:appcompat-v7:27.0.2'
     compile 'com.android.support:recyclerview-v7:27.0.2'
     compile 'com.android.support:preference-v7:27.0.2'
+    compile 'com.android.support:support-v4:27.0.2'
+    compile 'com.android.support:support-v13:27.0.2'
     compile 'com.kaopiz:kprogresshud:1.0.2'
     compile 'io.apisense:rhino-android:1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'

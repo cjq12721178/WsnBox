@@ -111,7 +111,9 @@ public class SensorDataExporter
 
     @Override
     public SensorData provideSensorData() {
-        return mTemporarySensorData.pollFirst();
+        synchronized (mTemporarySensorData) {
+            return mTemporarySensorData.poll();
+        }
     }
 
     @Override
@@ -133,8 +135,10 @@ public class SensorDataExporter
 
     @Override
     public void onDynamicValueCapture(int address, byte dataTypeValue, int dataTypeValueIndex, long timestamp, float batteryVoltage, double rawValue) {
-        mTemporarySensorData.addLast(SensorData.build(address,
-                dataTypeValue, dataTypeValueIndex,
-                timestamp, batteryVoltage, rawValue));
+        synchronized (mTemporarySensorData) {
+            mTemporarySensorData.addLast(SensorData.build(address,
+                    dataTypeValue, dataTypeValueIndex,
+                    timestamp, batteryVoltage, rawValue));
+        }
     }
 }

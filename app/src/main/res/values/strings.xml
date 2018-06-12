@@ -1,4 +1,5 @@
 <resources>
+    <!-- 通用 -->
     <string name="app_name">智联之窗</string>
     <string name="app_name_debug">智联之窗DEBUG</string>
     <string name="home_page_title">智联之窗</string>
@@ -12,6 +13,7 @@
     <string name="name">名称</string>
     <string name="measurement_name">测量名称</string>
     <string name="measurement_type">测量类型</string>
+    <string name="sensor_id">ID</string>
     <string name="value">数值</string>
     <string name="sort">排序</string>
     <string name="filtrate">筛选</string>
@@ -33,6 +35,7 @@
     <string name="sensor_info_state_on">状态：在线</string>
     <string name="sensor_info_state_off">状态：离线</string>
     <string name="sensor_info_date" formatted="false">日期：%tF</string>
+    <string name="sensor_info_id" formatted="false">ID：%s</string>
     <string name="communicator">通讯模块</string>
     <string name="udp">UDP</string>
     <string name="tcp">TCP</string>
@@ -41,6 +44,22 @@
     <string name="usb">USB</string>
     <string name="data_store">数据保存</string>
     <string name="sensor_protocol">协议</string>
+    <string name="physical_sensor_mode">传感器</string>
+    <string name="logical_sensor_mode">测量量</string>
+    <string name="device_node_mode">设备</string>
+    <string name="switch_data_source">切换数据源</string>
+    <string name="battery_voltage">电压</string>
+
+    <!-- 界面 -->
+    <string name="sensor_type">类型</string>
+    <string name="sensor_config">传感器配置</string>
+    <string name="sensor_config_description">本项配置可以改变数据浏览和自由巡检界面中数据的展现形式，主要有以下功能：\n1. 自定义传感器名称\n2. 为传感器及其测量量设置告警参数，支持多种告警方式</string>
+    <string name="config_list">配置列表</string>
+    <string name="scene_list">应用场景</string>
+    <string name="add_para_configs">添加配置</string>
+    <string name="import_para_configs">导入配置</string>
+    <string name="choose_scene_config">选择场景配置</string>
+    <string name="remove_config_provider">移除配置</string>
 
     <!-- 设置相关 -->
     <string name="preference_key_udp_enable">udp_enable</string>
@@ -105,7 +124,12 @@
     <string name="launch_sensor_database_failed">启动传感器数据库失败</string>
     <string name="database_insert_sensor_data_error">数据库保存传感器数据发生错误，传感器历史数据自动保存功能将关闭</string>
     <string name="import_sensor_earliest_value_failed">导入传感器历史数据失败</string>
+    <string name="import_measurement_earliest_value_failed">导入测量量历史数据失败</string>
+    <string name="import_device_earliest_value_failed">导入设备历史数据失败</string>
     <string name="import_sensor_history_value_failed">导入当前传感器历史数据失败</string>
+    <string name="import_devices_failed">导入设备失败</string>
+    <string name="device_mode_no_filters">设备节点模式无可用筛选器</string>
+    <string name="device_not_configured">目前暂无配置设备，可在参数配置界面进行配置</string>
     <string name="udp_launch_succeed">UDP通讯模块启动成功</string>
     <string name="udp_launch_failed">UDP通讯模块启动失败</string>
     <string name="tcp_launch_succeed">TCP通讯模块启动成功</string>
@@ -152,21 +176,12 @@
     <string name="usb_stop_bits_set_failed">USB停止位设置失败</string>
     <string name="usb_data_bits_set_failed">USB数据位设置失败</string>
     <string name="usb_parity_set_failed">USB校验位设置失败</string>
-    <string name="sensor_type">类型</string>
-    <string name="sensor_config">传感器配置</string>
-    <string name="sensor_config_description">本项配置可以改变数据浏览和自由巡检界面中数据的展现形式，主要有以下功能：\n1. 自定义传感器名称\n2. 为传感器及其测量量设置告警参数，支持多种告警方式</string>
-    <string name="config_list">配置列表</string>
-    <string name="scene_list">应用场景</string>
-    <string name="add_para_configs">添加配置</string>
-    <string name="import_para_configs">导入配置</string>
     <string name="choose_config_provider">选择参数配置文件</string>
     <string name="file_manager_open_failed">文件管理器打开失败</string>
     <string name="grant_read_perimission">请给予文件读取权限</string>
     <string name="lack_read_permissions">缺少读取权限</string>
     <string name="config_provider_null">配置文件路径为空</string>
     <string name="insert_config_provider_failed">导入配置失败</string>
-    <string name="choose_scene_config">选择场景配置</string>
-    <string name="remove_config_provider">移除配置</string>
     <string name="delete_config_provider_failed">参数配置删除失败</string>
     <string name="confirm_delete_config_provider">是否删除该参数配置</string>
     <string name="modify_config_provider_name">修改参数配置名称</string>

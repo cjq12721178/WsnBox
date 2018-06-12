@@ -12,7 +12,7 @@
         android:id="@+id/btn_today"
         android:text="@string/today"
         android:textSize="@dimen/size_text_dialog"
-        android:background="@color/time_selection_today"/>
+        android:background="@color/bg_time_selection_today"/>
 
     <Button
         android:layout_width="0dp"
@@ -21,7 +21,7 @@
         android:id="@+id/btn_previous_day"
         android:text="@string/previous_day"
         android:textSize="@dimen/size_text_dialog"
-        android:background="@color/time_selection_previous_day"/>
+        android:background="@color/bg_time_selection_previous_day"/>
 
     <Button
         android:layout_width="0dp"
@@ -30,7 +30,7 @@
         android:id="@+id/btn_next_day"
         android:text="@string/next_day"
         android:textSize="@dimen/size_text_dialog"
-        android:background="@color/time_selection_next_day"/>
+        android:background="@color/bg_time_selection_next_day"/>
 
     <Button
         android:layout_width="0dp"
@@ -39,6 +39,6 @@
         android:id="@+id/btn_custom_day"
         android:text="@string/custom_day"
         android:textSize="@dimen/size_text_dialog"
-        android:background="@color/time_selection_custom"/>
+        android:background="@color/bg_time_selection_custom"/>
 
 </LinearLayout>

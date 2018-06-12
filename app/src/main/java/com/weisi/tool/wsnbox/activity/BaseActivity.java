@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.weisi.tool.wsnbox.application.BaseApplication;
@@ -38,9 +40,17 @@ public class BaseActivity
     }
 
     @Override
-    protected void onTitleChanged(CharSequence title, int color) {
-        super.onTitleChanged(title, color);
-        getFunctionDelegate().setTitle(title);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (getFunctionDelegate().onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        getFunctionDelegate().onMenuOpened(featureId, menu);
+        return super.onMenuOpened(featureId, menu);
     }
 
     @Override
@@ -75,22 +85,22 @@ public class BaseActivity
     }
 
     @Override
-    public void onServiceConnectionCreate(DataPrepareService service) {
+    public void onServiceConnectionCreate(@NonNull DataPrepareService service) {
 
     }
 
     @Override
-    public void onServiceConnectionStart(DataPrepareService service) {
+    public void onServiceConnectionStart(@NonNull DataPrepareService service) {
 
     }
 
     @Override
-    public void onServiceConnectionStop(DataPrepareService service) {
+    public void onServiceConnectionStop(@NonNull DataPrepareService service) {
 
     }
 
     @Override
-    public void onServiceConnectionDestroy(DataPrepareService service) {
+    public void onServiceConnectionDestroy(@NonNull DataPrepareService service) {
 
     }
 

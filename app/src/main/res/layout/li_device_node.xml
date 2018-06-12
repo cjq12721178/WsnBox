@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="@color/bg_device"
+    android:layout_margin="@dimen/margin_small"
+    app:contentPadding="@dimen/padding_small">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/cl_device_node">
+
+        <android.support.constraint.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gl_node_vertical_one_third"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.33333333"/>
+
+        <android.support.constraint.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gl_node_vertical_two_thirds"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.66666667"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_device_name"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/size_text_title_small"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/margin_micro"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1px"
+            android:id="@+id/v_device_node_divider"
+            android:layout_margin="@dimen/margin_micro"
+            android:background="@color/bg_device_node_divider"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_device_name"/>
+    </android.support.constraint.ConstraintLayout>
+</android.support.v7.widget.CardView>

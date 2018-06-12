@@ -16,16 +16,20 @@ class SensorHistoryDataAccessor {
         onSensorHistoryDataAccessListener = listener
     }
 
-    fun importSensorsWithEarliestValue(listener: OnMissionFinishedListener?) {
+    fun importSensorsWithEarliestValue(listener: OnMissionFinishedListener?, physicalFirst: Boolean) {
         object : AsyncTask<Unit, Unit, Boolean>(), SensorDatabase.SensorHistoryInfoReceiver {
             override fun doInBackground(vararg params: Unit?): Boolean {
-                val actualCount = SensorDatabase.getSensorWithHistoryValueCount()
+                val actualCount = if (physicalFirst) {
+                    SensorDatabase.getPhysicalSensorWithHistoryValueCount()
+                } else {
+                    SensorDatabase.getLogicalSensorWithHistoryValueCount()
+                }
                 if (actualCount == -1) {
                     return false
                 }
                 return if (actualCount == 0 || actualCount == SensorManager.getSensorWithHistoryValuesCount(PhysicalSensor::class.java)) {
                     true
-                } else SensorDatabase.importSensorEarliestValue(this)
+                } else SensorDatabase.importSensorEarliestValue(this, physicalFirst)
             }
 
             override fun onPostExecute(result: Boolean?) {
@@ -42,11 +46,11 @@ class SensorHistoryDataAccessor {
         }.execute()
     }
 
-    fun importSensorHistoryValue(address: Int, startTime: Long, endTime: Long, listener: OnMissionFinishedListener?) {
+    fun importSensorHistoryValue(id: Long, startTime: Long, endTime: Long, listener: OnMissionFinishedListener?) {
         object : AsyncTask<Unit, Unit, Boolean>(), SensorDatabase.SensorHistoryInfoReceiver {
             override fun doInBackground(vararg params: Unit?): Boolean {
                 return SensorDatabase.importSensorHistoryValues(
-                        address, startTime, endTime,
+                        id, startTime, endTime,
                         0,
                         this)
             }

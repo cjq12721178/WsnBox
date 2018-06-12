@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.cjq.lib.weisi.iot.LogicalSensor;
@@ -17,6 +18,8 @@ import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.bean.configuration.CommonValueContainerConfigurationProvider;
 import com.weisi.tool.wsnbox.bean.configuration.LogicalSensorConfiguration;
 import com.weisi.tool.wsnbox.bean.configuration.PhysicalSensorConfiguration;
+import com.weisi.tool.wsnbox.bean.data.Device;
+import com.weisi.tool.wsnbox.bean.data.Node;
 import com.weisi.tool.wsnbox.bean.data.SensorData;
 import com.weisi.tool.wsnbox.bean.decorator.CommonLogicalSensorDecorator;
 import com.weisi.tool.wsnbox.bean.decorator.CommonPhysicalSensorDecorator;
@@ -29,7 +32,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
@@ -46,7 +51,9 @@ public class SensorDatabase implements Constant {
     private static final int VN_WINDOW = 1;
     //增加对传感器配置的管理
     private static final int VN_CONFIGURATION = 2;
-    private static final int CURRENT_VERSION_NO = VN_CONFIGURATION;
+    //增加可配置的设备节点功能
+    private static final int VN_DEVICE_NODE = 3;
+    private static final int CURRENT_VERSION_NO = VN_DEVICE_NODE;
 
     private static SQLiteLauncher launcher;
     private static SQLiteDatabase database;
@@ -84,11 +91,23 @@ public class SensorDatabase implements Constant {
         }
     }
 
-    public static boolean importSensorHistoryValues(int address,
+    public static boolean importSensorHistoryValues(long id,
                                                     long startTime,
                                                     long endTime,
                                                     int limitCount,
                                                     SensorHistoryInfoReceiver receiver) {
+        if (Sensor.ID.getDataTypeValue(id) == 0 && Sensor.ID.getDataTypeValueIndex(id) == 0) {
+            return importPhysicalSensorHistoryValues(Sensor.ID.getAddress(id), startTime, endTime, limitCount, receiver);
+        } else {
+            return importLogicalSensorHistoryValues(id, startTime, endTime, limitCount, receiver);
+        }
+    }
+
+    private static boolean importPhysicalSensorHistoryValues(int address,
+                                                            long startTime,
+                                                            long endTime,
+                                                            int limitCount,
+                                                            SensorHistoryInfoReceiver receiver) {
         if (database == null || receiver == null || startTime > endTime) {
             return false;
         }
@@ -182,8 +201,104 @@ public class SensorDatabase implements Constant {
         return false;
     }
 
+    private static boolean importLogicalSensorHistoryValues(long id,
+                                                            long startTime,
+                                                            long endTime,
+                                                            int limitCount,
+                                                            SensorHistoryInfoReceiver receiver) {
+        if (database == null || receiver == null || startTime > endTime) {
+            return false;
+        }
+        Cursor cursor = null;
+        try {
+            StringBuffer buffer = new StringBuffer();
+            //导入逻辑传感器历史数据
+            buffer.append("SELECT ").append(COLUMN_TIMESTAMP)
+                    .append(',').append(COLUMN_RAW_VALUE)
+                    .append(" FROM ").append(TABLE_MEASUREMENT_DATA)
+                    .append(" WHERE ").append(COLUMN_MEASUREMENT_VALUE_ID)
+                    .append(" = ").append(id);
+            if (startTime > 0) {
+                buffer.append(" AND ");
+                if (endTime > 0) {
+                    buffer.append('(').append(COLUMN_TIMESTAMP)
+                            .append(" BETWEEN ").append(startTime)
+                            .append(" AND ").append(endTime)
+                            .append(')');
+                } else {
+                    buffer.append(COLUMN_TIMESTAMP)
+                            .append(" >= ")
+                            .append(startTime);
+                }
+            } else if (endTime > 0) {
+                buffer.append(" AND ")
+                        .append(COLUMN_TIMESTAMP)
+                        .append(" < ")
+                        .append(endTime);
+            }
+            buffer.append(" ORDER BY ").append(COLUMN_TIMESTAMP);
+            if (limitCount > 0) {
+                buffer.append(" LIMIT ").append(limitCount);
+            }
+            cursor = database.rawQuery(buffer.toString(), null);
+            if (cursor == null) {
+                return false;
+            }
+            int timestampIndex = cursor.getColumnIndex(COLUMN_TIMESTAMP);
+            int rawValueIndex = cursor.getColumnIndex(COLUMN_RAW_VALUE);
+            while (cursor.moveToNext()) {
+                if (cursor.isFirst()) {
+                    startTime = cursor.getLong(timestampIndex);
+                } else if (cursor.isLast()) {
+                    endTime = cursor.getLong(timestampIndex);
+                }
+                receiver.onMeasurementDataReceived(
+                        id,
+                        cursor.getLong(timestampIndex),
+                        cursor.getDouble(rawValueIndex)
+                );
+            }
+            cursor.close();
+            //导入物理传感器历史数据
+            int address = Sensor.ID.getAddress(id);
+            buffer.setLength(0);
+            buffer.append("SELECT ").append(COLUMN_TIMESTAMP)
+                    .append(',').append(COLUMN_BATTER_VOLTAGE)
+                    .append(" FROM ").append(TABLE_SENSOR_DATA)
+                    .append(" WHERE ").append(COLUMN_SENSOR_ADDRESS)
+                    .append(" = ").append(address)
+                    .append(" AND ")
+                    .append('(').append(COLUMN_TIMESTAMP)
+                    .append(" BETWEEN ").append(startTime)
+                    .append(" AND ").append(endTime).append(')')
+                    .append(" ORDER BY ").append(COLUMN_TIMESTAMP);
+            cursor = database.rawQuery(buffer.toString(), null);
+            if (cursor == null) {
+                return false;
+            }
+            timestampIndex = cursor.getColumnIndex(COLUMN_TIMESTAMP);
+            int batteryVoltageIndex = cursor.getColumnIndex(COLUMN_BATTER_VOLTAGE);
+            while (cursor.moveToNext()) {
+                receiver.onSensorDataReceived(
+                        address,
+                        cursor.getLong(timestampIndex),
+                        cursor.getFloat(batteryVoltageIndex)
+                );
+            }
+            cursor.close();
+            return true;
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+        return false;
+    }
+
     //返回-1代表操作失败
-    public static int getSensorWithHistoryValueCount() {
+    public static int getPhysicalSensorWithHistoryValueCount() {
         if (database == null) {
             return -1;
         }
@@ -203,7 +318,98 @@ public class SensorDatabase implements Constant {
         return -1;
     }
 
-    public static boolean importSensorEarliestValue(SensorHistoryInfoReceiver receiver) {
+    public static boolean importSensorEarliestValue(SensorHistoryInfoReceiver receiver, boolean physicalFirst) {
+        return physicalFirst
+                ? onlyImportPhysicalSensorEarliestValue(receiver) && onlyImportLogicalSensorEarliestValue(receiver)
+                : onlyImportLogicalSensorEarliestValue(receiver) && onlyImportPhysicalSensorEarliestValue(receiver);
+//        if (database == null || receiver == null) {
+//            return false;
+//        }
+//        Cursor cursor = null;
+//        try {
+//            final int SELECT_LIMIT_COUNT = 10;
+//            StringBuffer buffer = new StringBuffer();
+//            //导入具有历史数据的传感器及其首条历史数据
+//            buffer.append("SELECT ").append(COLUMN_SENSOR_ADDRESS)
+//                    .append(',').append(COLUMN_TIMESTAMP)
+//                    .append(',').append(COLUMN_BATTER_VOLTAGE)
+//                    .append(" FROM ").append(TABLE_SENSOR_INIT_DATA);
+//            int prefixLength = buffer.length();
+//            int startPosition = 0, addressIndex = 0,
+//                    timestampIndex = 0, voltageIndex = 0;
+//            do {
+//                if (cursor != null) {
+//                    cursor.close();
+//                }
+//                buffer.setLength(prefixLength);
+//                cursor = database.rawQuery(buffer.append(" LIMIT ")
+//                        .append(startPosition).append(',')
+//                        .append(SELECT_LIMIT_COUNT)
+//                        .toString(), null);
+//                if (cursor == null) {
+//                    return false;
+//                }
+//                if (startPosition == 0) {
+//                    addressIndex = cursor.getColumnIndex(COLUMN_SENSOR_ADDRESS);
+//                    timestampIndex = cursor.getColumnIndex(COLUMN_TIMESTAMP);
+//                    voltageIndex = cursor.getColumnIndex(COLUMN_BATTER_VOLTAGE);
+//                }
+//                while (cursor.moveToNext()) {
+//                    receiver.onSensorDataReceived(
+//                            cursor.getInt(addressIndex),
+//                            cursor.getLong(timestampIndex),
+//                            cursor.getFloat(voltageIndex)
+//                    );
+//                }
+//                startPosition += SELECT_LIMIT_COUNT;
+//            } while (cursor.getCount() == SELECT_LIMIT_COUNT);
+//            //导入相应传感器测量量的首条历史数据
+//            buffer.setLength(0);
+//            buffer.append("SELECT ").append(COLUMN_MEASUREMENT_VALUE_ID)
+//                    .append(',').append(COLUMN_TIMESTAMP)
+//                    .append(',').append(COLUMN_RAW_VALUE)
+//                    .append(" FROM ").append(TABLE_MEASUREMENT_INIT_DATA);
+//            prefixLength = buffer.length();
+//            startPosition = 0;
+//            int measurementIdIndex = 0, valueIndex = 0;
+//            do {
+//                if (cursor != null) {
+//                    cursor.close();
+//                }
+//                buffer.setLength(prefixLength);
+//                cursor = database.rawQuery(buffer.append(" LIMIT ")
+//                        .append(startPosition).append(',')
+//                        .append(SELECT_LIMIT_COUNT)
+//                        .toString(), null);
+//                if (cursor == null) {
+//                    return false;
+//                }
+//                if (startPosition == 0) {
+//                    measurementIdIndex = cursor.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
+//                    timestampIndex = cursor.getColumnIndex(COLUMN_TIMESTAMP);
+//                    valueIndex = cursor.getColumnIndex(COLUMN_RAW_VALUE);
+//                }
+//                while (cursor.moveToNext()) {
+//                    receiver.onMeasurementDataReceived(
+//                            cursor.getLong(measurementIdIndex),
+//                            cursor.getLong(timestampIndex),
+//                            cursor.getDouble(valueIndex)
+//                    );
+//                }
+//                startPosition += SELECT_LIMIT_COUNT;
+//            } while (cursor.getCount() == SELECT_LIMIT_COUNT);
+//            return true;
+//        } catch (Exception e) {
+//            ExceptionLog.record(e);
+//        } finally {
+//            if (cursor != null && !cursor.isClosed()) {
+//                cursor.close();
+//            }
+//        }
+//        return false;
+    }
+
+    public static boolean onlyImportPhysicalSensorEarliestValue(SensorHistoryInfoReceiver receiver) {
         if (database == null || receiver == null) {
             return false;
         }
@@ -245,15 +451,34 @@ public class SensorDatabase implements Constant {
                 }
                 startPosition += SELECT_LIMIT_COUNT;
             } while (cursor.getCount() == SELECT_LIMIT_COUNT);
+            return true;
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+        return false;
+    }
+
+    public static boolean onlyImportLogicalSensorEarliestValue(SensorHistoryInfoReceiver receiver) {
+        if (database == null || receiver == null) {
+            return false;
+        }
+        Cursor cursor = null;
+        try {
+            final int SELECT_LIMIT_COUNT = 10;
+            StringBuffer buffer = new StringBuffer();
             //导入相应传感器测量量的首条历史数据
             buffer.setLength(0);
             buffer.append("SELECT ").append(COLUMN_MEASUREMENT_VALUE_ID)
                     .append(',').append(COLUMN_TIMESTAMP)
                     .append(',').append(COLUMN_RAW_VALUE)
                     .append(" FROM ").append(TABLE_MEASUREMENT_INIT_DATA);
-            prefixLength = buffer.length();
-            startPosition = 0;
-            int measurementIdIndex = 0, valueIndex = 0;
+            int prefixLength = buffer.length();
+            int startPosition = 0;
+            int measurementIdIndex = 0, timestampIndex = 0, valueIndex = 0;
             do {
                 if (cursor != null) {
                     cursor.close();
@@ -290,6 +515,113 @@ public class SensorDatabase implements Constant {
         }
         return false;
     }
+
+    //返回-1代表操作失败
+    public static int getLogicalSensorWithHistoryValueCount() {
+        if (database == null) {
+            return -1;
+        }
+        Cursor cursor = null;
+        try {
+            cursor = database.rawQuery("SELECT COUNT(0) AS size FROM " + TABLE_MEASUREMENT_INIT_DATA, null);
+            if (cursor != null && cursor.moveToNext()) {
+                return cursor.getInt(cursor.getColumnIndex("size"));
+            }
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return -1;
+    }
+
+//    public static boolean importLogicalSensorEarliestValue(SensorHistoryInfoReceiver receiver) {
+//        if (database == null || receiver == null) {
+//            return false;
+//        }
+//        Cursor cursor = null;
+//        try {
+//            final int SELECT_LIMIT_COUNT = 10;
+//            StringBuffer buffer = new StringBuffer();
+//            //导入具有历史数据的测量量及其首条历史数据
+//            buffer.append("SELECT ").append(COLUMN_MEASUREMENT_VALUE_ID)
+//                    .append(',').append(COLUMN_TIMESTAMP)
+//                    .append(',').append(COLUMN_RAW_VALUE)
+//                    .append(" FROM ").append(TABLE_MEASUREMENT_INIT_DATA);
+//            int prefixLength = buffer.length();
+//            int startPosition = 0, idIndex = 0,
+//                    timestampIndex = 0, valueIndex = 0;
+//            do {
+//                if (cursor != null) {
+//                    cursor.close();
+//                }
+//                buffer.setLength(prefixLength);
+//                cursor = database.rawQuery(buffer.append(" LIMIT ")
+//                        .append(startPosition).append(',')
+//                        .append(SELECT_LIMIT_COUNT)
+//                        .toString(), null);
+//                if (cursor == null) {
+//                    return false;
+//                }
+//                if (startPosition == 0) {
+//                    idIndex = cursor.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
+//                    timestampIndex = cursor.getColumnIndex(COLUMN_TIMESTAMP);
+//                    valueIndex = cursor.getColumnIndex(COLUMN_RAW_VALUE);
+//                }
+//                while (cursor.moveToNext()) {
+//                    receiver.onMeasurementDataReceived(
+//                            cursor.getLong(idIndex),
+//                            cursor.getLong(timestampIndex),
+//                            cursor.getDouble(valueIndex)
+//                    );
+//                }
+//                startPosition += SELECT_LIMIT_COUNT;
+//            } while (cursor.getCount() == SELECT_LIMIT_COUNT);
+//            //导入所属物理传感器的首条历史数据
+//            buffer.setLength(0);
+//            buffer.append("SELECT ").append(COLUMN_TIMESTAMP)
+//                    .append(',').append(COLUMN_BATTER_VOLTAGE)
+//                    .append(" FROM ").append(TABLE_SENSOR_INIT_DATA);
+//            prefixLength = buffer.length();
+//            startPosition = 0;
+//            int batteryIndex = 0;
+//            do {
+//                if (cursor != null) {
+//                    cursor.close();
+//                }
+//                buffer.setLength(prefixLength);
+//                cursor = database.rawQuery(buffer.append(" LIMIT ")
+//                        .append(startPosition).append(',')
+//                        .append(SELECT_LIMIT_COUNT)
+//                        .toString(), null);
+//                if (cursor == null) {
+//                    return false;
+//                }
+//                if (startPosition == 0) {
+//                    timestampIndex = cursor.getColumnIndex(COLUMN_TIMESTAMP);
+//                    batteryIndex = cursor.getColumnIndex(COLUMN_BATTER_VOLTAGE);
+//                }
+//                while (cursor.moveToNext()) {
+//                    receiver.onSensorDataReceived(
+//                            cursor.getLong(measurementIdIndex),
+//                            cursor.getLong(timestampIndex),
+//                            cursor.getDouble(valueIndex)
+//                    );
+//                }
+//                startPosition += SELECT_LIMIT_COUNT;
+//            } while (cursor.getCount() == SELECT_LIMIT_COUNT);
+//            return true;
+//        } catch (Exception e) {
+//            ExceptionLog.record(e);
+//        } finally {
+//            if (cursor != null && !cursor.isClosed()) {
+//                cursor.close();
+//            }
+//        }
+//        return false;
+//    }
 
     public interface SensorHistoryInfoReceiver {
         void onSensorDataReceived(int address, long timestamp, float batteryVoltage);
@@ -457,14 +789,6 @@ public class SensorDatabase implements Constant {
         //查找provider_id=providerId的所有传感器配置
         importSensorConfigurations(providerId, builder, configurationMap);
         importMeasurementConfigurations(providerId, builder, configurationMap);
-//        Map<Integer, Sensor.Configuration> sensorConfigs = importSensorConfigurations(providerId, builder);
-//        if (sensorConfigs == null) {
-//            return null;
-//        }
-//        Map<Long, LogicalSensor.Configuration> measurementConfigs = importMeasurementConfigurations(providerId, builder);
-//        if (measurementConfigs == null) {
-//            return null;
-//        }
         return new CommonValueContainerConfigurationProvider(configurationMap);
     }
 
@@ -638,6 +962,73 @@ public class SensorDatabase implements Constant {
         configurationMap.put(new Sensor.ID(cursor.getLong(measurementIdIndex)), configuration);
     }
 
+    public static boolean importDevices(long providerId, @NonNull OnImportDeviceListener listener) {
+        if (database == null || listener == null) {
+            return false;
+        }
+        Cursor cDevice = null, cNode = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append("SELECT ").append(COLUMN_COMMON_ID)
+                    .append(',').append(COLUMN_DEVICE_NAME)
+                    .append(" FROM ").append(TABLE_DEVICE)
+                    .append(" WHERE ").append(COLUMN_CONFIGURATION_PROVIDER_ID)
+                    .append(" = ").append(providerId);
+            cDevice = database.rawQuery(builder.toString(), null);
+            if (cDevice == null) {
+                return false;
+            }
+            int idIndex = cDevice.getColumnIndex(COLUMN_COMMON_ID);
+            int deviceNameIndex = cDevice.getColumnIndex(COLUMN_DEVICE_NAME);
+            long id;
+            builder.setLength(0);
+            builder.append("SELECT ").append(COLUMN_NODE_NAME)
+                    .append(',').append(COLUMN_MEASUREMENT_VALUE_ID)
+                    .append(" FROM ").append(TABLE_NODE)
+                    .append(" WHERE ").append(COLUMN_DEVICE_ID)
+                    .append(" = ");
+            int prefixLength = builder.length();
+            int nodeNameIndex, sensorIdIndex;
+            String name;
+            while (cDevice.moveToNext()) {
+                id = cDevice.getLong(idIndex);
+                builder.setLength(prefixLength);
+                cNode = database.rawQuery(builder.append(id).toString(), null);
+                if (cNode == null) {
+                    return false;
+                }
+                nodeNameIndex = cNode.getColumnIndex(COLUMN_NODE_NAME);
+                sensorIdIndex = cNode.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
+                List<Node> nodes = new ArrayList<>(cNode.getCount());
+                while (cNode.moveToNext()) {
+                    nodes.add(new Node(cNode.getString(nodeNameIndex),
+                            SensorManager.getLogicalSensor(cNode.getLong(sensorIdIndex), true)));
+                }
+                name = cDevice.getString(deviceNameIndex);
+                if (cNode != null) {
+                    cNode.close();
+                    cNode = null;
+                }
+                listener.onImportDevice(new Device(TextUtils.isEmpty(name) ? "" : name, nodes));
+            }
+            return true;
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        } finally {
+            if (cDevice != null) {
+                cDevice.close();
+            }
+            if (cNode != null) {
+                cNode.close();
+            }
+        }
+        return false;
+    }
+
+    public interface OnImportDeviceListener {
+        void onImportDevice(@NonNull Device device);
+    }
+
     public static Cursor importValueContainerConfigurationProviders() {
         if (database == null) {
             return null;
@@ -714,6 +1105,8 @@ public class SensorDatabase implements Constant {
             createMeasurementConfigurationDataTable(db, builder);
             createGeneralSingleRangeWarnerDataTable(db, builder);
             createGeneralSwitchWarnerDataTable(db, builder);
+            createDeviceDataTable(db, builder);
+            createNodeDataTable(db, builder);
         }
 
         private void createSensorInitDataTable(SQLiteDatabase db, StringBuilder builder) {
@@ -765,13 +1158,17 @@ public class SensorDatabase implements Constant {
             if (newVersion <= oldVersion) {
                 return;
             }
+            StringBuilder builder = new StringBuilder();
             if (oldVersion < VN_CONFIGURATION) {
-                StringBuilder builder = new StringBuilder();
                 createConfigurationProviderDataTable(db, builder);
                 createSensorConfigurationDataTable(db, builder);
                 createMeasurementConfigurationDataTable(db, builder);
                 createGeneralSingleRangeWarnerDataTable(db, builder);
                 createGeneralSwitchWarnerDataTable(db, builder);
+            }
+            if (oldVersion < VN_DEVICE_NODE) {
+                createDeviceDataTable(db, builder);
+                createNodeDataTable(db, builder);
             }
         }
 
@@ -844,14 +1241,45 @@ public class SensorDatabase implements Constant {
                     .append('(').append(COLUMN_COMMON_ID).append(") ON DELETE CASCADE")
                     .append(')').toString());
         }
+
+        private void createDeviceDataTable(SQLiteDatabase db, StringBuilder builder) {
+            builder.setLength(0);
+            db.execSQL(builder.append("CREATE TABLE ")
+                    .append(TABLE_DEVICE).append(" (")
+                    .append(COLUMN_COMMON_ID).append(" INTEGER PRIMARY KEY AUTOINCREMENT,")
+                    .append(COLUMN_CONFIGURATION_PROVIDER_ID).append(" INTEGER NOT NULL,")
+                    .append(COLUMN_DEVICE_NAME).append(" VARCHAR(255), ")
+                    .append("FOREIGN KEY(").append(COLUMN_CONFIGURATION_PROVIDER_ID).append(") ")
+                    .append("REFERENCES ").append(TABLE_CONFIGURATION_PROVIDER)
+                    .append('(').append(COLUMN_COMMON_ID).append(") ON DELETE CASCADE")
+                    .append(')').toString());
+        }
+
+        private void createNodeDataTable(SQLiteDatabase db, StringBuilder builder) {
+            builder.setLength(0);
+            db.execSQL(builder.append("CREATE TABLE ")
+                    .append(TABLE_NODE).append(" (")
+                    .append(COLUMN_COMMON_ID).append(" INTEGER PRIMARY KEY AUTOINCREMENT,")
+                    .append(COLUMN_DEVICE_ID).append(" INTEGER NOT NULL,")
+                    .append(COLUMN_MEASUREMENT_VALUE_ID).append(" BIGINT NOT NULL,")
+                    .append(COLUMN_NODE_NAME).append(" VARCHAR(255),")
+                    .append("UNIQUE(").append(COLUMN_DEVICE_ID)
+                    .append(", ").append(COLUMN_MEASUREMENT_VALUE_ID).append("),")
+                    .append("FOREIGN KEY(").append(COLUMN_DEVICE_ID)
+                    .append(") REFERENCES ").append(TABLE_DEVICE)
+                    .append('(').append(COLUMN_COMMON_ID).append(") ON DELETE CASCADE")
+                    .append(')').toString());
+        }
     }
 
     private static class ValueContainerConfigurationProviderHandler extends DefaultHandler {
 
-        private SQLiteDatabase mDatabase;
+        //private SQLiteDatabase mDatabase;
         private long mProviderConfigId;
         private long mSensorConfigId;
         private long mMeasurementConfigId;
+        private long mDeviceId;
+        //private long mNodeId;
         private StringBuilder mBuilder;
         private ContentValues mValues;
         private int mAddress;
@@ -868,7 +1296,7 @@ public class SensorDatabase implements Constant {
         private int mProviderCount;
 
         public ValueContainerConfigurationProviderHandler(SQLiteDatabase database) {
-            mDatabase = database;
+            //mDatabase = database;
         }
 
         public int getProviderCount() {
@@ -891,6 +1319,14 @@ public class SensorDatabase implements Constant {
             if (mMeasurementConfigId == 0) {
                 throw new SqlExecuteFailed("measurement id get failed");
             }
+            mDeviceId = getNextAutoIncrementId(TABLE_DEVICE);
+            if (mDeviceId == 0) {
+                throw new SqlExecuteFailed("device id get failed");
+            }
+//            mNodeId = getNextAutoIncrementId(TABLE_NODE);
+//            if (mNodeId == 0) {
+//                throw new SqlExecuteFailed("node id get failed");
+//            }
         }
 
         @Override
@@ -902,15 +1338,48 @@ public class SensorDatabase implements Constant {
                 case TAG_SENSOR:
                     mAddress = Integer.parseInt(attributes.getValue(TAG_ADDRESS), 16);
                     break;
-                case TAG_MEASUREMENT:
+                case TAG_MEASUREMENT: {
                     mIntoMeasurementElement = true;
-                    String index = attributes.getValue("index");
+                    String index = attributes.getValue(TAG_INDEX);
                     mMeasurementValueId = LogicalSensor.ID.getId(mAddress,
                             (byte) Integer.parseInt(attributes.getValue(TAG_TYPE), 16),
                             TextUtils.isEmpty(index) ? 0 : Integer.parseInt(index));
-                    break;
+                } break;
                 case TAG_WARNER:
                     mWarnerType = attributes.getValue(TAG_TYPE);
+                    break;
+                case TAG_DEVICE:
+                    mValues.clear();
+                    mValues.put(COLUMN_CONFIGURATION_PROVIDER_ID, mProviderConfigId);
+                    String deviceName = attributes.getValue(TAG_NAME);
+                    if (TextUtils.isEmpty(deviceName)) {
+                        throw new NullPointerException("device name may not be empty");
+                    }
+                    mValues.put(COLUMN_DEVICE_NAME, deviceName);
+                    if (database.insert(TABLE_DEVICE, null, mValues) == -1) {
+                        throw new SqlExecuteFailed("insert device failed");
+                    }
+                    break;
+                case TAG_NODE:
+                    mValues.clear();
+                    mValues.put(COLUMN_DEVICE_ID, mDeviceId);
+                    String index = attributes.getValue(TAG_INDEX);
+                    long measurementValueId = LogicalSensor.ID.getId(Integer.parseInt(attributes.getValue(TAG_ADDRESS), 16),
+                            (byte) Integer.parseInt(attributes.getValue(TAG_TYPE), 16),
+                            TextUtils.isEmpty(index) ? 0 : Integer.parseInt(index));
+                    if (measurementValueId == 0) {
+                        throw new LackParameterException("sensor address and measurement type may not be empty");
+                    }
+                    mValues.put(COLUMN_MEASUREMENT_VALUE_ID, measurementValueId);
+                    String nodeName = attributes.getValue(TAG_NAME);
+                    if (!TextUtils.isEmpty(nodeName)) {
+                        //throw new NullPointerException("node name may not be empty");
+                        mValues.put(COLUMN_NODE_NAME, nodeName);
+                    }
+                    if (database.insert(TABLE_NODE, null, mValues) == -1) {
+                        throw new SqlExecuteFailed("insert node failed");
+                    }
+                    //++mNodeId;
                     break;
             }
             mBuilder.setLength(0);
@@ -995,6 +1464,9 @@ public class SensorDatabase implements Constant {
                     mProviderName = null;
                     ++mProviderConfigId;
                     ++mProviderCount;
+                    break;
+                case TAG_DEVICE:
+                    ++mDeviceId;
                     break;
             }
         }
