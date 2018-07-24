@@ -1,0 +1,2017 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 此文件为智联之窗APP传感器配置模板 -->
+<!-- 一个provider对应一个系列的配置，可以通过名称区分 -->
+<!-- 传感器地址必填，格式参照如下 -->
+<!-- 自定义名称选填，根据需求可以分别修改传感器或者其测量量名称 -->
+<!-- 告警设置目前只支持传感器测量量，有两种type，"gs(GeneralSwitchWarner)"和"gsr(GeneralSingleRangeWarner)"，分别对应开关状态和上下限告警 -->
+<!-- gs告警只需设置异常值 -->
+<!-- gsr告警需要设置上下限 -->
+<!-- 传感器测量量需要标注类型名称，若其所属为阵列传感器，还需标注其阵列位置，从0开始 -->
+<providers>
+	<provider name="酒钢储运高压电机监测">
+		<sensors>
+			<sensor address="5016">
+				<name>堆场1C振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5012">
+				<name>堆场1C振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="500A">
+				<name>堆场1D振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5003">
+				<name>堆场1D振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5014">
+				<name>卸2C振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5010">
+				<name>卸2C振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5011">
+				<name>综运4C振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5004">
+				<name>综运4C振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5009">
+				<name>综运4D振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="501A">
+				<name>综运4D振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5007">
+				<name>回烧2振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="500E">
+				<name>回烧2振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5023">
+				<name>综运1C振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5006">
+				<name>综运1C振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5005">
+				<name>综运1D振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="500B">
+				<name>综运1D振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="500C">
+				<name>综运2C振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="501C">
+				<name>综运2C振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="5008">
+				<name>综运2D振动#1</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="500D">
+				<name>综运2D振动#2</name>
+				<measurement type="A8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="A9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="AB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="B9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="BB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C8">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="C9">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CA">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+				<measurement type="CB">
+					<warner type="gsr">
+						<low>0.25</low>
+						<high>0.75</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1040">
+				<name>堆场1C风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1045">
+				<name>堆场1C皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1055">
+				<name>堆场1D风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1044">
+				<name>堆场1D皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1046">
+				<name>卸2C风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1048">
+				<name>卸2C皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1056">
+				<name>综运4C风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="104D">
+				<name>综运4C皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="104F">
+				<name>综运4D风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1057">
+				<name>综运4D皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1043">
+				<name>回烧2风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="104C">
+				<name>回烧2皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="103C">
+				<name>综运1C风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="103F">
+				<name>综运1C皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1047">
+				<name>综运1D风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1042">
+				<name>综运1D皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1041">
+				<name>综运2C风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="1049">
+				<name>综运2C皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="103D">
+				<name>综运2D风扇侧轴温@1</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+			<sensor address="104B">
+				<name>综运2D皮带侧轴温@2</name>
+				<measurement type="05">
+					<warner type="gsr">
+						<low>-30</low>
+						<high>60</high>
+					</warner>
+				</measurement>
+			</sensor>
+		</sensors>
+		<devices>
+			<device name="堆场1C振动#1">
+				<!-- node address="5016" type="A8" -->
+				<!-- node address="5016" type="A9" -->
+				<node address="5016" type="AA"/>
+				<!-- node address="5016" type="AB" -->
+				<!-- node address="5016" type="B8" -->
+				<!-- node address="5016" type="B9" -->
+				<node address="5016" type="BA"/>
+				<!-- node address="5016" type="BB" -->
+				<!-- node address="5016" type="C8" -->
+				<!-- node address="5016" type="C9" -->
+				<node address="5016" type="CA"/>
+				<!-- node address="5016" type="CB" -->
+			</device>
+			<device name="堆场1C振动#2">
+				<!-- node address="5012" type="A8" -->
+				<!-- node address="5012" type="A9" -->
+				<node address="5012" type="AA"/>
+				<!-- node address="5012" type="AB" -->
+				<!-- node address="5012" type="B8" -->
+				<!-- node address="5012" type="B9" -->
+				<node address="5012" type="BA"/>
+				<!-- node address="5012" type="BB" -->
+				<!-- node address="5012" type="C8" -->
+				<!-- node address="5012" type="C9" -->
+				<node address="5012" type="CA"/>
+				<!-- node address="5012" type="CB" -->
+			</device>
+			<device name="堆场1C轴温">
+				<node name="风扇侧轴温@1" address="1040" type="05"/>
+				<node name="皮带侧轴温@2" address="1045" type="05"/>
+			</device>
+			<device name="堆场1D振动#1">
+				<!-- node address="500A" type="A8" -->
+				<!-- node address="500A" type="A9" -->
+				<node address="500A" type="AA"/>
+				<!-- node address="500A" type="AB" -->
+				<!-- node address="500A" type="B8" -->
+				<!-- node address="500A" type="B9" -->
+				<node address="500A" type="BA"/>
+				<!-- node address="500A" type="BB" -->
+				<!-- node address="500A" type="C8" -->
+				<!-- node address="500A" type="C9" -->
+				<node address="500A" type="CA"/>
+				<!-- node address="500A" type="CB" -->
+			</device>
+			<device name="堆场1D振动#2">
+				<!-- node address="5003" type="A8" -->
+				<!-- node address="5003" type="A9" -->
+				<node address="5003" type="AA"/>
+				<!-- node address="5003" type="AB" -->
+				<!-- node address="5003" type="B8" -->
+				<!-- node address="5003" type="B9" -->
+				<node address="5003" type="BA"/>
+				<!-- node address="5003" type="BB" -->
+				<!-- node address="5003" type="C8" -->
+				<!-- node address="5003" type="C9" -->
+				<node address="5003" type="CA"/>
+				<!-- node address="5003" type="CB" -->
+			</device>
+			<device name="堆场1D轴温">
+				<node name="风扇侧轴温@1" address="1055" type="05"/>
+				<node name="皮带侧轴温@2" address="1044" type="05"/>
+			</device>
+			<device name="卸2C振动#1">
+				<!-- node address="5014" type="A8" -->
+				<!-- node address="5014" type="A9" -->
+				<node address="5014" type="AA"/>
+				<!-- node address="5014" type="AB" -->
+				<!-- node address="5014" type="B8" -->
+				<!-- node address="5014" type="B9" -->
+				<node address="5014" type="BA"/>
+				<!-- node address="5014" type="BB" -->
+				<!-- node address="5014" type="C8" -->
+				<!-- node address="5014" type="C9" -->
+				<node address="5014" type="CA"/>
+				<!-- node address="5014" type="CB" -->
+			</device>
+			<device name="卸2C振动#2">
+				<!-- node address="5010" type="A8" -->
+				<!-- node address="5010" type="A9" -->
+				<node address="5010" type="AA"/>
+				<!-- node address="5010" type="AB" -->
+				<!-- node address="5010" type="B8" -->
+				<!-- node address="5010" type="B9" -->
+				<node address="5010" type="BA"/>
+				<!-- node address="5010" type="BB" -->
+				<!-- node address="5010" type="C8" -->
+				<!-- node address="5010" type="C9" -->
+				<node address="5010" type="CA"/>
+				<!-- node address="5010" type="CB" -->
+			</device>
+			<device name="卸2C轴温">
+				<node name="风扇侧轴温@1" address="1046" type="05"/>
+				<node name="皮带侧轴温@2" address="1048" type="05"/>
+			</device>
+			<device name="综运4C振动#1">
+				<!-- node address="5011" type="A8" -->
+				<!-- node address="5011" type="A9" -->
+				<node address="5011" type="AA"/>
+				<!-- node address="5011" type="AB" -->
+				<!-- node address="5011" type="B8" -->
+				<!-- node address="5011" type="B9" -->
+				<node address="5011" type="BA"/>
+				<!-- node address="5011" type="BB" -->
+				<!-- node address="5011" type="C8" -->
+				<!-- node address="5011" type="C9" -->
+				<node address="5011" type="CA"/>
+				<!-- node address="5011" type="CB" -->
+			</device>
+			<device name="综运4C振动#2">
+				<!-- node address="5004" type="A8" -->
+				<!-- node address="5004" type="A9" -->
+				<node address="5004" type="AA"/>
+				<!-- node address="5004" type="AB" -->
+				<!-- node address="5004" type="B8" -->
+				<!-- node address="5004" type="B9" -->
+				<node address="5004" type="BA"/>
+				<!-- node address="5004" type="BB" -->
+				<!-- node address="5004" type="C8" -->
+				<!-- node address="5004" type="C9" -->
+				<node address="5004" type="CA"/>
+				<!-- node address="5004" type="CB" -->
+			</device>
+			<device name="综运4C轴温">
+				<node name="风扇侧轴温@1" address="1056" type="05"/>
+				<node name="皮带侧轴温@2" address="104D" type="05"/>
+			</device>
+			<device name="综运4D振动#1">
+				<!-- node address="5009" type="A8" -->
+				<!-- node address="5009" type="A9" -->
+				<node address="5009" type="AA"/>
+				<!-- node address="5009" type="AB" -->
+				<!-- node address="5009" type="B8" -->
+				<!-- node address="5009" type="B9" -->
+				<node address="5009" type="BA"/>
+				<!-- node address="5009" type="BB" -->
+				<!-- node address="5009" type="C8" -->
+				<!-- node address="5009" type="C9" -->
+				<node address="5009" type="CA"/>
+				<!-- node address="5009" type="CB" -->
+			</device>
+			<device name="综运4D振动#2">
+				<!-- node address="501A" type="A8" -->
+				<!-- node address="501A" type="A9" -->
+				<node address="501A" type="AA"/>
+				<!-- node address="501A" type="AB" -->
+				<!-- node address="501A" type="B8" -->
+				<!-- node address="501A" type="B9" -->
+				<node address="501A" type="BA"/>
+				<!-- node address="501A" type="BB" -->
+				<!-- node address="501A" type="C8" -->
+				<!-- node address="501A" type="C9" -->
+				<node address="501A" type="CA"/>
+				<!-- node address="501A" type="CB" -->
+			</device>
+			<device name="综运4D轴温">
+				<node name="风扇侧轴温@1" address="104F" type="05"/>
+				<node name="皮带侧轴温@2" address="1057" type="05"/>
+			</device>
+			<device name="回烧2振动#1">
+				<!-- node address="5007" type="A8" -->
+				<!-- node address="5007" type="A9" -->
+				<node address="5007" type="AA"/>
+				<!-- node address="5007" type="AB" -->
+				<!-- node address="5007" type="B8" -->
+				<!-- node address="5007" type="B9" -->
+				<node address="5007" type="BA"/>
+				<!-- node address="5007" type="BB" -->
+				<!-- node address="5007" type="C8" -->
+				<!-- node address="5007" type="C9" -->
+				<node address="5007" type="CA"/>
+				<!-- node address="5007" type="CB" -->
+			</device>
+			<device name="回烧2振动#2">
+				<!-- node address="500E" type="A8" -->
+				<!-- node address="500E" type="A9" -->
+				<node address="500E" type="AA"/>
+				<!-- node address="500E" type="AB" -->
+				<!-- node address="500E" type="B8" -->
+				<!-- node address="500E" type="B9" -->
+				<node address="500E" type="BA"/>
+				<!-- node address="500E" type="BB" -->
+				<!-- node address="500E" type="C8" -->
+				<!-- node address="500E" type="C9" -->
+				<node address="500E" type="CA"/>
+				<!-- node address="500E" type="CB" -->
+			</device>
+			<device name="回烧2轴温">
+				<node name="风扇侧轴温@1" address="1043" type="05"/>
+				<node name="皮带侧轴温@2" address="104C" type="05"/>
+			</device>
+			<device name="综运1C振动#1">
+				<!-- node address="5023" type="A8" -->
+				<!-- node address="5023" type="A9" -->
+				<node address="5023" type="AA"/>
+				<!-- node address="5023" type="AB" -->
+				<!-- node address="5023" type="B8" -->
+				<!-- node address="5023" type="B9" -->
+				<node address="5023" type="BA"/>
+				<!-- node address="5023" type="BB" -->
+				<!-- node address="5023" type="C8" -->
+				<!-- node address="5023" type="C9" -->
+				<node address="5023" type="CA"/>
+				<!-- node address="5023" type="CB" -->
+			</device>
+			<device name="综运1C振动#2">
+				<!-- node address="5006" type="A8" -->
+				<!-- node address="5006" type="A9" -->
+				<node address="5006" type="AA"/>
+				<!-- node address="5006" type="AB" -->
+				<!-- node address="5006" type="B8" -->
+				<!-- node address="5006" type="B9" -->
+				<node address="5006" type="BA"/>
+				<!-- node address="5006" type="BB" -->
+				<!-- node address="5006" type="C8" -->
+				<!-- node address="5006" type="C9" -->
+				<node address="5006" type="CA"/>
+				<!-- node address="5006" type="CB" -->
+			</device>
+			<device name="综运1C轴温">
+				<node name="风扇侧轴温@1" address="103C" type="05"/>
+				<node name="皮带侧轴温@2" address="103F" type="05"/>
+			</device>
+			<device name="综运1D振动#1">
+				<!-- node address="5005" type="A8" -->
+				<!-- node address="5005" type="A9" -->
+				<node address="5005" type="AA"/>
+				<!-- node address="5005" type="AB" -->
+				<!-- node address="5005" type="B8" -->
+				<!-- node address="5005" type="B9" -->
+				<node address="5005" type="BA"/>
+				<!-- node address="5005" type="BB" -->
+				<!-- node address="5005" type="C8" -->
+				<!-- node address="5005" type="C9" -->
+				<node address="5005" type="CA"/>
+				<!-- node address="5005" type="CB" -->
+			</device>
+			<device name="综运1D振动#2">
+				<!-- node address="500B" type="A8" -->
+				<!-- node address="500B" type="A9" -->
+				<node address="500B" type="AA"/>
+				<!-- node address="500B" type="AB" -->
+				<!-- node address="500B" type="B8" -->
+				<!-- node address="500B" type="B9" -->
+				<node address="500B" type="BA"/>
+				<!-- node address="500B" type="BB" -->
+				<!-- node address="500B" type="C8" -->
+				<!-- node address="500B" type="C9" -->
+				<node address="500B" type="CA"/>
+				<!-- node address="500B" type="CB" -->
+			</device>
+			<device name="综运1D轴温">
+				<node name="风扇侧轴温@1" address="1047" type="05"/>
+				<node name="皮带侧轴温@2" address="1042" type="05"/>
+			</device>
+			<device name="综运2C振动#1">
+				<!-- node address="500C" type="A8" -->
+				<!-- node address="500C" type="A9" -->
+				<node address="500C" type="AA"/>
+				<!-- node address="500C" type="AB" -->
+				<!-- node address="500C" type="B8" -->
+				<!-- node address="500C" type="B9" -->
+				<node address="500C" type="BA"/>
+				<!-- node address="500C" type="BB" -->
+				<!-- node address="500C" type="C8" -->
+				<!-- node address="500C" type="C9" -->
+				<node address="500C" type="CA"/>
+				<!-- node address="500C" type="CB" -->
+			</device>
+			<device name="综运2C振动#2">
+				<!-- node address="501C" type="A8" -->
+				<!-- node address="501C" type="A9" -->
+				<node address="501C" type="AA"/>
+				<!-- node address="501C" type="AB" -->
+				<!-- node address="501C" type="B8" -->
+				<!-- node address="501C" type="B9" -->
+				<node address="501C" type="BA"/>
+				<!-- node address="501C" type="BB" -->
+				<!-- node address="501C" type="C8" -->
+				<!-- node address="501C" type="C9" -->
+				<node address="501C" type="CA"/>
+				<!-- node address="501C" type="CB" -->
+			</device>
+			<device name="综运2C轴温">
+				<node name="风扇侧轴温@1" address="1041" type="05"/>
+				<node name="皮带侧轴温@2" address="1049" type="05"/>
+			</device>
+			<device name="综运2D振动#1">
+				<!-- node address="5008" type="A8" -->
+				<!-- node address="5008" type="A9" -->
+				<node address="5008" type="AA"/>
+				<!-- node address="5008" type="AB" -->
+				<!-- node address="5008" type="B8" -->
+				<!-- node address="5008" type="B9" -->
+				<node address="5008" type="BA"/>
+				<!-- node address="5008" type="BB" -->
+				<!-- node address="5008" type="C8" -->
+				<!-- node address="5008" type="C9" -->
+				<node address="5008" type="CA"/>
+				<!-- node address="5008" type="CB" -->
+			</device>
+			<device name="综运2D振动#2">
+				<!-- node address="500D" type="A8" -->
+				<!-- node address="500D" type="A9" -->
+				<node address="500D" type="AA"/>
+				<!-- node address="500D" type="AB" -->
+				<!-- node address="500D" type="B8" -->
+				<!-- node address="500D" type="B9" -->
+				<node address="500D" type="BA"/>
+				<!-- node address="500D" type="BB" -->
+				<!-- node address="500D" type="C8" -->
+				<!-- node address="500D" type="C9" -->
+				<node address="500D" type="CA"/>
+				<!-- node address="500D" type="CB" -->
+			</device>
+			<device name="综运2D轴温">
+				<node name="风扇侧轴温@1" address="103D" type="05"/>
+				<node name="皮带侧轴温@2" address="104B" type="05"/>
+			</device>
+		</devices>
+	</provider>
+</providers>

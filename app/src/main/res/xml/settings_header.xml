@@ -18,4 +18,9 @@
     <header
         android:title="@string/data_store"
         android:fragment="com.weisi.tool.wsnbox.fragment.DataStoreSettingsFragment"/>
+    <header
+        android:title="@string/about_app">
+        <intent
+            android:action="android.intent.action.ABOUT_GENERAL"/>
+    </header>
 </preference-headers>

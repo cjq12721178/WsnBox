@@ -2,4 +2,6 @@
     <string name="app_name">酒钢电机监测</string>
     <string name="app_name_debug">酒钢电机监测DEBUG</string>
     <string name="home_page_title">酒钢电机监测</string>
+    <string name="about_app">关于酒钢电机监测</string>
+    <string name="action_start_about_activity">android.intent.action.ABOUT_JIUGANG</string>
 </resources>

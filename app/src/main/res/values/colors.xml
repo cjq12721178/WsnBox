@@ -22,6 +22,7 @@
     <color name="bg_device">#C8BFE7</color>
     <color name="bg_device_node_divider">#99D9EA</color>
     <color name="bg_node">#EFE4B0</color>
+    <color name="bg_divider_about_activity">#D9D9D9</color>
     <!-- tc = text color -->
     <color name="tc_data_browse_view_mode_checked">#D3DBCA</color>
     <color name="tc_data_browse_view_mode_unchecked">#C5C6C7</color>

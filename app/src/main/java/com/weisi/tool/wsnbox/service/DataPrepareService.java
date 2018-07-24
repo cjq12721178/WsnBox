@@ -27,6 +27,7 @@ import com.weisi.tool.wsnbox.processor.accessor.TcpSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.UdpSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.UsbSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.transfer.DataTransferStation;
+import com.weisi.tool.wsnbox.util.FlavorClassBuilder;
 
 import java.util.concurrent.TimeUnit;
 
@@ -188,12 +189,12 @@ public class DataPrepareService extends Service implements SensorDynamicDataAcce
 
     public SerialPortSensorDataAccessor getSerialPortSensorDataAccessor() {
         if (mSerialPortSensorDataAccessor == null) {
-            //mSerialPortSensorDataAccessor = new SerialPortSensorDataAccessorImpl();
-            try {
-                mSerialPortSensorDataAccessor = (SerialPortSensorDataAccessor) Class.forName("com.weisi.tool.wsnbox.processor.SerialPortSensorDataAccessorImpl").newInstance();
-            } catch (Exception e) {
-                mSerialPortSensorDataAccessor = new SerialPortSensorDataAccessor();
-            }
+            mSerialPortSensorDataAccessor = FlavorClassBuilder.buildImplementation(SerialPortSensorDataAccessor.class);
+//            try {
+//                mSerialPortSensorDataAccessor = (SerialPortSensorDataAccessor) Class.forName("com.weisi.tool.wsnbox.processor.SerialPortSensorDataAccessorImpl").newInstance();
+//            } catch (Exception e) {
+//                mSerialPortSensorDataAccessor = new SerialPortSensorDataAccessor();
+//            }
         }
         return mSerialPortSensorDataAccessor;
     }

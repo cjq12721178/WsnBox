@@ -10,6 +10,7 @@ import com.cjq.tool.qbox.ui.adapter.RecyclerViewBaseAdapter
 import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by CJQ on 2018/6/5.
@@ -40,15 +41,17 @@ open class SensorInfoAdapter<V: Value, S : Sensor<V, *>, out I: SensorInfoAdapte
     }
 
     fun setIntraday(date: Long) {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = date
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        val startTime = calendar.timeInMillis
-        calendar.add(Calendar.DATE, 1)
-        val endTime = calendar.timeInMillis
+        val startTime = TimeUnit.DAYS.toMillis(TimeUnit.MILLISECONDS.toDays(date)) - TimeZone.getDefault().rawOffset
+        val endTime = startTime + TimeUnit.DAYS.toMillis(1)
+//        val calendar = Calendar.getInstance()
+//        calendar.timeInMillis = date
+//        calendar.set(Calendar.HOUR_OF_DAY, 0)
+//        calendar.set(Calendar.MINUTE, 0)
+//        calendar.set(Calendar.SECOND, 0)
+//        calendar.set(Calendar.MILLISECOND, 0)
+//        val startTime = calendar.timeInMillis
+//        calendar.add(Calendar.DATE, 1)
+//        val endTime = calendar.timeInMillis
         sensorInfo.setValueContainers(startTime, endTime)
     }
 

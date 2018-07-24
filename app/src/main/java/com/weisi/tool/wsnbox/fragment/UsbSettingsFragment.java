@@ -2,6 +2,7 @@ package com.weisi.tool.wsnbox.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.SwitchPreference;
 import android.support.annotation.Nullable;
@@ -19,17 +20,19 @@ import com.weisi.tool.wsnbox.processor.accessor.UsbSensorDataAccessor;
  * Created by CJQ on 2018/1/4.
  */
 
-public class UsbSettingsFragment extends BaseSettingsFragment {
+public class UsbSettingsFragment extends BaseSettingsFragment implements Preference.OnPreferenceClickListener {
 
     private SwitchPreferenceHelper mEnablePreferenceHelper = new SwitchPreferenceHelper() {
 
         private PreferenceCategory mLaunchParameterCategory;
         private PreferenceCategory mUseParameterCategory;
+        private PreferenceCategory mAuxiliaryFunctionCategory;
 
         @Override
         protected void onInitialize(SwitchPreference preference) {
             mLaunchParameterCategory = (PreferenceCategory) findPreference(getString(R.string.preference_key_launch_parameter));
             mUseParameterCategory = (PreferenceCategory) findPreference(getString(R.string.preference_key_use_parameter));
+            mAuxiliaryFunctionCategory = (PreferenceCategory) findPreference(getString(R.string.preference_key_auxiliary_function));
             setChecked(getSettings().isUsbEnable());
         }
 
@@ -37,6 +40,7 @@ public class UsbSettingsFragment extends BaseSettingsFragment {
         protected void onCheckedChanged(boolean checked) {
             mLaunchParameterCategory.setEnabled(!checked);
             mUseParameterCategory.setEnabled(checked);
+            mAuxiliaryFunctionCategory.setEnabled(checked);
         }
 
         @Override
@@ -239,5 +243,17 @@ public class UsbSettingsFragment extends BaseSettingsFragment {
         mStopBitsPreferenceHelper.initialize(this, R.string.preference_key_usb_stop_bits);
         mParityPreferenceHelper.initialize(this, R.string.preference_key_usb_parity);
         mDataRequestPreferenceHelper.initialize(this, R.string.preference_key_usb_data_request_cycle);
+        findPreference(getString(R.string.preference_key_time_synchronize)).setOnPreferenceClickListener(this);
+    }
+
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        if (preference.getKey().equals(getString(R.string.preference_key_time_synchronize))) {
+            if (getPreferenceActivity().getDataPrepareService().getUsbSensorDataAccessor().timeSynchronize(getSettings())) {
+                SimpleCustomizeToast.show(R.string.finish_time_synchronize);
+            }
+            return true;
+        }
+        return false;
     }
 }

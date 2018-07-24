@@ -34,7 +34,7 @@
 			<name>X轴最大速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm/s</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -43,7 +43,7 @@
 			<name>X轴最小速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm/s</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -52,7 +52,7 @@
 			<name>X轴最大位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -61,7 +61,7 @@
 			<name>X轴最小位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -70,7 +70,7 @@
 			<name>Y轴最大速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm/s</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -79,7 +79,7 @@
 			<name>Y轴最小速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm/s</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -88,7 +88,7 @@
 			<name>Y轴最大位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -97,7 +97,7 @@
 			<name>Y轴最小位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -106,7 +106,7 @@
 			<name>Z轴最大速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm/s</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -115,7 +115,7 @@
 			<name>Z轴最小速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm/s</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -124,7 +124,7 @@
 			<name>Z轴最大位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>
@@ -133,7 +133,7 @@
 			<name>Z轴最小位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
+			<decimal>5</decimal>
 			<unit>mm</unit>
 			<coefficient>0.001</coefficient>
 		</DataType>

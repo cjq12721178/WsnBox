@@ -89,12 +89,14 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
 
     protected abstract boolean onInitDataRequestTaskParameter(Settings settings);
 
-    protected void timeSynchronize(Settings settings) {
+    public boolean timeSynchronize(Settings settings) {
         try {
             onTimeSynchronize(settings);
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     protected abstract void onTimeSynchronize(Settings settings) throws IOException;

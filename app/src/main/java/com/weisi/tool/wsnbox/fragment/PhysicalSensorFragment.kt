@@ -267,9 +267,12 @@ class PhysicalSensorFragment : DataBrowseFragment<PhysicalSensor, DataBrowsePhys
 
     override fun onLogicalSensorHistoryValueUpdate(sensor: LogicalSensor, logicalPosition: Int) {
         if (logicalPosition == 0) {
-            val position = storage.find(sensor.physicalSensor)
-            if (position >= 0) {
-                adapter.notifyItemChanged(position, UPDATE_TYPE_VALUE_CHANGED)
+            val physicalSensor = sensor.physicalSensor
+            if (physicalSensor.hasHistoryValue()) {
+                val position = storage.find(physicalSensor)
+                if (position >= 0) {
+                    adapter.notifyItemChanged(position, UPDATE_TYPE_VALUE_CHANGED)
+                }
             }
         }
         physicalSensorInfoDialog?.notifyLogicalSensorHistoryValueChanged(sensor, logicalPosition)

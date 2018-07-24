@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 def buildTime() {
     def date = new Date()
@@ -9,41 +10,63 @@ def buildTime() {
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.0"
+    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 24
-        versionName "1.6.0"
+        versionCode 26
+        versionName "1.7.0"
         flavorDimensions "wsn"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     productFlavors {
         general {
+            manifestPlaceholders = [
+                    actionStartAboutActivity: "android.intent.action.ABOUT_GENERAL"
+            ]
         }
         guomi {
+            manifestPlaceholders = [
+                    actionStartAboutActivity: "android.intent.action.ABOUT_GUOMI"
+            ]
             applicationIdSuffix ".guomi"
-            versionCode 20
-            versionName "0.7.0"
+            versionCode 22
+            versionName "0.8.0"
         }
         jiugang {
+            manifestPlaceholders = [
+                    actionStartAboutActivity: "android.intent.action.ABOUT_JIUGANG"
+            ]
             applicationIdSuffix ".jiugang"
-            versionCode 7
-            versionName "0.2.0"
+            versionCode 9
+            versionName "0.3.0"
         }
     }
+
+
+
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
+
+            //resValue "string", "app_name", appDefaultName + "DEBUG"
             manifestPlaceholders = [
                     appName: "@string/app_name_debug"
             ]
+
+            buildConfigField("boolean", "APP_DEBUG", "true")
+            buildConfigField("String", "SERVICE_SERVER_URL", "\"http://192.168.1.222:21524/\"")
         }
         release {
+            //resValue "string", "app_name", appDefaultName
             manifestPlaceholders = [
                     appName: "@string/app_name"
             ]
+
+            buildConfigField "boolean", "APP_DEBUG", "false"
+            buildConfigField("String", "SERVICE_SERVER_URL", "\"http://122.225.88.90:21524/\"")
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -77,25 +100,32 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile(name: 'com.cjq.tool.qbox-1.6.3', ext: 'aar')
-    compile(name: 'com.cjq.lib.weisi-5.2.5', ext: 'aar')
-    compile 'com.android.support:appcompat-v7:27.0.2'
-    compile 'com.android.support:recyclerview-v7:27.0.2'
-    compile 'com.android.support:preference-v7:27.0.2'
-    compile 'com.android.support:support-v4:27.0.2'
-    compile 'com.android.support:support-v13:27.0.2'
-    compile 'com.kaopiz:kprogresshud:1.0.2'
-    compile 'io.apisense:rhino-android:1.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
+    implementation(name: 'com.cjq.tool.qbox-1.6.5', ext: 'aar')
+    implementation(name: 'com.cjq.lib.weisi-5.2.8', ext: 'aar')
+    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:recyclerview-v7:27.0.2'
+    implementation 'com.android.support:preference-v7:27.0.2'
+    implementation 'com.android.support:support-v4:27.0.2'
+    implementation 'com.android.support:support-v13:27.0.2'
+    implementation 'com.kaopiz:kprogresshud:1.0.2'
+    implementation 'io.apisense:rhino-android:1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
     implementation 'pub.devrel:easypermissions:1.1.1'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation 'com.android.support:cardview-v7:27.0.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation "io.reactivex.rxjava2:rxjava:2.1.16"
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
 }
 
-apply plugin: 'kotlin-android-extensions'
+androidExtensions {
+    experimental = true
+}

@@ -2,7 +2,6 @@ package com.weisi.tool.wsnbox.activity
 
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -24,7 +23,6 @@ import com.weisi.tool.wsnbox.fragment.LogicalSensorFragment
 import com.weisi.tool.wsnbox.fragment.PhysicalSensorFragment
 import com.weisi.tool.wsnbox.io.database.SensorDatabase
 import com.weisi.tool.wsnbox.service.DataPrepareService
-import com.weisi.tool.wsnbox.util.Tag
 import kotlinx.android.synthetic.main.activity_data_browse.*
 
 class DataBrowseActivity : BaseActivity(),
@@ -41,7 +39,7 @@ class DataBrowseActivity : BaseActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_browse)
 
-        Log.d(Tag.LOG_TAG_D_TEST, "onCreate activity")
+        //Log.d(Tag.LOG_TAG_D_TEST, "onCreate activity")
 
         //初始化显示模式切换管理器
         switchableFragmentManager = SwitchableFragmentManager(supportFragmentManager,

@@ -26,6 +26,7 @@ import com.weisi.tool.wsnbox.bean.decorator.CommonPhysicalSensorDecorator;
 import com.weisi.tool.wsnbox.bean.warner.CommonSingleRangeWarner;
 import com.weisi.tool.wsnbox.bean.warner.CommonSwitchWarner;
 import com.weisi.tool.wsnbox.io.Constant;
+import com.weisi.tool.wsnbox.util.FlavorClassBuilder;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -53,7 +54,9 @@ public class SensorDatabase implements Constant {
     private static final int VN_CONFIGURATION = 2;
     //增加可配置的设备节点功能
     private static final int VN_DEVICE_NODE = 3;
-    private static final int CURRENT_VERSION_NO = VN_DEVICE_NODE;
+    //为修复酒钢数据时间戳超前一个月问题特订
+    private static final int VN_BROKEN_TIME = 4;
+    private static final int CURRENT_VERSION_NO = VN_BROKEN_TIME;
 
     private static SQLiteLauncher launcher;
     private static SQLiteDatabase database;
@@ -724,14 +727,16 @@ public class SensorDatabase implements Constant {
                         }
                         break;
                 }
-                database.execSQL(sensorDataBuffer.append(sensorData.getAddress())
+                sensorDataBuffer.append(sensorData.getAddress())
                         .append(',').append(sensorData.getTimestamp())
                         .append(',').append(sensorData.getBatteryVoltage())
-                        .append(')').toString());
-                database.execSQL(measurementDataBuffer.append(sensorData.getId())
+                        .append(')');
+                database.execSQL(sensorDataBuffer.toString());
+                measurementDataBuffer.append(sensorData.getId())
                         .append(',').append(sensorData.getTimestamp())
                         .append(',').append(sensorData.getRawValue())
-                        .append(')').toString());
+                        .append(')');
+                database.execSQL(measurementDataBuffer.toString());
                 sensorData.recycle();
             }
             database.setTransactionSuccessful();
@@ -1158,6 +1163,7 @@ public class SensorDatabase implements Constant {
             if (newVersion <= oldVersion) {
                 return;
             }
+            DatabaseUpdater updater = FlavorClassBuilder.buildImplementation(DatabaseUpdater.class);
             StringBuilder builder = new StringBuilder();
             if (oldVersion < VN_CONFIGURATION) {
                 createConfigurationProviderDataTable(db, builder);
@@ -1169,6 +1175,11 @@ public class SensorDatabase implements Constant {
             if (oldVersion < VN_DEVICE_NODE) {
                 createDeviceDataTable(db, builder);
                 createNodeDataTable(db, builder);
+            }
+            if (oldVersion < VN_BROKEN_TIME) {
+                if (updater != null) {
+                    updater.onVersionUpdateToBrokenTime(db, builder);
+                }
             }
         }
 

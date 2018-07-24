@@ -462,4 +462,8 @@ public class Settings {
     public void clearLastDataBrowseViewMode() {
         getSharedPreferences().edit().remove("view_mode").commit();
     }
+
+    public void checkLatestVersionInfo() {
+
+    }
 }
