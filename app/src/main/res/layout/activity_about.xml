@@ -64,15 +64,26 @@
             android:padding="@dimen/padding_small"
             android:background="@drawable/selector_bg_about_function"
             android:onClick="onClick"/>
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tv_version_update"
-            android:text="@string/version_update"
-            android:textSize="@dimen/size_text_title_small"
+            android:id="@+id/ll_version_update"
+            android:orientation="horizontal"
             android:padding="@dimen/padding_small"
             android:background="@drawable/selector_bg_about_function"
-            android:onClick="onClick"/>
+            android:onClick="onClick">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_version_update"
+                android:text="@string/version_update"
+                android:textSize="@dimen/size_text_title_small"/>
+            <ViewStub
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/vs_has_new_version"
+                android:layout="@layout/group_has_new_version"/>
+        </LinearLayout>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

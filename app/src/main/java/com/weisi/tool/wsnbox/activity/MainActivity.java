@@ -11,13 +11,8 @@ import android.view.View;
 
 import com.cjq.tool.qbox.ui.dialog.BaseDialog;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
-import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
-import com.weisi.tool.wsnbox.bean.update.UpdateInfo;
-import com.weisi.tool.wsnbox.bean.update.Updater;
 import com.weisi.tool.wsnbox.io.database.SensorDatabase;
-import com.weisi.tool.wsnbox.permission.PermissionsRequester;
-import com.weisi.tool.wsnbox.permission.ReadPermissionsRequester;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 
 public class MainActivity
@@ -27,9 +22,6 @@ public class MainActivity
 
     private static final String DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED = "tag_import_sns_cfg_err";
     private static final String DIALOG_TAG_CONFIGURATION_NOT_PREPARED = "tag_cfg_no_prep";
-    private static final String DIALOG_TAG_UPDATE_APP = "tag_update_app";
-    private static final String ARGUMENT_KEY_UPDATE_INFO = "ak_update_info";
-    private static final int RC_READ_PERMISSION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +36,7 @@ public class MainActivity
         }
 
         if (getBaseApplication().isConfigurationPrepared()) {
-            checkVersionAndUpdate();
+            checkVersionAndDecideIfUpdate(false);
             startService(new Intent(this, DataPrepareService.class));
         } else {
             ConfirmDialog dialog = new ConfirmDialog();
@@ -53,27 +45,6 @@ public class MainActivity
             dialog.show(getSupportFragmentManager(),
                     DIALOG_TAG_CONFIGURATION_NOT_PREPARED);
         }
-    }
-
-    private void checkVersionAndUpdate() {
-        Updater.checkLatestVersion(this, updateInfo -> {
-            if (Updater.hasNewVersion(getApplicationContext(), updateInfo)) {
-                ConfirmDialog dialog = new ConfirmDialog();
-                dialog.setTitle(getString(R.string.check_for_new_version, updateInfo.getVersionName()));
-                dialog.setContent(updateInfo.getVersionDescription());
-                dialog.getArguments().putParcelable(ARGUMENT_KEY_UPDATE_INFO, updateInfo);
-                ConfirmDialog.Decorator decorator = dialog.getCustomDecorator();
-                if (updateInfo.getForceUpdate()) {
-                    dialog.setDrawCancelButton(false);
-                    dialog.setCancelable(false);
-                    decorator.setOkLabel(R.string.immediate_update);
-                } else {
-                    decorator.setOkLabel(R.string.immediate_update);
-                    decorator.setCancelLabel(R.string.wait_a_minute);
-                }
-                dialog.show(getSupportFragmentManager(), DIALOG_TAG_UPDATE_APP);
-            }
-        });
     }
 
     @Override
@@ -136,19 +107,7 @@ public class MainActivity
                 finish();
                 break;
             case DIALOG_TAG_UPDATE_APP:
-                UpdateInfo info = dialog.getArguments().getParcelable(ARGUMENT_KEY_UPDATE_INFO);
-                new ReadPermissionsRequester(this, RC_READ_PERMISSION)
-                        .requestPermissions(new PermissionsRequester.OnRequestResultListener() {
-                            @Override
-                            public void onPermissionsGranted() {
-                                Updater.update(getApplicationContext(), info);
-                            }
-
-                            @Override
-                            public void onPermissionsDenied() {
-                                SimpleCustomizeToast.show(R.string.lack_read_permissions);
-                            }
-                        });
+                updateVersion(dialog);
                 break;
         }
         return true;
@@ -165,11 +124,7 @@ public class MainActivity
                 break;
             case R.id.cl_freedom_scout:
             case R.id.cl_scout_config:
-                ConfirmDialog dialog = new ConfirmDialog();
-                dialog.setTitle(R.string.function_expect);
-                dialog.setDrawCancelButton(false);
-                dialog.show(getSupportFragmentManager(),
-                        "function_expect");
+                showExpectDialog();
                 break;
         }
     }

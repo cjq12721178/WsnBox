@@ -15,8 +15,8 @@ android {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 26
-        versionName "1.7.0"
+        versionCode 27
+        versionName "1.7.1"
         flavorDimensions "wsn"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -31,16 +31,16 @@ android {
                     actionStartAboutActivity: "android.intent.action.ABOUT_GUOMI"
             ]
             applicationIdSuffix ".guomi"
-            versionCode 22
-            versionName "0.8.0"
+            versionCode 23
+            versionName "0.8.1"
         }
         jiugang {
             manifestPlaceholders = [
                     actionStartAboutActivity: "android.intent.action.ABOUT_JIUGANG"
             ]
             applicationIdSuffix ".jiugang"
-            versionCode 9
-            versionName "0.3.0"
+            versionCode 10
+            versionName "0.3.1"
         }
     }
 
@@ -104,7 +104,7 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation(name: 'com.cjq.tool.qbox-1.6.5', ext: 'aar')
+    implementation(name: 'com.cjq.tool.qbox-1.6.7', ext: 'aar')
     implementation(name: 'com.cjq.lib.weisi-5.2.8', ext: 'aar')
     implementation 'com.android.support:appcompat-v7:27.0.2'
     implementation 'com.android.support:recyclerview-v7:27.0.2'

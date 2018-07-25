@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import com.weisi.tool.wsnbox.R
-import com.weisi.tool.wsnbox.bean.update.Updater
+import com.weisi.tool.wsnbox.version.update.Updater
 
 
 class DownloadCompleteReceiver : BroadcastReceiver() {

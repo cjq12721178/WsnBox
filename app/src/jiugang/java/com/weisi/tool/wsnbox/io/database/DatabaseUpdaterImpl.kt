@@ -31,7 +31,8 @@ class DatabaseUpdaterImpl : DatabaseUpdater {
             }
             cursor.close()
 
-            builder.setLength(0);
+            contentValues.clear()
+            builder.setLength(0)
             builder.append("SELECT ").append(Constant.COLUMN_SENSOR_ADDRESS)
                     .append(',').append(Constant.COLUMN_TIMESTAMP)
                     .append(" FROM ").append(Constant.TABLE_SENSOR_DATA)

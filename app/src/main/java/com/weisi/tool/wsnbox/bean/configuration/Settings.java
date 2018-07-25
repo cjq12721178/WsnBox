@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.support.annotation.StringRes;
 
+import com.weisi.tool.wsnbox.BuildConfig;
 import com.weisi.tool.wsnbox.R;
 
 import java.io.File;
@@ -64,8 +65,12 @@ public class Settings {
     boolean mDefaultSensorDataGatherEnable;
     private long mDefaultSensorDataGatherCycle; /* 单位秒 */
 
+    //最新版本
+    private String mLatestVersionName;
+
     public Settings(Context context) {
         mContext = context.getApplicationContext();
+        mLatestVersionName = BuildConfig.VERSION_NAME;
     }
 
     public String getDefaultBaseStationIp() {
@@ -463,7 +468,11 @@ public class Settings {
         getSharedPreferences().edit().remove("view_mode").commit();
     }
 
-    public void checkLatestVersionInfo() {
+    public String getLatestVersionName() {
+        return mLatestVersionName;
+    }
 
+    public void setLatestVersionName(String latestVersionName) {
+        mLatestVersionName = latestVersionName;
     }
 }
