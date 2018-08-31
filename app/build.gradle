@@ -15,8 +15,8 @@ android {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 27
-        versionName "1.7.1"
+        versionCode 28
+        versionName "1.7.2"
         flavorDimensions "wsn"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -31,16 +31,16 @@ android {
                     actionStartAboutActivity: "android.intent.action.ABOUT_GUOMI"
             ]
             applicationIdSuffix ".guomi"
-            versionCode 23
-            versionName "0.8.1"
+            versionCode 24
+            versionName "0.8.2"
         }
         jiugang {
             manifestPlaceholders = [
                     actionStartAboutActivity: "android.intent.action.ABOUT_JIUGANG"
             ]
             applicationIdSuffix ".jiugang"
-            versionCode 10
-            versionName "0.3.1"
+            versionCode 11
+            versionName "0.3.2"
         }
     }
 
@@ -105,7 +105,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation(name: 'com.cjq.tool.qbox-1.6.7', ext: 'aar')
-    implementation(name: 'com.cjq.lib.weisi-5.2.8', ext: 'aar')
+    implementation(name: 'com.cjq.lib.weisi-5.3.2', ext: 'aar')
     implementation 'com.android.support:appcompat-v7:27.0.2'
     implementation 'com.android.support:recyclerview-v7:27.0.2'
     implementation 'com.android.support:preference-v7:27.0.2'
@@ -128,4 +128,47 @@ dependencies {
 
 androidExtensions {
     experimental = true
+}
+
+task generateUpdateInfo {
+    doLast {
+        //new File("${buildDir}/")
+        println "${buildDir}"
+
+    }
+}
+
+afterEvaluate {
+    tasks.matching {
+        // 以process开头以ReleaseJavaRes或DebugJavaRes结尾的task
+        it.name.startsWith("assemble") && it.name.endsWith("Release")
+    }.each { task ->
+        //task.dependsOn(testAssembleRelease)  // 任务依赖：执行task之前需要执行dependsOn指定的任务
+        task.doLast {
+            def productName = task.name.substring("assemble".size(), task.name.size() - "Release".size())
+            def product = productName == "General" ? android.defaultConfig : android.productFlavors.getByName(productName.toLowerCase())
+            def outputDir = "${projectDir}/${productName}/release"
+            def version = "${product.versionName}"
+            def apkName
+            new File(outputDir).eachFile {
+                if (it.name.contains(version)) {
+                    apkName = it.name
+                }
+            }
+            new File("${outputDir}/update.json").withPrintWriter("UTF-8") { writer ->
+                writer.println("{")
+                writer.println("    \"apkName\": \"${apkName}\",")
+                writer.println("    \"versionName\": \"${version}\",")
+                writer.println("    \"versionCode\": ${product.versionCode},")
+                writer.println("    \"forceUpdate\": true,")
+                writer.println("    \"versionDescription\": \"" +
+                        "1. 新增对动作计数器、振动传感器、用电状态终端、线路状态指示器、太阳能充电管理模块、应急灯监测模块、棘轮状态监测装置、无线中继器、导线综合状态监测器球等传感器的数据解析支持\\n" +
+                        "2. 修复数据浏览界面降序排列时传感器显示有误的问题\\n" +
+                        "3. 修复版本查询不显示的问题\"")
+                writer.println("}")
+                writer.flush()
+                writer.close()
+            }
+        }
+    }
 }

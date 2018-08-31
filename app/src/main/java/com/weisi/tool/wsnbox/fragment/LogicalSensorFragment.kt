@@ -50,7 +50,7 @@ class LogicalSensorFragment : DataBrowseFragment<LogicalSensor, DataBrowseLogica
             SensorManager.getSensors(elements, filters, LogicalSensor::class.java)
         }
         s.addFilter(FILTER_ID_DATA_SOURCE, SensorUseForRealTimeFilter())
-        s.setSorter(SensorNetInTimeSorter(), false)
+        s.setSorter(SensorNetInTimeSorter(), true)
         return s
     }
 
@@ -152,7 +152,7 @@ class LogicalSensorFragment : DataBrowseFragment<LogicalSensor, DataBrowseLogica
         if (realTime) {
             storage.addFilter(FILTER_ID_DATA_SOURCE, SensorUseForRealTimeFilter())
             if (storage.sorter is SensorEarliestValueTimeSorter) {
-                storage.setSorter(SensorNetInTimeSorter(), storage.isDescend)
+                storage.setSorter(SensorNetInTimeSorter(), storage.isAscending)
             }
             transfer.enableDetectLogicalSensorNetIn = true
             transfer.enableDetectLogicalSensorValueUpdate = true
@@ -161,7 +161,7 @@ class LogicalSensorFragment : DataBrowseFragment<LogicalSensor, DataBrowseLogica
         } else {
             storage.addFilter(FILTER_ID_DATA_SOURCE, SensorWithHistoryValueFilter())
             if (storage.sorter is SensorNetInTimeSorter) {
-                storage.setSorter(SensorEarliestValueTimeSorter(), storage.isDescend)
+                storage.setSorter(SensorEarliestValueTimeSorter(), storage.isAscending)
             }
             transfer.enableDetectLogicalSensorNetIn = false
             transfer.enableDetectLogicalSensorValueUpdate = false
@@ -303,7 +303,7 @@ class LogicalSensorFragment : DataBrowseFragment<LogicalSensor, DataBrowseLogica
                 SensorEarliestValueTimeSorter()
             }
             else -> SensorNetInTimeSorter()
-        }, !isAscending, this)
+        }, isAscending, this)
     }
 
     override fun onFilterChange(dialog: FilterDialog?, hasFilters: BooleanArray?, checkedFilterEntryValues: Array<out MutableList<Int>>?) {

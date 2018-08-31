@@ -54,7 +54,7 @@ class DeviceNodeFragment : DataBrowseFragment<Device, DataBrowseDeviceNodeAdapte
                 }
             }
         }
-        s.setSorter(DeviceNameSorter(), false)
+        s.setSorter(DeviceNameSorter(), true)
         return s
     }
 
@@ -246,7 +246,7 @@ class DeviceNodeFragment : DataBrowseFragment<Device, DataBrowseDeviceNodeAdapte
     }
 
     override fun onSortTypeChanged(checkedId: Int, isAscending: Boolean) {
-        storage.setSorter(DeviceNameSorter(), !isAscending, this)
+        storage.setSorter(DeviceNameSorter(), isAscending, this)
     }
 
     override fun onSearch(target: String?) {

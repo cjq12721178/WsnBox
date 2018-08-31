@@ -3,6 +3,7 @@ package com.weisi.tool.wsnbox.adapter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,7 +14,9 @@ import android.widget.TextView;
 
 import com.cjq.lib.weisi.iot.LogicalSensor;
 import com.cjq.lib.weisi.iot.PhysicalSensor;
+import com.weisi.tool.wsnbox.BuildConfig;
 import com.weisi.tool.wsnbox.R;
+import com.weisi.tool.wsnbox.util.Tag;
 
 import java.util.List;
 
@@ -46,6 +49,9 @@ public class MultipleMeasurementSensorAdapterDelegate extends BaseSensorAdapterD
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, PhysicalSensor sensor, int position) {
+        if (BuildConfig.APP_DEBUG) {
+            Log.d(Tag.LOG_TAG_D_TEST, "onBind pos: " + position + "addr: " + sensor.getRawAddress());
+        }
         ViewHolder holder = (ViewHolder) viewHolder;
         setSensorNameAddressText(holder.mTvSensorNameAddress, sensor);
         setTimestampText(holder.mTvTimestamp, sensor);
@@ -62,10 +68,14 @@ public class MultipleMeasurementSensorAdapterDelegate extends BaseSensorAdapterD
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, PhysicalSensor sensor, int position, List payloads) {
         ViewHolder holder = (ViewHolder) viewHolder;
+        //setSensorNameAddressText(holder.mTvSensorNameAddress, sensor);
         List<LogicalSensor> measurements = sensor.getMeasurementCollections();
         LogicalSensor measurement;
         switch ((int)payloads.get(0)) {
             case UPDATE_TYPE_VALUE_CHANGED: {
+                if (BuildConfig.APP_DEBUG) {
+                    Log.d(Tag.LOG_TAG_D_TEST, "onBind payload pos: " + position + "addr: " + sensor.getRawAddress());
+                }
                 setTimestampText(holder.mTvTimestamp, sensor);
                 for (int i = 0;i < mMeasurementSize;++i) {
                     measurement = measurements.get(i);

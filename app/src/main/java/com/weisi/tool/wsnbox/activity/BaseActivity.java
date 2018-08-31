@@ -21,6 +21,8 @@ import com.weisi.tool.wsnbox.service.DataPrepareService;
 import com.weisi.tool.wsnbox.version.update.UpdateInfo;
 import com.weisi.tool.wsnbox.version.update.Updater;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by CJQ on 2017/9/7.
  */
@@ -133,31 +135,45 @@ public class BaseActivity
     }
 
     protected void checkVersionAndDecideIfUpdate(boolean activeQuery) {
-        Updater.checkLatestVersion(this, updateInfo -> {
-            if (Updater.hasNewVersion(getApplicationContext(), updateInfo)) {
-                getBaseApplication().getSettings().setLatestVersionName(updateInfo.getVersionName());
-                ConfirmDialog dialog = new ConfirmDialog();
-                dialog.setTitle(getString(R.string.check_for_new_version, updateInfo.getVersionName()));
-                dialog.setContent(updateInfo.getVersionDescription());
-                dialog.getArguments().putParcelable(ARGUMENT_KEY_UPDATE_INFO, updateInfo);
-                ConfirmDialog.Decorator decorator = dialog.getCustomDecorator();
-                decorator.setDrawSeparationLine(true);
-                if (updateInfo.getForceUpdate()) {
-                    dialog.setDrawCancelButton(false);
-                    dialog.setCancelable(false);
-                    decorator.setOkLabel(R.string.immediate_update);
-                } else {
-                    decorator.setOkLabel(R.string.immediate_update);
-                    decorator.setCancelLabel(R.string.wait_a_minute);
+        Updater.checkLatestVersion(this, new Updater.CheckVersionCallBack() {
+            @Override
+            public void onVersionChecked(@NotNull UpdateInfo updateInfo) {
+                if (Updater.hasNewVersion(getApplicationContext(), updateInfo)) {
+                    getBaseApplication().getSettings().setLatestVersionName(updateInfo.getVersionName());
+                    ConfirmDialog dialog = new ConfirmDialog();
+                    dialog.setTitle(getString(R.string.check_for_new_version, updateInfo.getVersionName()));
+                    dialog.setContent(updateInfo.getVersionDescription());
+                    dialog.getArguments().putParcelable(ARGUMENT_KEY_UPDATE_INFO, updateInfo);
+                    ConfirmDialog.Decorator decorator = dialog.getCustomDecorator();
+                    decorator.setDrawSeparationLine(true);
+                    if (updateInfo.getForceUpdate()) {
+                        dialog.setDrawCancelButton(false);
+                        dialog.setCancelable(false);
+                        decorator.setOkLabel(R.string.immediate_update);
+                    } else {
+                        decorator.setOkLabel(R.string.immediate_update);
+                        decorator.setCancelLabel(R.string.wait_a_minute);
+                    }
+                    dialog.show(getSupportFragmentManager(), DIALOG_TAG_UPDATE_APP);
+                } else if (activeQuery) {
+                    informCurrentVersionLatest();
                 }
-                dialog.show(getSupportFragmentManager(), DIALOG_TAG_UPDATE_APP);
-            } else if (activeQuery) {
-                ConfirmDialog dialog = new ConfirmDialog();
-                dialog.setDrawCancelButton(false);
-                dialog.setTitle(R.string.current_version_latest);
-                dialog.show(getSupportFragmentManager(), "tag_cur_vsn_latest");
+            }
+
+            @Override
+            public void onErrorOccurred(@NotNull Throwable t) {
+                if (activeQuery) {
+                    informCurrentVersionLatest();
+                }
             }
         });
+    }
+
+    private void informCurrentVersionLatest() {
+        ConfirmDialog dialog = new ConfirmDialog();
+        dialog.setDrawCancelButton(false);
+        dialog.setTitle(R.string.current_version_latest);
+        dialog.show(getSupportFragmentManager(), "tag_cur_vsn_latest");
     }
 
     protected void updateVersion(BaseDialog dialog) {

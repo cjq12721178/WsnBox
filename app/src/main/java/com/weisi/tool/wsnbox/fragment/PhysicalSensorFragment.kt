@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ import com.cjq.tool.qbox.ui.dialog.ConfirmDialog
 import com.cjq.tool.qbox.ui.dialog.FilterDialog
 import com.cjq.tool.qbox.ui.dialog.SortDialog
 import com.cjq.tool.qbox.ui.gesture.SimpleRecyclerViewItemTouchListener
+import com.weisi.tool.wsnbox.BuildConfig
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.adapter.BaseSensorAdapterDelegate
 import com.weisi.tool.wsnbox.adapter.BaseSensorAdapterDelegate.*
@@ -37,6 +39,7 @@ import com.weisi.tool.wsnbox.dialog.PhysicalSensorInfoDialog
 import com.weisi.tool.wsnbox.dialog.SensorInfoDialog
 import com.weisi.tool.wsnbox.processor.accessor.SensorHistoryDataAccessor
 import com.weisi.tool.wsnbox.service.DataPrepareService
+import com.weisi.tool.wsnbox.util.Tag
 
 /**
  * Created by CJQ on 2018/5/29.
@@ -53,7 +56,7 @@ class PhysicalSensorFragment : DataBrowseFragment<PhysicalSensor, DataBrowsePhys
             SensorManager.getSensors(elements, filters, PhysicalSensor::class.java)
         }
         s.addFilter(FILTER_ID_DATA_SOURCE, SensorUseForRealTimeFilter())
-        s.setSorter(SensorNetInTimeSorter(), false)
+        s.setSorter(SensorNetInTimeSorter(), true)
         return s
     }
 
@@ -180,7 +183,7 @@ class PhysicalSensorFragment : DataBrowseFragment<PhysicalSensor, DataBrowsePhys
         if (realTime) {
             storage.addFilter(FILTER_ID_DATA_SOURCE, SensorUseForRealTimeFilter<PhysicalSensor>())
             if (storage.sorter is SensorEarliestValueTimeSorter) {
-                storage.setSorter(SensorNetInTimeSorter(), storage.isDescend)
+                storage.setSorter(SensorNetInTimeSorter(), storage.isAscending)
             }
             transfer.enableDetectPhysicalSensorNetIn = true
             transfer.enableDetectPhysicalSensorValueUpdate = true
@@ -189,7 +192,7 @@ class PhysicalSensorFragment : DataBrowseFragment<PhysicalSensor, DataBrowsePhys
         } else {
             storage.addFilter(FILTER_ID_DATA_SOURCE, SensorWithHistoryValueFilter<PhysicalSensor>())
             if (storage.sorter is SensorNetInTimeSorter) {
-                storage.setSorter(SensorEarliestValueTimeSorter(), storage.isDescend)
+                storage.setSorter(SensorEarliestValueTimeSorter(), storage.isAscending)
             }
             transfer.enableDetectPhysicalSensorNetIn = false
             transfer.enableDetectPhysicalSensorValueUpdate = false
@@ -232,8 +235,11 @@ class PhysicalSensorFragment : DataBrowseFragment<PhysicalSensor, DataBrowsePhys
     private fun addSensor(sensor: PhysicalSensor) {
         //根据设置有序添加
         val position = storage.add(sensor)
-        if (position != -1) {
+        if (position >= 0) {
             adapter.notifyItemInserted(position)
+            if (BuildConfig.APP_DEBUG) {
+                Log.d(Tag.LOG_TAG_D_TEST, "net in pos: $position, src addr: ${sensor.rawAddress}, dst addr: ${storage.get(position).rawAddress}")
+            }
         }
     }
 
@@ -241,6 +247,9 @@ class PhysicalSensorFragment : DataBrowseFragment<PhysicalSensor, DataBrowsePhys
         //notifySensorValueUpdate(sensor, logicalPosition)
         val position = storage.find(sensor)
         if (position >= 0) {
+            if (BuildConfig.APP_DEBUG) {
+                Log.d(Tag.LOG_TAG_D_TEST, "update pos: $position, src addr: ${sensor.rawAddress}, dst addr: ${storage.get(position).rawAddress}")
+            }
             adapter.notifyItemChanged(position, UPDATE_TYPE_VALUE_CHANGED)
             physicalSensorInfoDialog?.notifyPhysicalSensorRealTimeValueChanged(sensor, logicalPosition)
         }
@@ -344,7 +353,7 @@ class PhysicalSensorFragment : DataBrowseFragment<PhysicalSensor, DataBrowsePhys
                 SensorEarliestValueTimeSorter()
             }
             else -> SensorNetInTimeSorter()
-        }, !isAscending, this)
+        }, isAscending, this)
     }
 
     override fun onFilterChange(dialog: FilterDialog?, hasFilters: BooleanArray?, checkedFilterEntryValues: Array<out MutableList<Int>>?) {

@@ -1,0 +1,7 @@
+{
+    "apkName": "com.weisi.tool.wsnbox.guomi_0.8.2_20180831.apk",
+    "versionName": "0.8.2",
+    "versionCode": 24,
+    "forceUpdate": true,
+    "versionDescription": "1. 新增对动作计数器、振动传感器、用电状态终端、线路状态指示器、太阳能充电管理模块、应急灯监测模块、棘轮状态监测装置、无线中继器、导线综合状态监测器球等传感器的数据解析支持\n2. 修复数据浏览界面降序排列时传感器显示有误的问题\n3. 修复版本查询不显示的问题"
+}

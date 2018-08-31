@@ -28,9 +28,10 @@ class Updater {
                     .subscribeOn(Schedulers.newThread())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe({
-                        checkVersionCallBack.onVersionChecked(it);
+                        checkVersionCallBack.onVersionChecked(it)
                     }, {
                         ExceptionLog.record(it)
+                        checkVersionCallBack.onErrorOccurred(it)
                     })
         }
 
@@ -201,5 +202,6 @@ class Updater {
 
     interface CheckVersionCallBack {
         fun onVersionChecked(updateInfo: UpdateInfo)
+        fun onErrorOccurred(t: Throwable)
     }
 }

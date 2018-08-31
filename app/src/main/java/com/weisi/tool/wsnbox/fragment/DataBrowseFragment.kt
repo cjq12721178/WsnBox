@@ -109,6 +109,7 @@ open class DataBrowseFragment<E, A : RecyclerViewBaseAdapter<E>> : BaseFragment(
 
     override fun onSizeChange(previousSize: Int, currentSize: Int) {
         adapter.notifyDataSetChanged(previousSize)
+        //adapter.notifyDataSetChanged()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
