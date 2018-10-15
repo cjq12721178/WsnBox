@@ -372,7 +372,7 @@ public class Settings {
 
     public void checkSensorDataGatherCycle(long cycle) {
         if (cycle < 0) {
-            throw new IllegalArgumentException("sensor data gather cycle may not be less than 0");
+            throw new IllegalArgumentException("measurement data gather cycle may not be less than 0");
         }
     }
 

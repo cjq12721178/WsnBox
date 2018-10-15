@@ -7,13 +7,14 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
 import android.support.v7.preference.PreferenceManager
-import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast
 import com.cjq.tool.qbox.util.ExceptionLog
 import com.weisi.tool.wsnbox.BuildConfig
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.util.UriHelper
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+
+
 
 
 class Updater {
@@ -74,21 +75,12 @@ class Updater {
                 when (status) {
                     DownloadManager.STATUS_SUCCESSFUL -> {
                         //启动更新界面
-//                        val downloadApkUri = downloadManager.getUriForDownloadedFile(downloadId)
-//                        if (downloadApkUri != null) {
-//                            if (canApkInstall(context, UriHelper.getRealFilePath(context, downloadApkUri))) {
-//                                startInstallActivity(context, downloadApkUri)
-//                                return
-//                            } else {
-//                                downloadManager.remove(downloadId)
-//                            }
-//                        }
                         if (!tryStartInstallActivity(context, downloadManager, downloadId)) {
                             download(context, downloadManager, updateInfo)
                         }
                     }
-                    DownloadManager.STATUS_FAILED -> download(context, downloadManager, updateInfo)
-                    else -> SimpleCustomizeToast.show(R.string.apk_downloading)
+                    //DownloadManager.STATUS_RUNNING -> SimpleCustomizeToast.show(R.string.apk_downloading)
+                    else -> download(context, downloadManager, updateInfo)
                 }
             } else {
                 download(context, downloadManager, updateInfo)
@@ -193,10 +185,12 @@ class Updater {
 
         @JvmStatic
         private fun startInstallActivity(context: Context, uri: Uri) {
-            val install = Intent(Intent.ACTION_VIEW)
-            install.setDataAndType(uri, "application/vnd.android.package-archive")
-            install.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(install)
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(uri, "application/vnd.android.package-archive")
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    or Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
         }
     }
 

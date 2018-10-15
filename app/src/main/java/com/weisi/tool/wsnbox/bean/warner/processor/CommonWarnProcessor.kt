@@ -1,9 +1,9 @@
 package com.weisi.tool.wsnbox.bean.warner.processor
 
-import com.cjq.lib.weisi.iot.LogicalSensor
-import com.cjq.lib.weisi.iot.LogicalSensor.SingleRangeWarner.RESULT_ABOVE_HIGH_LIMIT
-import com.cjq.lib.weisi.iot.LogicalSensor.SingleRangeWarner.RESULT_BELOW_LOW_LIMIT
-import com.cjq.lib.weisi.iot.LogicalSensor.SwitchWarner.RESULT_IN_NORMAL_STATE
+import com.cjq.lib.weisi.iot.DisplayMeasurement
+import com.cjq.lib.weisi.iot.DisplayMeasurement.SingleRangeWarner.RESULT_ABOVE_HIGH_LIMIT
+import com.cjq.lib.weisi.iot.DisplayMeasurement.SingleRangeWarner.RESULT_BELOW_LOW_LIMIT
+import com.cjq.lib.weisi.iot.DisplayMeasurement.SwitchWarner.RESULT_IN_NORMAL_STATE
 import com.cjq.lib.weisi.iot.Warner
 import com.cjq.lib.weisi.iot.Warner.RESULT_NORMAL
 import com.weisi.tool.wsnbox.bean.warner.executor.BackgroundNormalWarnExecutor
@@ -46,13 +46,13 @@ class CommonWarnProcessor<E> {
         }
     }
 
-    fun process(value: LogicalSensor.Value?,
-                warner: Warner<LogicalSensor.Value>?,
+    fun process(value: DisplayMeasurement.Value?,
+                warner: Warner<DisplayMeasurement.Value>?,
                 env: E) {
         if (value != null && warner != null) {
             var warnResult = warner.test(value)
             when (warner) {
-                is LogicalSensor.SingleRangeWarner -> when (warnResult) {
+                is DisplayMeasurement.SingleRangeWarner -> when (warnResult) {
                     RESULT_NORMAL -> processNormalResult(env)
                     RESULT_ABOVE_HIGH_LIMIT -> singleRangeWarnExecutors.forEach {
                         executor -> executor.onResultAboveHighLimit(env)
@@ -61,7 +61,7 @@ class CommonWarnProcessor<E> {
                         executor -> executor.onResultBelowLowLimit(env)
                     }
                 }
-                is LogicalSensor.SwitchWarner -> if (warnResult == RESULT_IN_NORMAL_STATE) {
+                is DisplayMeasurement.SwitchWarner -> if (warnResult == RESULT_IN_NORMAL_STATE) {
                     processNormalResult(env)
                 } else {
                     switchWarnExecutors.forEach {

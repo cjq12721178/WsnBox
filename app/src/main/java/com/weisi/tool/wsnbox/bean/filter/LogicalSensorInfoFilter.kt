@@ -9,6 +9,6 @@ import com.cjq.lib.weisi.iot.LogicalSensor
 class LogicalSensorInfoFilter(var keyWord: String = "") : Filter<LogicalSensor> {
 
     override fun match(sensor: LogicalSensor): Boolean {
-        return sensor.name.contains(keyWord)
+        return sensor.practicalMeasurement.name.contains(keyWord)
     }
 }

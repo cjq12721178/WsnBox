@@ -11,6 +11,6 @@ public class SensorNameSorter<S extends Sensor> extends Sorter<S> {
 
     @Override
     public int compare(S s1, S s2) {
-        return s1.getName().compareTo(s2.getName());
+        return s1.getMainMeasurement().getName().compareTo(s2.getMainMeasurement().getName());
     }
 }

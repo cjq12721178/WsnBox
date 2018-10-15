@@ -37,4 +37,12 @@ public class ParseTest {
         int actual = Integer.parseInt("64FF04", 16);
         assertEquals(expect, actual);
     }
+
+    @Test
+    public void longToObject() {
+        Object o = -1L;
+        long l = (long) o;
+        System.out.println("l = " + l);
+        assertEquals(true, o instanceof Long);
+    }
 }

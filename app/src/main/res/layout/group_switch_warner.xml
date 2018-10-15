@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:divider="@drawable/shape_divider_about_activity"
+              android:showDividers="middle"
+              android:background="@color/bg_divider_about_activity">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:padding="@dimen/padding_small"
+        android:background="@android:color/white"
+        android:layout_marginTop="@dimen/divider_width_fix"
+        android:layout_marginStart="@dimen/divider_width_fix"
+        android:layout_marginBottom="@dimen/divider_width_fix"
+        android:textSize="@dimen/size_text_activity"
+        android:text="@string/abnormal_value"
+        android:gravity="center"/>
+
+    <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_abnormal_value"
+        android:padding="@dimen/padding_small"
+        android:layout_marginTop="@dimen/divider_width_fix"
+        android:layout_marginEnd="@dimen/divider_width_fix"
+        android:layout_marginBottom="@dimen/divider_width_fix"
+        android:textSize="@dimen/size_text_activity"
+        android:gravity="center"
+        android:background="@android:color/white"
+        android:drawableRight="@drawable/ic_modify"
+        app:drawableRight_width="@dimen/size_image_small"
+        app:drawableRight_height="@dimen/size_image_small"/>
+</LinearLayout>

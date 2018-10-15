@@ -3,9 +3,6 @@ package com.weisi.tool.wsnbox.preference;
 import android.preference.ListPreference;
 import android.text.TextUtils;
 
-import com.weisi.tool.wsnbox.fragment.BaseSettingsFragment;
-import com.weisi.tool.wsnbox.preference.PreferenceHelper;
-
 /**
  * Created by CJQ on 2018/1/4.
  */

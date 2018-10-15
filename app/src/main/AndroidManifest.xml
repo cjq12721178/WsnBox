@@ -73,9 +73,24 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.DOWNLOAD_COMPLETE"/>
-                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED" />
+                <action android:name="android.intent.action.DOWNLOAD_NOTIFICATION_CLICKED"/>
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".activity.ProviderConfigurationActivity"
+            android:parentActivityName=".activity.ParameterConfigurationActivity">
+        </activity>
+        <activity
+            android:name=".activity.SensorConfigurationActivity"
+            android:label="@string/sensor_config"
+            android:parentActivityName=".activity.ProviderConfigurationActivity">
+        </activity>
+        <activity
+            android:name=".activity.DeviceConfigurationActivity"
+            android:label="@string/device_config"
+            android:parentActivityName=".activity.ProviderConfigurationActivity">
+        </activity>
     </application>
 
 </manifest>

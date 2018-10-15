@@ -2,25 +2,25 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
     <header
         android:title="@string/udp"
-        android:fragment="com.weisi.tool.wsnbox.fragment.UdpSettingsFragment"/>
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.UdpSettingsFragment"/>
     <header
         android:title="@string/ble"
-        android:fragment="com.weisi.tool.wsnbox.fragment.BleSettingsFragment"/>
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.BleSettingsFragment"/>
     <header
         android:title="@string/serial_port"
-        android:fragment="com.weisi.tool.wsnbox.fragment.SerialPortSettingsFragment"/>
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.SerialPortSettingsFragment"/>
     <header
         android:title="@string/usb"
-        android:fragment="com.weisi.tool.wsnbox.fragment.UsbSettingsFragment"/>
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.UsbSettingsFragment"/>
     <header
         android:title="@string/tcp"
-        android:fragment="com.weisi.tool.wsnbox.fragment.TcpSettingsFragment"/>
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.TcpSettingsFragment"/>
     <header
         android:title="@string/data_store"
-        android:fragment="com.weisi.tool.wsnbox.fragment.DataStoreSettingsFragment"/>
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.DataStoreSettingsFragment"/>
     <header
         android:title="@string/about_app">
         <intent
-            android:action="android.intent.action.ABOUT_GENERAL"/>
+            android:action="action_start_about_activity"/>
     </header>
 </preference-headers>

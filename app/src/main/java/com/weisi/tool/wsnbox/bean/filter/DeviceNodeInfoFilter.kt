@@ -16,7 +16,7 @@ class DeviceNodeInfoFilter(var keyWord: String = "") : Filter<Device> {
         var i = 0
         val size = device.nodes.size
         while (i < size) {
-            if ((device.nodes[i].name ?: device.nodes[i].sensor.defaultName).contains(keyWord)) {
+            if ((device.nodes[i].name ?: device.nodes[i].measurement.defaultName).contains(keyWord)) {
                 return true
             }
             ++i

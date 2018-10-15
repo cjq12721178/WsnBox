@@ -5,6 +5,7 @@ import android.os.Message
 import android.support.annotation.UiThread
 import android.support.annotation.WorkerThread
 import com.cjq.lib.weisi.iot.*
+import com.cjq.lib.weisi.iot.container.ValueContainer
 import com.weisi.tool.wsnbox.bean.data.SensorData
 
 
@@ -18,16 +19,16 @@ class DataTransferStation {
     private val MSG_LOGICAL_SENSOR_VALUE_UPDATE = 2
     private val MSG_PHYSICAL_SENSOR_NET_IN = 3
     private val MSG_PHYSICAL_SENSOR_VALUE_UPDATE = 4
-    private val MSG_LOGICAL_SENSOR_HISTORY_VALUE_RECEIVED = 5
-    private val MSG_PHYSICAL_SENSOR_HISTORY_VALUE_RECEIVED = 6
+    private val MSG_MEASUREMENT_HISTORY_VALUE_RECEIVED = 5
+    private val MSG_SENSOR_INFO_HISTORY_VALUE_RECEIVED = 6
     private val MSG_LOGICAL_SENSOR_DYNAMIC_DATA_ACCESS = 7;
     private val MSG_PHYSICAL_SENSOR_DYNAMIC_DATA_ACCESS = 8;
-    private val MSG_LOGICAL_SENSOR_HISTORY_DATA_ACCESS = 9;
-    private val MSG_PHYSICAL_SENSOR_HISTORY_DATA_ACCESS = 10;
+    private val MSG_MEASUREMENT_HISTORY_DATA_ACCESS = 9;
+    private val MSG_SENSOR_INFO_HISTORY_DATA_ACCESS = 10;
     private var lastNetInTimestamp: Long = 0
     private val LAST_NET_IN_TIME_LOCKER = Any()
     private val listeners = mutableListOf<OnEventListener>()
-    private val focusedSensors = mutableMapOf<Long, Sensor<*, *>>()
+    private val focusedMeasurements = mutableMapOf<Long, Measurement<*, *>>()
 
     //以下4个属性须成对使用，交叉使用会出现意外情况
     var enableDetectPhysicalSensorNetIn = false
@@ -35,8 +36,8 @@ class DataTransferStation {
     var enableDetectLogicalSensorNetIn = false
     var enableDetectLogicalSensorValueUpdate = false
 
-    var enableDetectPhysicalSensorHistoryValueReceive = false
-    var enableDetectLogicalSensorHistoryValueReceive = false
+    var enableDetectSensorInfoHistoryValueReceive = false
+    var enableDetectMeasurementHistoryValueReceive = false
 
     private val eventHandler = object : Handler() {
         override fun handleMessage(msg: Message?) {
@@ -49,18 +50,18 @@ class DataTransferStation {
                     notifyLogicalSensorNetIn(msg.obj as LogicalSensor)
                 MSG_LOGICAL_SENSOR_VALUE_UPDATE ->
                     notifyLogicalSensorValueUpdate(msg.obj as LogicalSensor, msg.arg1)
-                MSG_PHYSICAL_SENSOR_HISTORY_VALUE_RECEIVED ->
-                    notifyPhysicalSensorHistoryValueUpdate(msg.obj as PhysicalSensor, msg.arg1)
-                MSG_LOGICAL_SENSOR_HISTORY_VALUE_RECEIVED ->
-                    notifyLogicalSensorHistoryValueUpdate(msg.obj as LogicalSensor, msg.arg1)
+                MSG_SENSOR_INFO_HISTORY_VALUE_RECEIVED ->
+                    notifySensorInfoHistoryValueUpdate(msg.obj as Sensor.Info, msg.arg1)
+                MSG_MEASUREMENT_HISTORY_VALUE_RECEIVED ->
+                    notifyMeasurementHistoryValueUpdate(msg.obj as PracticalMeasurement, msg.arg1)
                 MSG_LOGICAL_SENSOR_DYNAMIC_DATA_ACCESS ->
                     processLogicalSensorDynamicDataAccess(msg.obj as SensorData)
                 MSG_PHYSICAL_SENSOR_DYNAMIC_DATA_ACCESS ->
                     processPhysicalSensorDynamicDataAccess(msg.obj as SensorData)
-                MSG_LOGICAL_SENSOR_HISTORY_DATA_ACCESS ->
-                    processLogicalSensorHistoryDataAccess(msg.obj as SensorData)
-                MSG_PHYSICAL_SENSOR_HISTORY_DATA_ACCESS ->
-                    processPhysicalSensorHistoryDataAccess(msg.obj as SensorData)
+                MSG_MEASUREMENT_HISTORY_DATA_ACCESS ->
+                    processMeasurementHistoryDataAccess(msg.obj as SensorData)
+                MSG_SENSOR_INFO_HISTORY_DATA_ACCESS ->
+                    processSensorInfoHistoryDataAccess(msg.obj as SensorData)
             }
         }
     }
@@ -83,43 +84,44 @@ class DataTransferStation {
                                        batteryVoltage: Float,
                                        rawValue: Double) {
         if (enableDetectLogicalSensorNetIn || enableDetectLogicalSensorValueUpdate) {
-            if (isInAttentionSensorList(address, dataTypeValue, dataTypeValueIndex)) {
+            if (isInAttentionList(address, dataTypeValue, dataTypeValueIndex)) {
                 sendLogicalSensorDynamicDataAccessMessage(address, dataTypeValue, dataTypeValueIndex, timestamp, batteryVoltage, rawValue)
             } else {
-                val logicalSensor = SensorManager.getLogicalSensor(address, dataTypeValue, dataTypeValueIndex, true)
-                val valueLogicalPosition = logicalSensor.addDynamicValue(dataTypeValue, dataTypeValueIndex, timestamp, batteryVoltage, rawValue)
-                if (valueLogicalPosition != ValueContainer.ADD_FAILED_RETURN_VALUE) {
+                val logicalSensor = SensorManager.getLogicalSensor(address, dataTypeValue, dataTypeValueIndex) ?: return
+                val measurementValuePosition = logicalSensor.addDynamicValue(timestamp, batteryVoltage, rawValue)
+                if (measurementValuePosition != ValueContainer.ADD_FAILED_RETURN_VALUE) {
                     if (recordSensorNetIn(logicalSensor)) {
-                        recordSensorNetIn(logicalSensor.physicalSensor)
+                        recordSensorNetIn(SensorManager.getPhysicalSensor(address))
                         if (enableDetectLogicalSensorNetIn) {
                             sendLogicalSensorNetInMessage(logicalSensor)
                         } else if (enableDetectLogicalSensorValueUpdate) {
-                            sendLogicalSensorValueUpdateMessage(logicalSensor, valueLogicalPosition)
+                            sendLogicalSensorValueUpdateMessage(logicalSensor, measurementValuePosition)
                         }
                     } else {
                         if (enableDetectLogicalSensorValueUpdate) {
-                            sendLogicalSensorValueUpdateMessage(logicalSensor, valueLogicalPosition)
+                            sendLogicalSensorValueUpdateMessage(logicalSensor, measurementValuePosition)
                         }
                     }
                 }
             }
         } else {
-            if (isInAttentionSensorList(address, dataTypeValue, dataTypeValueIndex)) {
+            if (isInAttentionList(address, dataTypeValue, dataTypeValueIndex)) {
                 sendPhysicalSensorDynamicDataAccessMessage(address, dataTypeValue, dataTypeValueIndex, timestamp, batteryVoltage, rawValue)
             } else {
-                val physicalSensor = SensorManager.getPhysicalSensor(address, true)
-                val valueLogicalPosition = physicalSensor.addDynamicValue(dataTypeValue, dataTypeValueIndex, timestamp, batteryVoltage, rawValue)
-                if (valueLogicalPosition != ValueContainer.ADD_FAILED_RETURN_VALUE) {
+                val physicalSensor = SensorManager.getPhysicalSensor(address)
+                val infoValuePosition = physicalSensor.addDynamicValue(dataTypeValue, dataTypeValueIndex, timestamp, batteryVoltage, rawValue)
+                if (infoValuePosition != ValueContainer.ADD_FAILED_RETURN_VALUE) {
                     if (recordSensorNetIn(physicalSensor)) {
-                        recordSensorNetIn(physicalSensor.getMeasurementByDataTypeValue(dataTypeValue, dataTypeValueIndex))
+                        recordSensorNetIn(SensorManager.getLogicalSensor(address, dataTypeValue, dataTypeValueIndex))
                         if (enableDetectPhysicalSensorNetIn) {
                             sendPhysicalSensorNetInMessage(physicalSensor)
                         } else if (enableDetectPhysicalSensorValueUpdate) {
-                            sendPhysicalSensorValueUpdateMessage(physicalSensor, valueLogicalPosition)
+                            sendPhysicalSensorValueUpdateMessage(physicalSensor, infoValuePosition)
                         }
                     } else {
+                        recordSensorNetIn(SensorManager.getLogicalSensor(address, dataTypeValue, dataTypeValueIndex))
                         if (enableDetectPhysicalSensorValueUpdate) {
-                            sendPhysicalSensorValueUpdateMessage(physicalSensor, valueLogicalPosition)
+                            sendPhysicalSensorValueUpdateMessage(physicalSensor, infoValuePosition)
                         }
                     }
                 }
@@ -129,30 +131,30 @@ class DataTransferStation {
 
     @UiThread
     private fun processLogicalSensorDynamicDataAccess(data: SensorData) {
-        val logicalSensor = SensorManager.getLogicalSensor(data.id, true)
-        val valueLogicalPosition = logicalSensor.addDynamicValue(data.dataTypeValue, data.dataTypeValueIndex, data.timestamp, data.batteryVoltage, data.rawValue)
+        val logicalSensor = SensorManager.getLogicalSensor(data.id) ?: return
+        val measurementValuePosition = logicalSensor.addDynamicValue(data.timestamp, data.batteryVoltage, data.rawValue)
         data.recycle()
-        if (valueLogicalPosition != ValueContainer.ADD_FAILED_RETURN_VALUE) {
+        if (measurementValuePosition != ValueContainer.ADD_FAILED_RETURN_VALUE) {
             if (recordSensorNetIn(logicalSensor)) {
-                recordSensorNetIn(logicalSensor.physicalSensor)
+                recordSensorNetIn(SensorManager.getPhysicalSensor(data.address))
                 notifyLogicalSensorNetIn(logicalSensor)
             } else {
-                notifyLogicalSensorValueUpdate(logicalSensor, valueLogicalPosition)
+                notifyLogicalSensorValueUpdate(logicalSensor, measurementValuePosition)
             }
         }
     }
 
     @UiThread
     private fun processPhysicalSensorDynamicDataAccess(data: SensorData) {
-        val physicalSensor = SensorManager.getPhysicalSensor(data.address, true)
-        val valueLogicalPosition = physicalSensor.addDynamicValue(data.dataTypeValue, data.dataTypeValueIndex, data.timestamp, data.batteryVoltage, data.rawValue)
+        val physicalSensor = SensorManager.getPhysicalSensor(data.address)
+        val infoValuePosition = physicalSensor.addDynamicValue(data.dataTypeValue, data.dataTypeValueIndex, data.timestamp, data.batteryVoltage, data.rawValue)
         data.recycle()
-        if (valueLogicalPosition != ValueContainer.ADD_FAILED_RETURN_VALUE) {
+        if (infoValuePosition != ValueContainer.ADD_FAILED_RETURN_VALUE) {
             if (recordSensorNetIn(physicalSensor)) {
-                recordSensorNetIn(physicalSensor.getMeasurementByDataTypeValue(data.dataTypeValue, data.dataTypeValueIndex))
+                recordSensorNetIn(SensorManager.getLogicalSensor(data.address, data.dataTypeValue, data.dataTypeValueIndex))
                 notifyPhysicalSensorNetIn(physicalSensor)
             } else {
-                notifyPhysicalSensorValueUpdate(physicalSensor, valueLogicalPosition)
+                notifyPhysicalSensorValueUpdate(physicalSensor, infoValuePosition)
             }
         }
     }
@@ -161,17 +163,17 @@ class DataTransferStation {
             address: Int, dataTypeValue: Byte, dataTypeValueIndex: Int,
             timestamp: Long, batteryVoltage: Float, rawValue: Double) {
         var sensorData = SensorData.build(address, dataTypeValue, dataTypeValueIndex, timestamp, batteryVoltage, rawValue)
-        sendSensorDataAccessMessage(MSG_LOGICAL_SENSOR_DYNAMIC_DATA_ACCESS, sensorData)
+        sendDataAccessMessage(MSG_LOGICAL_SENSOR_DYNAMIC_DATA_ACCESS, sensorData)
     }
 
     private fun sendPhysicalSensorDynamicDataAccessMessage(
             address: Int, dataTypeValue: Byte, dataTypeValueIndex: Int,
             timestamp: Long, batteryVoltage: Float, rawValue: Double) {
         var sensorData = SensorData.build(address, dataTypeValue, dataTypeValueIndex, timestamp, batteryVoltage, rawValue)
-        sendSensorDataAccessMessage(MSG_PHYSICAL_SENSOR_DYNAMIC_DATA_ACCESS, sensorData)
+        sendDataAccessMessage(MSG_PHYSICAL_SENSOR_DYNAMIC_DATA_ACCESS, sensorData)
     }
 
-    private fun sendSensorDataAccessMessage(msg: Int, data: SensorData) {
+    private fun sendDataAccessMessage(msg: Int, data: SensorData) {
         val message = Message.obtain()
         message.what = msg
         message.obj = data
@@ -179,65 +181,83 @@ class DataTransferStation {
     }
 
     @WorkerThread
-    fun processPhysicalSensorHistoryDataAccess(address: Int, timestamp: Long, batteryVoltage: Float) {
-        if (isInAttentionSensorList(address, 0, 0)) {
-            sendPhysicalSensorHistoryDataAccessMessage(address, timestamp, batteryVoltage)
+    fun processSensorInfoHistoryDataAccess(address: Int, timestamp: Long, batteryVoltage: Float) {
+        if (isInAttentionList(address, 0, 0)) {
+            sendSensorInfoHistoryDataAccessMessage(address, timestamp, batteryVoltage)
         } else {
-            val sensor = SensorManager.getPhysicalSensor(address, true)
-            val position = sensor.addPhysicalHistoryValue(timestamp, batteryVoltage)
-            if (enableDetectPhysicalSensorHistoryValueReceive) {
-                sendPhysicalSensorHistoryValueUpdateMessage(sensor, position)
+//            val sensor = SensorManager.getPhysicalSensor(address)
+//            val position = sensor.addInfoHistoryValue(timestamp, batteryVoltage)
+//            if (enableDetectSensorInfoHistoryValueReceive) {
+//                sendSensorInfoHistoryValueUpdateMessage(sensor, position)
+//            }
+            val info = SensorManager.getSensorInfo(address)
+            val position = info.addHistoryValue(timestamp, batteryVoltage)
+            if (enableDetectSensorInfoHistoryValueReceive) {
+                sendSensorInfoHistoryValueUpdateMessage(info, position)
             }
         }
     }
 
     @UiThread
-    private fun processPhysicalSensorHistoryDataAccess(data: SensorData) {
-        val sensor = SensorManager.getPhysicalSensor(data.address, true)
-        val logicalPosition = sensor.addPhysicalHistoryValue(data.timestamp, data.batteryVoltage)
+    private fun processSensorInfoHistoryDataAccess(data: SensorData) {
+//        val sensor = SensorManager.getPhysicalSensor(data.address)
+//        val infoValuePosition = sensor.addInfoHistoryValue(data.timestamp, data.batteryVoltage)
+//        data.recycle()
+//        notifySensorInfoHistoryValueUpdate(sensor, infoValuePosition)
+        val info = SensorManager.getSensorInfo(data.address)
+        val position = info.addHistoryValue(data.timestamp, data.batteryVoltage)
         data.recycle()
-        notifyPhysicalSensorHistoryValueUpdate(sensor, logicalPosition)
+        notifySensorInfoHistoryValueUpdate(info, position)
     }
 
-    private fun sendPhysicalSensorHistoryDataAccessMessage(address: Int, timestamp: Long, batteryVoltage: Float) {
+    private fun sendSensorInfoHistoryDataAccessMessage(address: Int, timestamp: Long, batteryVoltage: Float) {
         var sensorData = SensorData.build(address, 0, 0, timestamp, batteryVoltage, 0.0)
-        sendSensorDataAccessMessage(MSG_PHYSICAL_SENSOR_HISTORY_DATA_ACCESS, sensorData)
+        sendDataAccessMessage(MSG_SENSOR_INFO_HISTORY_DATA_ACCESS, sensorData)
     }
 
     @WorkerThread
-    fun processLogicalSensorHistoryDataAccess(sensorId: Long, timestamp: Long, rawValue: Double) {
-        if (isInAttentionSensorList(sensorId)) {
-            sendLogicalSensorHistoryDataAccessMessage(sensorId, timestamp, rawValue)
+    fun processMeasurementHistoryDataAccess(id: Long, timestamp: Long, rawValue: Double) {
+        if (isInAttentionList(id)) {
+            sendMeasurementHistoryDataAccessMessage(id, timestamp, rawValue)
         } else {
-            val sensor = SensorManager.getLogicalSensor(sensorId, true)
-            val position = sensor.addLogicalHistoryValue(timestamp, rawValue)
-            if (enableDetectLogicalSensorHistoryValueReceive) {
-                sendLogicalSensorHistoryValueUpdateMessage(sensor, position)
+            //val sensor = SensorManager.getLogicalSensor(id, true)
+//            val position = sensor.addLogicalHistoryValue(timestamp, rawValue)
+//            if (enableDetectMeasurementHistoryValueReceive) {
+//                sendMeasurementHistoryValueUpdateMessage(sensor, position)
+//            }
+            val measurement = SensorManager.getPracticalMeasurement(id) ?: return
+            val position = measurement.addHistoryValue(timestamp, rawValue)
+            if (enableDetectMeasurementHistoryValueReceive) {
+                sendMeasurementHistoryValueUpdateMessage(measurement, position)
             }
         }
     }
 
-    private fun sendLogicalSensorHistoryDataAccessMessage(sensorId: Long, timestamp: Long, rawValue: Double) {
-        sendSensorDataAccessMessage(MSG_LOGICAL_SENSOR_HISTORY_DATA_ACCESS,
+    private fun sendMeasurementHistoryDataAccessMessage(sensorId: Long, timestamp: Long, rawValue: Double) {
+        sendDataAccessMessage(MSG_MEASUREMENT_HISTORY_DATA_ACCESS,
                 SensorData.build(sensorId, timestamp, 0f, rawValue))
     }
 
     @UiThread
-    private fun processLogicalSensorHistoryDataAccess(data: SensorData) {
-        val sensor = SensorManager.getLogicalSensor(data.id, true)
-        val position = sensor.addLogicalHistoryValue(data.timestamp, data.rawValue)
+    private fun processMeasurementHistoryDataAccess(data: SensorData) {
+//        val sensor = SensorManager.getLogicalSensor(data.id, true)
+//        val position = sensor.addLogicalHistoryValue(data.timestamp, data.rawValue)
+//        data.recycle()
+//        notifyMeasurementHistoryValueUpdate(sensor, position)
+        val measurement = SensorManager.getPracticalMeasurement(data.id) ?: return
+        val position = measurement.addHistoryValue(data.timestamp, data.rawValue)
         data.recycle()
-        notifyLogicalSensorHistoryValueUpdate(sensor, position)
+        notifyMeasurementHistoryValueUpdate(measurement, position)
     }
 
-    private fun recordSensorNetIn(sensor: Sensor<*, *>?): Boolean {
-        if (sensor?.getNetInTimestamp() == 0L) {
+    private fun recordSensorNetIn(sensor: Sensor?): Boolean {
+        if (sensor?.netInTimestamp == 0L) {
             synchronized(LAST_NET_IN_TIME_LOCKER) {
                 var currentNetInTimestamp = System.currentTimeMillis()
                 if (lastNetInTimestamp >= currentNetInTimestamp) {
                     currentNetInTimestamp = lastNetInTimestamp + 1
                 }
-                sensor.setNetInTimestamp(currentNetInTimestamp)
+                sensor.netInTimestamp = currentNetInTimestamp
                 lastNetInTimestamp = currentNetInTimestamp
             }
             return true
@@ -253,13 +273,7 @@ class DataTransferStation {
     }
 
     private fun sendLogicalSensorValueUpdateMessage(sensor: LogicalSensor, valueLogicalPosition: Int) {
-//        val message = Message.obtain()
-//        message.what = MSG_LOGICAL_SENSOR_VALUE_UPDATE
-//        message.obj = sensor
-//        message.arg1 = valueLogicalPosition
-//        eventHandler.sendMessage(message)
-        sendSensorValueUpdateMessage(MSG_LOGICAL_SENSOR_VALUE_UPDATE, sensor, valueLogicalPosition)
-
+        sendValueUpdateMessage(MSG_LOGICAL_SENSOR_VALUE_UPDATE, sensor, valueLogicalPosition)
     }
 
     private fun sendPhysicalSensorNetInMessage(sensor: PhysicalSensor) {
@@ -270,28 +284,23 @@ class DataTransferStation {
     }
 
     private fun sendPhysicalSensorValueUpdateMessage(sensor: PhysicalSensor, valueLogicalPosition: Int) {
-//        val message = Message.obtain()
-//        message.what = MSG_PHYSICAL_SENSOR_VALUE_UPDATE
-//        message.obj = sensor
-//        message.arg1 = valueLogicalPosition
-//        eventHandler.sendMessage(message)
-        sendSensorValueUpdateMessage(MSG_PHYSICAL_SENSOR_VALUE_UPDATE, sensor, valueLogicalPosition)
+        sendValueUpdateMessage(MSG_PHYSICAL_SENSOR_VALUE_UPDATE, sensor, valueLogicalPosition)
     }
 
-    private fun sendSensorValueUpdateMessage(messageType: Int, sensor: Sensor<*, *>, valuePosition: Int) {
+    private fun sendValueUpdateMessage(messageType: Int, target: Any, valuePosition: Int) {
         val message = Message.obtain()
         message.what = messageType
-        message.obj = sensor
+        message.obj = target
         message.arg1 = valuePosition
         eventHandler.sendMessage(message)
     }
 
-    private fun sendLogicalSensorHistoryValueUpdateMessage(sensor: LogicalSensor, valuePosition: Int) {
-        sendSensorValueUpdateMessage(MSG_LOGICAL_SENSOR_HISTORY_VALUE_RECEIVED, sensor, valuePosition)
+    private fun sendMeasurementHistoryValueUpdateMessage(measurement: PracticalMeasurement, valuePosition: Int) {
+        sendValueUpdateMessage(MSG_MEASUREMENT_HISTORY_VALUE_RECEIVED, measurement, valuePosition)
     }
 
-    private fun sendPhysicalSensorHistoryValueUpdateMessage(sensor: PhysicalSensor, valuePosition: Int) {
-        sendSensorValueUpdateMessage(MSG_PHYSICAL_SENSOR_HISTORY_VALUE_RECEIVED, sensor, valuePosition)
+    private fun sendSensorInfoHistoryValueUpdateMessage(info: Sensor.Info, valuePosition: Int) {
+        sendValueUpdateMessage(MSG_SENSOR_INFO_HISTORY_VALUE_RECEIVED, info, valuePosition)
     }
 
     @UiThread
@@ -339,69 +348,113 @@ class DataTransferStation {
     }
 
     @UiThread
-    private fun notifyLogicalSensorHistoryValueUpdate(sensor: LogicalSensor, valuePosition: Int) {
-        if (enableDetectLogicalSensorHistoryValueReceive) {
+    private fun notifyMeasurementHistoryValueUpdate(measurement: PracticalMeasurement, valuePosition: Int) {
+        if (enableDetectMeasurementHistoryValueReceive) {
             //为了提高效率
             var i = 0
             while (i < listeners.size) {
-                listeners[i++].onLogicalSensorHistoryValueUpdate(sensor, valuePosition)
+                listeners[i++].onMeasurementHistoryValueUpdate(measurement, valuePosition)
             }
         }
     }
 
     @UiThread
-    private fun notifyPhysicalSensorHistoryValueUpdate(sensor: PhysicalSensor, valuePosition: Int) {
-        if (enableDetectPhysicalSensorHistoryValueReceive) {
+    private fun notifySensorInfoHistoryValueUpdate(info: Sensor.Info, valuePosition: Int) {
+        if (enableDetectSensorInfoHistoryValueReceive) {
             //为了提高效率
             var i = 0
             while (i < listeners.size) {
-                listeners[i++].onPhysicalSensorHistoryValueUpdate(sensor, valuePosition)
+                listeners[i++].onSensorInfoHistoryValueUpdate(info, valuePosition)
             }
         }
     }
 
     @UiThread
-    fun payAttentionToSensor(sensor: Sensor<*,*>) {
-        focusedSensors[sensor.getId().id] = sensor
+    fun payAttentionToSensor(sensor: Sensor) {
+        return if (sensor.id.isPhysicalSensor) {
+            payAttentionToPhysicalSensor(sensor as PhysicalSensor)
+        } else {
+            payAttentionToLogicalSensor(sensor as LogicalSensor)
+        }
     }
 
     @UiThread
-    fun payAttentionToSensor(physicalSensor: PhysicalSensor) {
-        focusedSensors[physicalSensor.id.id] = physicalSensor
-        physicalSensor.measurementCollections.forEach { focusedSensors[it.id.id] = it }
+    private fun payAttentionToMeasurement(measurement: Measurement<*, *>) {
+        focusedMeasurements[measurement.getId().id] = measurement
     }
 
     @UiThread
-    fun payNoAttentionToSensor(sensor: Sensor<*, *>) {
-        focusedSensors.remove(sensor.getId().id)
+    fun payAttentionToPhysicalSensor(sensor: PhysicalSensor) {
+        payAttentionToMeasurement(sensor.info)
+        //focusedMeasurements[sensor.id.id] = sensor
+        //sensor.measurementCollections.forEach { focusedMeasurements[it.id.id] = it }
+        var measurement: DisplayMeasurement<*>
+        for (i in 0 until sensor.displayMeasurementSize) {
+            measurement = sensor.getDisplayMeasurementByPosition(i)
+            if (measurement.id.isPracticalMeasurement) {
+                payAttentionToMeasurement(measurement)
+            }
+        }
     }
 
     @UiThread
-    fun payNoAttentionToSensor(physicalSensor: PhysicalSensor) {
-        focusedSensors.remove(physicalSensor.id.id)
-        physicalSensor.measurementCollections.forEach { focusedSensors.remove(it.id.id) }
+    fun payAttentionToLogicalSensor(sensor: LogicalSensor) {
+        payAttentionToMeasurement(sensor.info)
+        payAttentionToMeasurement(sensor.practicalMeasurement)
     }
 
-    private fun isInAttentionSensorList(sensorId: Long): Boolean {
-        return focusedSensors[sensorId] != null
+    @UiThread
+    private fun payNoAttentionToMeasurement(measurement: Measurement<*, *>) {
+        focusedMeasurements.remove(measurement.getId().id)
     }
 
-    private fun isInAttentionSensorList(address: Int, dataTypeValue: Byte, dataTypeValueIndex: Int): Boolean {
-        return isInAttentionSensorList(Sensor.ID.getId(address, dataTypeValue, dataTypeValueIndex))
+    @UiThread
+    fun payNoAttentionToSensor(sensor: Sensor) {
+        return if (sensor.id.isPhysicalSensor) {
+            payNoAttentionToPhysicalSensor(sensor as PhysicalSensor)
+        } else {
+            payNoAttentionToLogicalSensor(sensor as LogicalSensor)
+        }
+    }
+
+    @UiThread
+    fun payNoAttentionToPhysicalSensor(sensor: PhysicalSensor) {
+        payNoAttentionToMeasurement(sensor.info)
+        var measurement: DisplayMeasurement<*>
+        for (i in 0 until sensor.displayMeasurementSize) {
+            measurement = sensor.getDisplayMeasurementByPosition(i)
+            if (measurement.id.isPracticalMeasurement) {
+                payNoAttentionToMeasurement(measurement)
+            }
+        }
+    }
+
+    @UiThread
+    fun payNoAttentionToLogicalSensor(sensor: LogicalSensor) {
+        payNoAttentionToMeasurement(sensor.info)
+        payNoAttentionToMeasurement(sensor.practicalMeasurement)
+    }
+
+    private fun isInAttentionList(measurementId: Long): Boolean {
+        return focusedMeasurements[measurementId] != null
+    }
+
+    private fun isInAttentionList(address: Int, dataTypeValue: Byte, dataTypeValueIndex: Int): Boolean {
+        return isInAttentionList(ID.getId(address, dataTypeValue, dataTypeValueIndex))
     }
 
     fun release() {
         listeners.clear()
-        focusedSensors.clear()
+        focusedMeasurements.clear()
         eventHandler.removeCallbacksAndMessages(null);
     }
 
     interface OnEventListener {
         fun onPhysicalSensorNetIn(sensor: PhysicalSensor)
-        fun onPhysicalSensorDynamicValueUpdate(sensor: PhysicalSensor, logicalPosition: Int)
+        fun onPhysicalSensorDynamicValueUpdate(sensor: PhysicalSensor, infoValuePosition: Int)
         fun onLogicalSensorNetIn(sensor: LogicalSensor)
-        fun onLogicalSensorDynamicValueUpdate(sensor: LogicalSensor, logicalPosition: Int)
-        fun onPhysicalSensorHistoryValueUpdate(sensor: PhysicalSensor, logicalPosition: Int)
-        fun onLogicalSensorHistoryValueUpdate(sensor: LogicalSensor, logicalPosition: Int)
+        fun onLogicalSensorDynamicValueUpdate(sensor: LogicalSensor, measurementValuePosition: Int)
+        fun onSensorInfoHistoryValueUpdate(info: Sensor.Info, valuePosition: Int)
+        fun onMeasurementHistoryValueUpdate(measurement: PracticalMeasurement, valuePosition: Int)
     }
 }

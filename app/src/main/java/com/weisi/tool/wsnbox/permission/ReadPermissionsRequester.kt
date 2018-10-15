@@ -25,6 +25,6 @@ class ReadPermissionsRequester : PermissionsRequester {
     }
 
     override fun getRequestRationaleRes(): Int {
-        return R.string.grant_read_perimission;
+        return R.string.grant_read_permission;
     }
 }

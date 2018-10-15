@@ -11,6 +11,6 @@ public class SensorWithHistoryValueFilter<S extends Sensor> implements Filter<S>
 
     @Override
     public boolean match(S sensor) {
-        return sensor.hasHistoryValue();
+        return sensor.getMainMeasurement().hasHistoryValue();
     }
 }

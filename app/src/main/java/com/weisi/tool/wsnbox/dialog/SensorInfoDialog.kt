@@ -19,22 +19,20 @@ import com.cjq.lib.weisi.iot.Sensor
 import com.cjq.lib.weisi.iot.SensorManager
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog
 import com.weisi.tool.wsnbox.R
-import com.weisi.tool.wsnbox.adapter.SensorInfoAdapter
+import com.weisi.tool.wsnbox.adapter.info.SensorInfoAdapter
 import com.weisi.tool.wsnbox.processor.accessor.SensorHistoryDataAccessor
 import java.util.*
 
 /**
  * Created by CJQ on 2018/6/7.
  */
-open class SensorInfoDialog<S : Sensor<*, *>, A : SensorInfoAdapter<*, S, *>> : BaseDialog(), SensorHistoryDataAccessor.OnMissionFinishedListener, View.OnClickListener, DatePickerDialog.OnDateSetListener {
+open class SensorInfoDialog<S : Sensor, A : SensorInfoAdapter<*, S, *>> : BaseDialog(), SensorHistoryDataAccessor.OnMissionFinishedListener, View.OnClickListener, DatePickerDialog.OnDateSetListener {
 
     companion object {
         @JvmStatic
         val TAG = "sensor_info"
         @JvmStatic
         private val ARGUMENT_KEY_REAL_TIME = "real_time"
-        //@JvmStatic
-        //private val ARGUMENT_KEY_SELECTED_SENSOR_INDEX = "selected_index"
         @JvmStatic
         private val ARGUMENT_KEY_SELECTED_SENSOR_ID = "selected_sensor_id"
     }
@@ -59,7 +57,7 @@ open class SensorInfoDialog<S : Sensor<*, *>, A : SensorInfoAdapter<*, S, *>> : 
             getBaseActivity()?.dataPrepareService?.dataTransferStation?.payAttentionToSensor(sensor)
         } else {
             realTime = savedInstanceState.getBoolean(ARGUMENT_KEY_REAL_TIME)
-            sensor = SensorManager.getSensor(savedInstanceState.getLong(ARGUMENT_KEY_SELECTED_SENSOR_ID), false) as S
+            sensor = SensorManager.getSensor(savedInstanceState.getLong(ARGUMENT_KEY_SELECTED_SENSOR_ID)) as S
         }
 
         adapter = onCreateAdapter(savedInstanceState)
@@ -99,7 +97,6 @@ open class SensorInfoDialog<S : Sensor<*, *>, A : SensorInfoAdapter<*, S, *>> : 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(ARGUMENT_KEY_REAL_TIME, realTime)
-        //outState.putInt(ARGUMENT_KEY_SELECTED_SENSOR_INDEX, adapter.getSelectedIndex())
         outState.putLong(ARGUMENT_KEY_SELECTED_SENSOR_ID, sensor.getId().id)
     }
 
@@ -133,7 +130,7 @@ open class SensorInfoDialog<S : Sensor<*, *>, A : SensorInfoAdapter<*, S, *>> : 
                 getBaseActivity()
                         ?.dataPrepareService
                         ?.sensorHistoryDataAccessor
-                        ?.importSensorHistoryValue(sensor.getId().id,
+                        ?.importSensorHistoryValue(sensor.id.id,
                                 dateTime, getNextDayTime(dateTime), this)
             }
         } else if (TextUtils.isEmpty(tvDate.text)) {
@@ -208,11 +205,11 @@ open class SensorInfoDialog<S : Sensor<*, *>, A : SensorInfoAdapter<*, S, *>> : 
     }
 
     override fun show(transaction: FragmentTransaction, tag: String): Int {
-        throw UnsupportedOperationException("use show(FragmentTransaction transaction, PhysicalSensor sensor) for instead")
+        throw UnsupportedOperationException("use show(FragmentTransaction transaction, PhysicalSensor measurement) for instead")
     }
 
     override fun show(manager: FragmentManager, tag: String) {
-        throw UnsupportedOperationException("use show(FragmentManager manager, PhysicalSensor sensor) for instead")
+        throw UnsupportedOperationException("use show(FragmentManager manager, PhysicalSensor measurement) for instead")
     }
 
     private fun canNotifyValueChanged(s: S): Boolean {

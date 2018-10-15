@@ -3,7 +3,7 @@ package com.weisi.tool.wsnbox.io.database
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import com.cjq.lib.weisi.iot.Sensor
+import com.cjq.lib.weisi.iot.ID
 import com.weisi.tool.wsnbox.io.Constant
 import java.util.*
 
@@ -23,7 +23,7 @@ class DatabaseUpdaterImpl : DatabaseUpdater {
             var address: Int
             while (cursor.moveToNext()) {
                 address = cursor.getInt(addressIndex)
-                if (!Sensor.ID.isBleProtocolFamily(address)) {
+                if (!ID.isBleProtocolFamily(address)) {
                     contentValues.put(Constant.COLUMN_SENSOR_ADDRESS, address)
                     contentValues.put(Constant.COLUMN_TIMESTAMP, correctTimestamp(cursor.getLong(timestampIndex)))
                     db.update(Constant.TABLE_SENSOR_INIT_DATA, contentValues, null, null)
@@ -41,7 +41,7 @@ class DatabaseUpdaterImpl : DatabaseUpdater {
             timestampIndex = cursor.getColumnIndex(Constant.COLUMN_TIMESTAMP)
             while (cursor.moveToNext()) {
                 address = cursor.getInt(addressIndex)
-                if (!Sensor.ID.isBleProtocolFamily(address)) {
+                if (!ID.isBleProtocolFamily(address)) {
                     contentValues.put(Constant.COLUMN_SENSOR_ADDRESS, address)
                     contentValues.put(Constant.COLUMN_TIMESTAMP, correctTimestamp(cursor.getLong(timestampIndex)))
                     db.update(Constant.TABLE_SENSOR_DATA, contentValues, null, null)
@@ -60,7 +60,7 @@ class DatabaseUpdaterImpl : DatabaseUpdater {
             var id: Long
             while (cursor.moveToNext()) {
                 id = cursor.getLong(idIndex)
-                if (!Sensor.ID.isBleProtocolFamily(id)) {
+                if (!ID.isBleProtocolFamily(id)) {
                     contentValues.put(Constant.COLUMN_MEASUREMENT_VALUE_ID, id)
                     contentValues.put(Constant.COLUMN_TIMESTAMP, correctTimestamp(cursor.getLong(timestampIndex)))
                     db.update(Constant.TABLE_MEASUREMENT_INIT_DATA, contentValues, null, null)
@@ -78,7 +78,7 @@ class DatabaseUpdaterImpl : DatabaseUpdater {
             timestampIndex = cursor.getColumnIndex(Constant.COLUMN_TIMESTAMP)
             while (cursor.moveToNext()) {
                 id = cursor.getLong(idIndex)
-                if (!Sensor.ID.isBleProtocolFamily(id)) {
+                if (!ID.isBleProtocolFamily(id)) {
                     contentValues.put(Constant.COLUMN_MEASUREMENT_VALUE_ID, id)
                     contentValues.put(Constant.COLUMN_TIMESTAMP, correctTimestamp(cursor.getLong(timestampIndex)))
                     db.update(Constant.TABLE_MEASUREMENT_DATA, contentValues, null, null)

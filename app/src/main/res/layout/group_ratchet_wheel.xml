@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/bg_divider_about_activity">
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gl_mid_ver"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"/>
+
+    <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_initial_value_value"
+        android:textSize="@dimen/size_text_activity"
+        android:padding="@dimen/padding_small"
+        android:layout_margin="@dimen/divider_width_fix"
+        android:gravity="center"
+        android:background="@android:color/white"
+        android:drawableRight="@drawable/ic_modify"
+        app:drawableRight_width="@dimen/size_image_small"
+        app:drawableRight_height="@dimen/size_image_small"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/gl_mid_ver"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/tv_initial_value_label"
+        android:textSize="@dimen/size_text_activity"
+        android:text="@string/initial_value"
+        android:padding="@dimen/padding_small"
+        android:layout_marginTop="@dimen/divider_width_fix"
+        android:layout_marginStart="@dimen/divider_width_fix"
+        android:gravity="center"
+        android:background="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/gl_mid_ver"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/tv_initial_value_value"/>
+
+    <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_initial_distance_value"
+        android:textSize="@dimen/size_text_activity"
+        android:padding="@dimen/padding_small"
+        android:layout_marginTop="@dimen/divider_width_fix"
+        android:layout_marginStart="@dimen/divider_width_fix"
+        android:layout_marginEnd="@dimen/divider_width_fix"
+        android:gravity="center"
+        android:background="@android:color/white"
+        android:drawableRight="@drawable/ic_modify"
+        app:drawableRight_width="@dimen/size_image_small"
+        app:drawableRight_height="@dimen/size_image_small"
+        app:layout_constraintStart_toEndOf="@id/gl_mid_ver"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_initial_value_value"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/tv_initial_distance_label"
+        android:textSize="@dimen/size_text_activity"
+        android:text="@string/initial_distance"
+        android:padding="@dimen/padding_small"
+        android:layout_marginTop="@dimen/divider_width_fix"
+        android:layout_marginStart="@dimen/divider_width_fix"
+        android:gravity="center"
+        android:background="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/gl_mid_ver"
+        app:layout_constraintTop_toBottomOf="@id/tv_initial_value_value"
+        app:layout_constraintBottom_toBottomOf="@id/tv_initial_distance_value"/>
+
+</android.support.constraint.ConstraintLayout>

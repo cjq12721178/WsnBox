@@ -154,12 +154,12 @@ public class DataPrepareService extends Service implements SensorDynamicDataAcce
 
     @Override
     public void onPhysicalSensorHistoryDataAccess(int address, long timestamp, float batteryVoltage) {
-        mDataTransferStation.processPhysicalSensorHistoryDataAccess(address, timestamp, batteryVoltage);
+        mDataTransferStation.processSensorInfoHistoryDataAccess(address, timestamp, batteryVoltage);
     }
 
     @Override
     public void onLogicalSensorHistoryDataAccess(long sensorId, long timestamp, double rawValue) {
-        mDataTransferStation.processLogicalSensorHistoryDataAccess(sensorId, timestamp, rawValue);
+        mDataTransferStation.processMeasurementHistoryDataAccess(sensorId, timestamp, rawValue);
     }
 
     public class LocalBinder extends Binder {

@@ -6,9 +6,9 @@ import com.cjq.lib.weisi.iot.Sensor
 /**
  * Created by CJQ on 2018/6/6.
  */
-class SensorIdSorter<S : Sensor<*, *>> : Sorter<S>() {
+class SensorIdSorter<S : Sensor> : Sorter<S>() {
 
     override fun compare(s1: S, s2: S): Int {
-        return s1.getId().compareTo(s2.getId())
+        return s1.id.compareTo(s2.id)
     }
 }

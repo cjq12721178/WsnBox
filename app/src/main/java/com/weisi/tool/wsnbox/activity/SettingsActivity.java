@@ -10,12 +10,12 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.weisi.tool.wsnbox.R;
-import com.weisi.tool.wsnbox.fragment.BleSettingsFragment;
-import com.weisi.tool.wsnbox.fragment.DataStoreSettingsFragment;
-import com.weisi.tool.wsnbox.fragment.SerialPortSettingsFragment;
-import com.weisi.tool.wsnbox.fragment.TcpSettingsFragment;
-import com.weisi.tool.wsnbox.fragment.UdpSettingsFragment;
-import com.weisi.tool.wsnbox.fragment.UsbSettingsFragment;
+import com.weisi.tool.wsnbox.fragment.settings.BleSettingsFragment;
+import com.weisi.tool.wsnbox.fragment.settings.DataStoreSettingsFragment;
+import com.weisi.tool.wsnbox.fragment.settings.SerialPortSettingsFragment;
+import com.weisi.tool.wsnbox.fragment.settings.TcpSettingsFragment;
+import com.weisi.tool.wsnbox.fragment.settings.UdpSettingsFragment;
+import com.weisi.tool.wsnbox.fragment.settings.UsbSettingsFragment;
 
 import java.util.List;
 

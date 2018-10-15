@@ -21,7 +21,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class BlePermissionsRequester extends PermissionsRequester {
 
     public BlePermissionsRequester(Activity activity) {
-        super(activity, 1, new String[] {
+        super(activity, 2, new String[] {
                 Manifest.permission.BLUETOOTH,
                 Manifest.permission.BLUETOOTH_ADMIN,
                 Manifest.permission.ACCESS_FINE_LOCATION

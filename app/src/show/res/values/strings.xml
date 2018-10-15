@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">中国电科院</string>
+    <string name="app_name_debug">中国电科院DEBUG</string>
+    <string name="home_page_title">中国电科院</string>
+    <string name="about_app">关于中国电科院</string>
+    <string name="action_start_about_activity">android.intent.action.ABOUT_SHOW</string>
+</resources>

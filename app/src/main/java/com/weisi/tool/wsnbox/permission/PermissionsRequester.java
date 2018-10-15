@@ -154,6 +154,7 @@ public abstract class PermissionsRequester implements EasyPermissions.Permission
         public static void register(PermissionsRequester requester) {
             if (permissionsRequesters.contains(requester)) {
                 throw new IllegalArgumentException("each requester need unique request code, at least no using at the same time");
+                //return;
             }
             permissionsRequesters.add(requester);
         }

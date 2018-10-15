@@ -13,6 +13,8 @@ import com.cjq.tool.qbox.ui.dialog.BaseDialog;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.io.database.SensorDatabase;
+import com.weisi.tool.wsnbox.permission.PermissionsRequester;
+import com.weisi.tool.wsnbox.permission.PriorPermissionsRequester;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 
 public class MainActivity
@@ -22,6 +24,7 @@ public class MainActivity
 
     private static final String DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED = "tag_import_sns_cfg_err";
     private static final String DIALOG_TAG_CONFIGURATION_NOT_PREPARED = "tag_cfg_no_prep";
+    private static final String DIALOG_TAG_APP_LACK_OF_PERMISSIONS = "lack_permissions";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +39,22 @@ public class MainActivity
         }
 
         if (getBaseApplication().isConfigurationPrepared()) {
-            checkVersionAndDecideIfUpdate(false);
-            startService(new Intent(this, DataPrepareService.class));
+            new PriorPermissionsRequester(this).requestPermissions(new PermissionsRequester.OnRequestResultListener() {
+                @Override
+                public void onPermissionsGranted() {
+                    checkVersionAndDecideIfUpdate(false);
+                    startService(new Intent(MainActivity.this, DataPrepareService.class));
+                }
+
+                @Override
+                public void onPermissionsDenied() {
+                    ConfirmDialog dialog = new ConfirmDialog();
+                    dialog.setTitle(R.string.app_lack_of_permissions);
+                    dialog.setDrawCancelButton(false);
+                    dialog.show(getSupportFragmentManager(),
+                            DIALOG_TAG_APP_LACK_OF_PERMISSIONS);
+                }
+            });
         } else {
             ConfirmDialog dialog = new ConfirmDialog();
             dialog.setTitle(R.string.application_configuration_not_prepared);
@@ -104,6 +121,7 @@ public class MainActivity
         switch (dialog.getTag()) {
             case DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED:
             case DIALOG_TAG_CONFIGURATION_NOT_PREPARED:
+            case DIALOG_TAG_APP_LACK_OF_PERMISSIONS:
                 finish();
                 break;
             case DIALOG_TAG_UPDATE_APP:

@@ -1,0 +1,7 @@
+﻿{
+    "apkName": "com.weisi.tool.wsnbox.show_0.2.0_20181015.apk",
+    "versionName": "0.2.0",
+    "versionCode": 8,
+    "forceUpdate": true,
+    "versionDescription": "1. 修复未配置物理传感器名称为空的问题\n2. 新增查看、添加、修改参数配置等功能"
+}

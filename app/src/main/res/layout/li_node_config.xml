@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="@dimen/margin_small"
+    app:contentPadding="@dimen/padding_small">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_divider_about_activity">
+
+        <com.cjq.tool.qbox.ui.view.CustomDrawableSizeCheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:id="@+id/chk_delete_selection"
+            android:button="@null"
+            android:background="@android:color/white"
+            android:drawableRight="@drawable/selector_selection"
+            app:drawableRight_width="@dimen/size_image_micro"
+            app:drawableRight_height="@dimen/size_image_micro"
+            android:checked="false"
+            android:visibility="gone"
+            android:layout_marginStart="@dimen/divider_width_fix"
+            android:layout_marginTop="@dimen/divider_width_fix"
+            android:layout_marginBottom="@dimen/divider_width_fix"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_measurement_id_label"
+            android:textSize="@dimen/size_text_activity"
+            android:text="@string/sensor_id"
+            android:padding="@dimen/padding_small"
+            android:layout_marginTop="@dimen/divider_width_fix"
+            android:layout_marginStart="@dimen/divider_width_fix"
+            android:layout_marginBottom="@dimen/divider_width_fix"
+            android:gravity="center"
+            android:background="@android:color/white"
+            app:layout_constraintStart_toEndOf="@id/chk_delete_selection"
+            app:layout_constraintEnd_toStartOf="@+id/tv_measurement_id_value"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_weight="1"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_measurement_id_value"
+            android:textSize="@dimen/size_text_activity"
+            android:padding="@dimen/padding_small"
+            android:layout_margin="@dimen/divider_width_fix"
+            android:gravity="center"
+            android:background="@android:color/white"
+            app:layout_constraintStart_toEndOf="@id/tv_measurement_id_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_weight="1"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_measurement_name_label"
+            android:textSize="@dimen/size_text_activity"
+            android:text="@string/measurement_name"
+            android:padding="@dimen/padding_small"
+            android:layout_marginTop="@dimen/divider_width_fix"
+            android:layout_marginStart="@dimen/divider_width_fix"
+            android:layout_marginBottom="@dimen/divider_width_fix"
+            android:gravity="center"
+            android:background="@android:color/white"
+            app:layout_constraintStart_toEndOf="@id/chk_delete_selection"
+            app:layout_constraintEnd_toStartOf="@+id/tv_measurement_name_value"
+            app:layout_constraintTop_toBottomOf="@id/tv_measurement_id_label"
+            app:layout_constraintHorizontal_weight="1"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_measurement_name_value"
+            android:textSize="@dimen/size_text_activity"
+            android:padding="@dimen/padding_small"
+            android:layout_margin="@dimen/divider_width_fix"
+            android:gravity="center"
+            android:background="@android:color/white"
+            app:layout_constraintStart_toEndOf="@id/tv_measurement_name_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_measurement_id_value"
+            app:layout_constraintHorizontal_weight="1"/>
+
+        <com.cjq.tool.qbox.ui.view.CustomDrawableSizeTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_node_name_value"
+            android:textSize="@dimen/size_text_activity"
+            android:padding="@dimen/padding_small"
+            android:layout_margin="@dimen/divider_width_fix"
+            android:gravity="center"
+            android:background="@android:color/white"
+            android:drawableRight="@drawable/ic_modify"
+            app:drawableRight_width="@dimen/size_image_small"
+            app:drawableRight_height="@dimen/size_image_small"
+            app:layout_constraintStart_toEndOf="@+id/tv_node_name_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_measurement_name_value"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_weight="1"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/tv_node_name_label"
+            android:textSize="@dimen/size_text_activity"
+            android:text="@string/node_name"
+            android:padding="@dimen/padding_small"
+            android:layout_marginTop="@dimen/divider_width_fix"
+            android:layout_marginStart="@dimen/divider_width_fix"
+            android:layout_marginBottom="@dimen/divider_width_fix"
+            android:gravity="center"
+            android:background="@android:color/white"
+            app:layout_constraintStart_toEndOf="@id/chk_delete_selection"
+            app:layout_constraintEnd_toStartOf="@id/tv_node_name_value"
+            app:layout_constraintTop_toBottomOf="@id/tv_measurement_name_label"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_weight="1"/>
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v7.widget.CardView>

@@ -17,7 +17,6 @@ import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
 import com.cjq.tool.qbox.database.SimpleSQLiteAsyncEventHandler
 import com.cjq.tool.qbox.ui.adapter.HeaderAndFooterWrapper
 import com.cjq.tool.qbox.ui.dialog.BaseDialog
@@ -28,7 +27,8 @@ import com.cjq.tool.qbox.ui.gesture.SimpleRecyclerViewItemTouchListener
 import com.cjq.tool.qbox.ui.loader.SimpleCursorLoader
 import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast
 import com.weisi.tool.wsnbox.R
-import com.weisi.tool.wsnbox.adapter.ParameterConfigAdapter
+import com.weisi.tool.wsnbox.adapter.config.ParameterConfigAdapter
+import com.weisi.tool.wsnbox.io.Constant
 import com.weisi.tool.wsnbox.io.Constant.*
 import com.weisi.tool.wsnbox.io.database.SensorDatabase
 import com.weisi.tool.wsnbox.permission.PermissionsRequester
@@ -46,12 +46,16 @@ class ParameterConfigurationActivity : BaseActivity(),
         BaseDialog.OnDialogConfirmListener,
         EditDialog.OnContentReceiver {
 
-    private val REQUEST_CODE_FILE_SELECT = 1
-    private val REQUEST_CODE_READ_PEMISSION = 2
+    private val REQUEST_CODE_FILE_SELECT = 2
+    private val REQUEST_CODE_READ_PEMISSION = 3
     private val TOKEN_DELETE_CONFIG = 1
     private val TOKEN_UPDATE_CONFIG_NAME = 2
+    private val TOKEN_INSERT_CONFIG = 3
+    private val ARGUMENT_KEY_NEW_CONFIG_POSITION = "new_cfg_pos"
     private val DIALOG_TAG_CONFIRM_DELETE_CONFIG = "delete_config"
     private val DIALOG_TAG_EDIT_CONFIG_NAME = "edit_name"
+    private val DIALOG_TAG_EDIT_ADD_CONFIG = "et_add"
+    private val DIALOG_TAG_EXPORT_CONFIG = "exp_cfg"
 
     private val adapter = ParameterConfigAdapter()
     private val cvScenes = mutableListOf<View>()
@@ -68,12 +72,12 @@ class ParameterConfigurationActivity : BaseActivity(),
                 .addItemChildViewTouchEnabled(R.id.iv_para_config_logo)
                 .addItemChildViewTouchEnabled(R.id.tv_config_provider_name))
 
-        var wrapper = HeaderAndFooterWrapper(adapter)
-        var inflater = LayoutInflater.from(this);
-        wrapper.addHeaderView(inflater.inflate(R.layout.li_para_config_description, rv_para_config, false))
-        wrapper.addHeaderView(getGroupLabelView(inflater, R.string.config_list))
+        val wrapper = HeaderAndFooterWrapper(adapter)
+        val inflater = LayoutInflater.from(this)
+        wrapper.addHeaderView(inflater.inflate(R.layout.lh_para_config_description, rv_para_config, false))
+        wrapper.addHeaderView(getGroupLabelView(inflater, rv_para_config, R.string.config_list))
         wrapper.addFootView(getConfigInsertView(inflater))
-        wrapper.addFootView(getGroupLabelView(inflater, R.string.scene_list))
+        wrapper.addFootView(getGroupLabelView(inflater, rv_para_config, R.string.scene_list))
         wrapper.addFootView(getSceneView(inflater, R.string.data_browse, R.drawable.ic_scene_data_browse))
         rv_para_config.adapter = wrapper
 
@@ -95,6 +99,7 @@ class ParameterConfigurationActivity : BaseActivity(),
     override fun onLoadFinished(loader: Loader<Cursor>?, data: Cursor?) {
         adapter.swapCursor(data)
         updateScenesConfigName()
+        startNewParameterConfigurationActivityIfPossible()
     }
 
     private fun updateScenesConfigName() {
@@ -105,6 +110,21 @@ class ParameterConfigurationActivity : BaseActivity(),
                 }
             }
         }
+    }
+
+    private fun startNewParameterConfigurationActivityIfPossible() {
+        val position = intent.getIntExtra(ARGUMENT_KEY_NEW_CONFIG_POSITION, -1)
+        if (position != -1) {
+            intent.putExtra(ARGUMENT_KEY_NEW_CONFIG_POSITION, -1)
+            startProviderConfigurationActivity(position)
+        }
+    }
+
+    private fun startProviderConfigurationActivity(position: Int) {
+        val intent = Intent(this, ProviderConfigurationActivity::class.java)
+        intent.putExtra(Constant.COLUMN_CONFIGURATION_PROVIDER_NAME, adapter.getProviderName(position))
+        intent.putExtra(Constant.COLUMN_CONFIGURATION_PROVIDER_ID, adapter.getItemId(position))
+        startActivity(intent)
     }
 
     private fun updateSceneConfigName(vScene: View, id: Long) {
@@ -118,13 +138,13 @@ class ParameterConfigurationActivity : BaseActivity(),
         return view
     }
 
-    private fun getGroupLabelView(inflater: LayoutInflater, @StringRes labelResId: Int): View {
-        var view = inflater.inflate(R.layout.li_group_label, rv_para_config, false)
-        if (view is TextView) {
-            view.setText(labelResId)
-        }
-        return view
-    }
+//    private fun getGroupLabelView(inflater: LayoutInflater, @StringRes labelResId: Int): View {
+//        var view = inflater.inflate(R.layout.li_group_label, rv_para_config, false)
+//        if (view is TextView) {
+//            view.setText(labelResId)
+//        }
+//        return view
+//    }
 
     private fun getSceneView(inflater: LayoutInflater, @StringRes labelResId: Int, @DrawableRes logoRes: Int): View {
         var view = inflater.inflate(R.layout.li_scene, rv_para_config, false)
@@ -139,7 +159,9 @@ class ParameterConfigurationActivity : BaseActivity(),
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.cv_add -> {
-                expectFunction()
+                val dialog = EditDialog()
+                dialog.setContent(R.string.sensor_config)
+                dialog.show(supportFragmentManager, DIALOG_TAG_EDIT_ADD_CONFIG)
             }
             R.id.cv_import -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -257,8 +279,8 @@ class ParameterConfigurationActivity : BaseActivity(),
         supportLoaderManager.getLoader<Cursor>(0).onContentChanged()
     }
 
-    override fun onItemSelected(dialog: ListDialog?, position: Int) {
-        when (dialog!!.arguments!!.getInt("scene_tag")) {
+    override fun onItemSelected(dialog: ListDialog, position: Int) {
+        when (dialog.arguments!!.getInt("scene_tag")) {
             R.string.data_browse -> {
                 baseApplication
                         .settings
@@ -299,6 +321,18 @@ class ParameterConfigurationActivity : BaseActivity(),
     }
 
     override fun onInsertComplete(token: Int, cookie: Any?, rowId: Long) {
+        when (token) {
+            TOKEN_INSERT_CONFIG -> {
+                if (rowId != -1L) {
+                    val size = cookie as Int
+                    adapter.scheduleItemInsert(size)
+                    intent.putExtra(ARGUMENT_KEY_NEW_CONFIG_POSITION, size)
+                    refreshConfigProviderList()
+                } else {
+                    SimpleCustomizeToast.show(R.string.add_config_provider_failed)
+                }
+            }
+        }
     }
 
     override fun onUpdateComplete(token: Int, cookie: Any?, affectedRowCount: Int) {
@@ -307,6 +341,7 @@ class ParameterConfigurationActivity : BaseActivity(),
                 if (affectedRowCount > 0) {
                     val position = cookie as Int
                     adapter.scheduleItemChange(position)
+                    intent.putExtra(ARGUMENT_KEY_NEW_CONFIG_POSITION, position)
                     refreshConfigProviderList()
                 } else {
                     SimpleCustomizeToast.show(R.string.modify_config_provider_name_failed)
@@ -321,8 +356,26 @@ class ParameterConfigurationActivity : BaseActivity(),
                 val position = dialog.arguments!!.getInt("position")
                 databaseHandler.startDelete(TOKEN_DELETE_CONFIG,
                         position, TABLE_CONFIGURATION_PROVIDER,
-                        COLUMN_COMMON_ID + " = ?",
+                        "$COLUMN_COMMON_ID = ?",
                         arrayOf(adapter.getItemId(position).toString()))
+            }
+            DIALOG_TAG_EXPORT_CONFIG -> {
+                expectFunction()
+//                object : AsyncTask<Long, Boolean, Boolean>() {
+//                    override fun doInBackground(vararg params: Long?): Boolean {
+//                        val providerId = params[0] ?: return false
+//                        val provider = SensorDatabase.importMeasurementConfigurationProvider(providerId) ?: return false
+//                        val devices = mutableListOf<Device>()
+//                        return if (SensorDatabase.importDevices(providerId) {
+//                            devices.add(it)
+//                        }) {
+//                            //TODO
+//                            return true
+//                        } else {
+//                            false
+//                        }
+//                    }
+//                }.execute(dialog.arguments?.getLong(COLUMN_COMMON_ID))
             }
         }
         return true
@@ -331,25 +384,49 @@ class ParameterConfigurationActivity : BaseActivity(),
     override fun onReceive(dialog: EditDialog?, oldValue: String?, newValue: String?): Boolean {
         when (dialog!!.tag) {
             DIALOG_TAG_EDIT_CONFIG_NAME -> {
-                if (TextUtils.isEmpty(newValue)) {
-                    val d = ConfirmDialog()
-                    d.setTitle(R.string.config_provider_name_empty)
-                    d.setDrawCancelButton(false)
-                    d.show(supportFragmentManager, "ccne")
+                if (!checkConfigName(newValue)) {
                     return false
                 } else {
                     val position = dialog.arguments!!.getInt("position")
                     val values = ContentValues()
                     values.put(COLUMN_CONFIGURATION_PROVIDER_NAME, newValue)
+                    values.put(COLUMN_MODIFY_TIME, System.currentTimeMillis())
                     databaseHandler.startUpdate(TOKEN_UPDATE_CONFIG_NAME,
                             position, TABLE_CONFIGURATION_PROVIDER,
-                            values, COLUMN_COMMON_ID + " = ?",
+                            values, "$COLUMN_COMMON_ID = ?",
                             arrayOf(adapter.getItemId(position).toString()),
+                            CONFLICT_NONE)
+                }
+            }
+            DIALOG_TAG_EDIT_ADD_CONFIG -> {
+                if (!checkConfigName(newValue)) {
+                    return false
+                } else {
+                    val values = ContentValues()
+                    values.put(COLUMN_CONFIGURATION_PROVIDER_NAME, newValue)
+                    values.put(COLUMN_CREATE_TIME, System.currentTimeMillis())
+                    values.put(COLUMN_MODIFY_TIME, System.currentTimeMillis())
+                    databaseHandler.startInsert(TOKEN_INSERT_CONFIG,
+                            adapter.itemCount,
+                            TABLE_CONFIGURATION_PROVIDER,
+                            values,
                             CONFLICT_NONE)
                 }
             }
         }
         return true
+    }
+
+    private fun checkConfigName(name: String?) : Boolean {
+        return if (TextUtils.isEmpty(name)) {
+            val d = ConfirmDialog()
+            d.setTitle(R.string.config_provider_name_empty)
+            d.setDrawCancelButton(false)
+            d.show(supportFragmentManager, "ccne")
+            false
+        } else {
+            true
+        }
     }
 
     private inner class ConfigProviderTouchListener(rv: RecyclerView) : SimpleRecyclerViewItemTouchListener(rv) {
@@ -369,8 +446,14 @@ class ParameterConfigurationActivity : BaseActivity(),
                     dialog.arguments!!.putInt("position", position)
                     dialog.show(supportFragmentManager, DIALOG_TAG_EDIT_CONFIG_NAME)
                 }
-                R.id.iv_export, R.id.tv_config_provider_name -> {
-                    expectFunction()
+                R.id.iv_export -> {
+                    val dialog = ConfirmDialog()
+                    dialog.setTitle(R.string.export_configuration_provider)
+                    dialog.arguments?.putLong(COLUMN_COMMON_ID, adapter.getItemId(position))
+                    dialog.show(supportFragmentManager, DIALOG_TAG_EXPORT_CONFIG)
+                }
+                R.id.tv_config_provider_name -> {
+                    startProviderConfigurationActivity(position)
                 }
             }
         }

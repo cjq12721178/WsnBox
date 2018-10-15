@@ -1,6 +1,6 @@
 package com.weisi.tool.wsnbox.bean.data;
 
-import com.cjq.lib.weisi.iot.Sensor;
+import com.cjq.lib.weisi.iot.ID;
 
 import java.util.LinkedList;
 
@@ -25,9 +25,9 @@ public class SensorData {
                                    long timestamp,
                                    float batteryVoltage,
                                    double rawValue) {
-        return build(Sensor.ID.getAddress(sensorId),
-                Sensor.ID.getDataTypeValue(sensorId),
-                Sensor.ID.getDataTypeValueIndex(sensorId),
+        return build(ID.getAddress(sensorId),
+                ID.getDataTypeValue(sensorId),
+                ID.getDataTypeValueIndex(sensorId),
                 timestamp,
                 batteryVoltage,
                 rawValue);
@@ -90,7 +90,7 @@ public class SensorData {
     }
 
     public long getId() {
-        return Sensor.ID.getId(mAddress, mDataTypeValue, mDataTypeValueIndex);
+        return ID.getId(mAddress, mDataTypeValue, mDataTypeValueIndex);
     }
 
     public double getRawValue() {

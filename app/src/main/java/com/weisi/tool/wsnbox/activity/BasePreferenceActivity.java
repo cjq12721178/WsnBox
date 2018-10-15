@@ -162,6 +162,15 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
     }
 
     @Override
+    public void onHeaderClick(Header header, int position) {
+        if (header.fragment == null && header.intent != null) {
+            //getString(R.string.action_start_about_activity)
+            header.intent.setAction(getString(getResources().getIdentifier(header.intent.getAction(), "string", getPackageName())));
+        }
+        super.onHeaderClick(header, position);
+    }
+
+    @Override
     public void onServiceConnectionCreate(DataPrepareService service) {
 
     }

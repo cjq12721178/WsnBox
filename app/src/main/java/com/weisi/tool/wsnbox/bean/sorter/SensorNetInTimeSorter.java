@@ -10,8 +10,8 @@ import com.cjq.lib.weisi.iot.Sensor;
 public class SensorNetInTimeSorter<S extends Sensor> extends Sorter<S> {
 
 //    @Override
-//    public int add(List<S> sensors, S sensor) {
-//        sensors.add(sensor);
+//    public int add(List<S> sensors, S measurement) {
+//        sensors.add(measurement);
 //        return sensors.size() - 1;
 //    }
 

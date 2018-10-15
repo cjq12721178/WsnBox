@@ -31,10 +31,10 @@ class LogicalSensorTypeFilter(selectedSensorTypeNumbers: List<Int>) : Filter<Log
         private fun generateSensorTypeNames(): Array<String> {
             val sensorTypeNameSet = HashSet<String>()
             SensorManager.getBleDataTypes().forEach {
-                sensorTypeNameSet.add(it.defaultName)
+                sensorTypeNameSet.add(it.name)
             }
             SensorManager.getEsbDataTypes().forEach {
-                sensorTypeNameSet.add(it.defaultName)
+                sensorTypeNameSet.add(it.name)
             }
             sensorTypeNameSet.add("未知测量量")
             return sensorTypeNameSet.toTypedArray()
@@ -58,7 +58,7 @@ class LogicalSensorTypeFilter(selectedSensorTypeNumbers: List<Int>) : Filter<Log
         var i = 0
         val size = selectedSensorTypeNos.size
         while (i < size) {
-            if (sensor.dataType.defaultName == sensorTypeNames[selectedSensorTypeNos[i]]) {
+            if (sensor.practicalMeasurement.dataType.name == sensorTypeNames[selectedSensorTypeNos[i]]) {
                 return true
             }
             ++i

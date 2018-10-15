@@ -17,10 +17,10 @@ import com.weisi.tool.wsnbox.bean.configuration.Settings.*
 import com.weisi.tool.wsnbox.bean.warner.executor.browse.ViewBackgroundSingleRangeWarnExecutor
 import com.weisi.tool.wsnbox.bean.warner.executor.browse.ViewBackgroundSwitchWarnExecutor
 import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor
-import com.weisi.tool.wsnbox.fragment.DataBrowseFragment
-import com.weisi.tool.wsnbox.fragment.DeviceNodeFragment
-import com.weisi.tool.wsnbox.fragment.LogicalSensorFragment
-import com.weisi.tool.wsnbox.fragment.PhysicalSensorFragment
+import com.weisi.tool.wsnbox.fragment.browse.DataBrowseFragment
+import com.weisi.tool.wsnbox.fragment.browse.DeviceNodeFragment
+import com.weisi.tool.wsnbox.fragment.browse.LogicalSensorFragment
+import com.weisi.tool.wsnbox.fragment.browse.PhysicalSensorFragment
 import com.weisi.tool.wsnbox.io.database.SensorDatabase
 import com.weisi.tool.wsnbox.service.DataPrepareService
 import kotlinx.android.synthetic.main.activity_data_browse.*
@@ -146,18 +146,18 @@ class DataBrowseActivity : BaseActivity(),
         return true
     }
 
-    private inner class ImportSensorConfigurationsTask : AsyncTask<Long, SensorManager.SensorConfigurationProvider, SensorManager.SensorConfigurationProvider?>() {
+    private inner class ImportSensorConfigurationsTask : AsyncTask<Long, SensorManager.MeasurementConfigurationProvider, SensorManager.MeasurementConfigurationProvider?>() {
 
-        override fun doInBackground(vararg params: Long?): SensorManager.SensorConfigurationProvider? {
-            if (params == null || params.isEmpty()) {
+        override fun doInBackground(vararg params: Long?): SensorManager.MeasurementConfigurationProvider? {
+            if (params === null || params.isEmpty()) {
                 return null
             }
-            val provider = SensorDatabase.importValueContainerConfigurationProvider(params[0]!!)
+            val provider = SensorDatabase.importMeasurementConfigurationProvider(params[0]!!)
             SensorManager.setValueContainerConfigurationProvider(provider, true)
             return provider
         }
 
-        override fun onPostExecute(provider: SensorManager.SensorConfigurationProvider?) {
+        override fun onPostExecute(provider: SensorManager.MeasurementConfigurationProvider?) {
             if (provider != null) {
                 //创建CommonWarnProcessor
                 //注，目前暂时硬编码，之后由设置界面进行修改

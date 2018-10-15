@@ -16,8 +16,10 @@
 			<name>温度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>1</decimal>
-			<unit>℃</unit>
+			<float>
+				<decimal>1</decimal>
+				<unit>℃</unit>
+			</float>
 			<coefficient>0.0078125</coefficient>
 		</DataType>
 		<DataType>
@@ -25,8 +27,10 @@
 			<name>相对湿度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>3</decimal>
-			<unit>%RH</unit>
+			<float>
+				<decimal>3</decimal>
+				<unit>%RH</unit>
+			</float>
 			<coefficient>0.5</coefficient>
 		</DataType>
 		<DataType>
@@ -34,8 +38,10 @@
 			<name>X轴最大速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm/s</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm/s</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -43,8 +49,10 @@
 			<name>X轴最小速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm/s</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm/s</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -52,8 +60,10 @@
 			<name>X轴最大位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -61,8 +71,10 @@
 			<name>X轴最小位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -70,8 +82,10 @@
 			<name>Y轴最大速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm/s</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm/s</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -79,8 +93,10 @@
 			<name>Y轴最小速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm/s</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm/s</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -88,8 +104,10 @@
 			<name>Y轴最大位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -97,8 +115,10 @@
 			<name>Y轴最小位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -106,8 +126,10 @@
 			<name>Z轴最大速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm/s</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm/s</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -115,8 +137,10 @@
 			<name>Z轴最小速度</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm/s</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm/s</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -124,8 +148,10 @@
 			<name>Z轴最大位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 		<DataType>
@@ -133,8 +159,10 @@
 			<name>Z轴最小位移</name>
 			<type>0</type>
 			<signed>true</signed>
-			<decimal>5</decimal>
-			<unit>mm</unit>
+			<float>
+				<decimal>5</decimal>
+				<unit>mm</unit>
+			</float>
 			<coefficient>0.001</coefficient>
 		</DataType>
 	</DataTypes>

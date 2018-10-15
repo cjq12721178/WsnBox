@@ -4,10 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.cjq.tool.qbox.ui.dialog.BaseDialog;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
@@ -194,5 +198,13 @@ public class BaseActivity
 
     public void showExpectDialog() {
         getFunctionDelegate().showExpectDialog(getSupportFragmentManager());
+    }
+
+    protected View getGroupLabelView(@NonNull LayoutInflater inflater, @NonNull RecyclerView rv, @StringRes int labelResId) {
+        View view = inflater.inflate(R.layout.li_group_label, rv, false);
+        if (view instanceof TextView) {
+            ((TextView) view).setText(labelResId);
+        }
+        return view;
     }
 }

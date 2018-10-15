@@ -8,21 +8,25 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.cjq.lib.weisi.iot.LogicalSensor;
-import com.cjq.lib.weisi.iot.Sensor;
+import com.cjq.lib.weisi.iot.Configuration;
+import com.cjq.lib.weisi.iot.DisplayMeasurement;
+import com.cjq.lib.weisi.iot.ID;
+import com.cjq.lib.weisi.iot.Measurement;
 import com.cjq.lib.weisi.iot.SensorManager;
 import com.cjq.lib.weisi.iot.Warner;
 import com.cjq.tool.qbox.database.SQLiteResolverDelegate;
 import com.cjq.tool.qbox.database.SimpleSQLiteAsyncEventHandler;
 import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.bean.configuration.CommonValueContainerConfigurationProvider;
-import com.weisi.tool.wsnbox.bean.configuration.LogicalSensorConfiguration;
-import com.weisi.tool.wsnbox.bean.configuration.PhysicalSensorConfiguration;
+import com.weisi.tool.wsnbox.bean.configuration.DisplayMeasurementConfiguration;
+import com.weisi.tool.wsnbox.bean.configuration.RatchetWheelMeasurementConfiguration;
+import com.weisi.tool.wsnbox.bean.configuration.SensorConfiguration;
+import com.weisi.tool.wsnbox.bean.configuration.SensorInfoConfiguration;
 import com.weisi.tool.wsnbox.bean.data.Device;
 import com.weisi.tool.wsnbox.bean.data.Node;
 import com.weisi.tool.wsnbox.bean.data.SensorData;
-import com.weisi.tool.wsnbox.bean.decorator.CommonLogicalSensorDecorator;
-import com.weisi.tool.wsnbox.bean.decorator.CommonPhysicalSensorDecorator;
+import com.weisi.tool.wsnbox.bean.decorator.CommonMeasurementDecorator;
+import com.weisi.tool.wsnbox.bean.decorator.CommonSensorInfoDecorator;
 import com.weisi.tool.wsnbox.bean.warner.CommonSingleRangeWarner;
 import com.weisi.tool.wsnbox.bean.warner.CommonSwitchWarner;
 import com.weisi.tool.wsnbox.io.Constant;
@@ -56,7 +60,13 @@ public class SensorDatabase implements Constant {
     private static final int VN_DEVICE_NODE = 3;
     //为修复酒钢数据时间戳超前一个月问题特订
     private static final int VN_BROKEN_TIME = 4;
-    private static final int CURRENT_VERSION_NO = VN_BROKEN_TIME;
+    //增加虚拟测量量配置
+    private static final int VN_VIRTUAL_CONFIG = 5;
+    //修改测量量配置字段（type）类型
+    private static final int VN_GOOD_TYPE = 6;
+    //移除棘轮测量量配置表字段（custom_name)
+    private static final int VN_THIN_RATCHET_WHEEL = 7;
+    private static final int CURRENT_VERSION_NO = VN_THIN_RATCHET_WHEEL;
 
     private static SQLiteLauncher launcher;
     private static SQLiteDatabase database;
@@ -99,11 +109,18 @@ public class SensorDatabase implements Constant {
                                                     long endTime,
                                                     int limitCount,
                                                     SensorHistoryInfoReceiver receiver) {
-        if (Sensor.ID.getDataTypeValue(id) == 0 && Sensor.ID.getDataTypeValueIndex(id) == 0) {
-            return importPhysicalSensorHistoryValues(Sensor.ID.getAddress(id), startTime, endTime, limitCount, receiver);
-        } else {
+//        if (ID.getDataTypeValue(id) == 0 && ID.getDataTypeValueIndex(id) == 0) {
+//            return importPhysicalSensorHistoryValues(Sensor.ID.getAddress(id), startTime, endTime, limitCount, receiver);
+//        } else {
+//            return importLogicalSensorHistoryValues(id, startTime, endTime, limitCount, receiver);
+//        }
+        if (ID.isPhysicalSensor(id)) {
+            return importPhysicalSensorHistoryValues(ID.getAddress(id), startTime, endTime, limitCount, receiver);
+        }
+        if (ID.isLogicalSensor(id)) {
             return importLogicalSensorHistoryValues(id, startTime, endTime, limitCount, receiver);
         }
+        return false;
     }
 
     private static boolean importPhysicalSensorHistoryValues(int address,
@@ -263,7 +280,7 @@ public class SensorDatabase implements Constant {
             }
             cursor.close();
             //导入物理传感器历史数据
-            int address = Sensor.ID.getAddress(id);
+            int address = ID.getAddress(id);
             buffer.setLength(0);
             buffer.append("SELECT ").append(COLUMN_TIMESTAMP)
                     .append(',').append(COLUMN_BATTER_VOLTAGE)
@@ -785,21 +802,21 @@ public class SensorDatabase implements Constant {
         return 0;
     }
 
-    public static SensorManager.SensorConfigurationProvider importValueContainerConfigurationProvider(long providerId) {
+    public static SensorManager.MeasurementConfigurationProvider importMeasurementConfigurationProvider(long providerId) {
         if (database == null || providerId <= 0) {
             return null;
         }
         StringBuilder builder = new StringBuilder();
-        Map<Sensor.ID, Sensor.Configuration<?>> configurationMap = new HashMap<>();
+        Map<ID, Configuration<?>> configurationMap = new HashMap<>();
         //查找provider_id=providerId的所有传感器配置
-        importSensorConfigurations(providerId, builder, configurationMap);
+        importSensorInfoConfigurations(providerId, builder, configurationMap);
         importMeasurementConfigurations(providerId, builder, configurationMap);
         return new CommonValueContainerConfigurationProvider(configurationMap);
     }
 
-    private static void importSensorConfigurations(
+    private static void importSensorInfoConfigurations(
             long providerId, StringBuilder builder,
-            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
+            Map<ID, Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
             builder.setLength(0);
@@ -812,17 +829,15 @@ public class SensorDatabase implements Constant {
             if (cursor == null) {
                 return;
             }
-            //Map<Integer, Sensor.Configuration> sensorConfigs = new HashMap<>();
             int addressIndex = cursor.getColumnIndex(COLUMN_SENSOR_ADDRESS);
             int customNameIndex = cursor.getColumnIndex(COLUMN_CUSTOM_NAME);
             while (cursor.moveToNext()) {
                 String customName = cursor.getString(customNameIndex);
-                PhysicalSensorConfiguration configuration = new PhysicalSensorConfiguration();
+                SensorInfoConfiguration configuration = new SensorInfoConfiguration();
                 if (!TextUtils.isEmpty(customName)) {
-                    configuration.setDecorator(new CommonPhysicalSensorDecorator(customName));
+                    configuration.setDecorator(new CommonSensorInfoDecorator(customName));
                 }
-                //sensorConfigs.put(cursor.getInt(addressIndex), configuration);
-                configurationMap.put(new Sensor.ID(cursor.getInt(addressIndex)), configuration);
+                configurationMap.put(new ID(cursor.getInt(addressIndex)), configuration);
             }
         } catch (Exception e) {
             ExceptionLog.record(e);
@@ -835,8 +850,7 @@ public class SensorDatabase implements Constant {
 
     private static void importMeasurementConfigurations(
             long providerId, StringBuilder builder,
-            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
-        //Map<Long, LogicalSensor.Configuration> measurementConfigs = new HashMap<>();
+            Map<ID, Configuration<?>> configurationMap) {
         importMeasurementConfigurationsWithSingleRangeWarner(providerId, builder, configurationMap);
         importMeasurementConfigurationsWithSwitchWarner(providerId, builder, configurationMap);
         importMeasurementConfigurationsWithoutWarner(builder, configurationMap);
@@ -845,12 +859,15 @@ public class SensorDatabase implements Constant {
     private static void importMeasurementConfigurationsWithSingleRangeWarner(
             long providerId,
             StringBuilder builder,
-            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
+            Map<ID, Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
             builder.setLength(0);
-            builder.append("SELECT ").append(COLUMN_MEASUREMENT_VALUE_ID)
+            builder.append("SELECT ")
+                    .append("m.").append(COLUMN_COMMON_ID)
+                    .append(",m.").append(COLUMN_MEASUREMENT_VALUE_ID)
                     .append(",m.").append(COLUMN_CUSTOM_NAME)
+                    .append(",m.").append(COLUMN_TYPE)
                     .append(',').append(COLUMN_LOW_LIMIT)
                     .append(',').append(COLUMN_HIGH_LIMIT)
                     .append(" FROM ").append(TABLE_MEASUREMENT_CONFIGURATION)
@@ -864,15 +881,19 @@ public class SensorDatabase implements Constant {
                     .append(" = ").append(providerId).append(')');
             cursor = database.rawQuery(builder.toString(), null);
             if (cursor != null) {
+                int measurementConfigIdIndex = cursor.getColumnIndex(COLUMN_COMMON_ID);
                 int measurementIdIndex = cursor.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
                 int customNameIndex = cursor.getColumnIndex(COLUMN_CUSTOM_NAME);
                 int lowLimitIndex = cursor.getColumnIndex(COLUMN_LOW_LIMIT);
                 int highLimitIndex = cursor.getColumnIndex(COLUMN_HIGH_LIMIT);
+                int typeIndex = cursor.getColumnIndex(COLUMN_TYPE);
                 while (cursor.moveToNext()) {
                     CommonSingleRangeWarner warner = new CommonSingleRangeWarner();
                     warner.setLowLimit(cursor.getDouble(lowLimitIndex));
                     warner.setHighLimit(cursor.getDouble(highLimitIndex));
-                    importMeasurementConfiguration(configurationMap, cursor, measurementIdIndex, customNameIndex, warner);
+                    importMeasurementConfiguration(configurationMap,
+                            cursor, measurementIdIndex, customNameIndex,
+                            typeIndex, measurementConfigIdIndex, warner);
                 }
             }
         } catch (Exception e) {
@@ -886,12 +907,15 @@ public class SensorDatabase implements Constant {
 
     private static void importMeasurementConfigurationsWithSwitchWarner(
             long providerId, StringBuilder builder,
-            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
+            Map<ID, Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
             builder.setLength(0);
-            builder.append("SELECT ").append(COLUMN_MEASUREMENT_VALUE_ID)
+            builder.append("SELECT ")
+                    .append("m.").append(COLUMN_COMMON_ID)
+                    .append(",m.").append(COLUMN_MEASUREMENT_VALUE_ID)
                     .append(",m.").append(COLUMN_CUSTOM_NAME)
+                    .append(",m.").append(COLUMN_TYPE)
                     .append(',').append(COLUMN_ABNORMAL_VALUE)
                     .append(" FROM ").append(TABLE_MEASUREMENT_CONFIGURATION)
                     .append(" m,").append(TABLE_GENERAL_SWITCH_WARNER)
@@ -904,13 +928,17 @@ public class SensorDatabase implements Constant {
                     .append(" = ").append(providerId).append(')');
             cursor = database.rawQuery(builder.toString(), null);
             if (cursor != null) {
+                int measurementConfigIdIndex = cursor.getColumnIndex(COLUMN_COMMON_ID);
                 int measurementIdIndex = cursor.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
                 int customNameIndex = cursor.getColumnIndex(COLUMN_CUSTOM_NAME);
                 int abnormalValueIndex = cursor.getColumnIndex(COLUMN_ABNORMAL_VALUE);
+                int typeIndex = cursor.getColumnIndex(COLUMN_TYPE);
                 while (cursor.moveToNext()) {
                     CommonSwitchWarner warner = new CommonSwitchWarner();
                     warner.setAbnormalValue(cursor.getDouble(abnormalValueIndex));
-                    importMeasurementConfiguration(configurationMap, cursor, measurementIdIndex, customNameIndex, warner);
+                    importMeasurementConfiguration(configurationMap,
+                            cursor, measurementIdIndex, customNameIndex,
+                            typeIndex, measurementConfigIdIndex, warner);
                 }
             }
         } catch (Exception e) {
@@ -924,12 +952,15 @@ public class SensorDatabase implements Constant {
 
     private static void importMeasurementConfigurationsWithoutWarner(
             StringBuilder builder,
-            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap) {
+            Map<ID, Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
             builder.setLength(0);
-            builder.append("SELECT DISTINCT ").append(COLUMN_MEASUREMENT_VALUE_ID)
+            builder.append("SELECT DISTINCT ")
+                    .append("m.").append(COLUMN_COMMON_ID)
+                    .append(",m.").append(COLUMN_MEASUREMENT_VALUE_ID)
                     .append(',').append(COLUMN_CUSTOM_NAME)
+                    .append(",m.").append(COLUMN_TYPE)
                     .append(" FROM ").append(TABLE_MEASUREMENT_CONFIGURATION)
                     .append(" m WHERE m.").append(COLUMN_COMMON_ID)
                     .append(" NOT IN (SELECT gsr.").append(COLUMN_COMMON_ID)
@@ -939,10 +970,14 @@ public class SensorDatabase implements Constant {
                     .append(" gs)");
             cursor = database.rawQuery(builder.toString(), null);
             if (cursor != null) {
+                int measurementConfigIdIndex = cursor.getColumnIndex(COLUMN_COMMON_ID);
                 int measurementIdIndex = cursor.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
                 int customNameIndex = cursor.getColumnIndex(COLUMN_CUSTOM_NAME);
+                int typeIndex = cursor.getColumnIndex(COLUMN_TYPE);
                 while (cursor.moveToNext()) {
-                    importMeasurementConfiguration(configurationMap, cursor, measurementIdIndex, customNameIndex, null);
+                    importMeasurementConfiguration(configurationMap,
+                            cursor, measurementIdIndex, customNameIndex,
+                            typeIndex, measurementConfigIdIndex,null);
                 }
             }
         } catch (Exception e) {
@@ -955,16 +990,98 @@ public class SensorDatabase implements Constant {
     }
 
     private static void importMeasurementConfiguration(
-            Map<Sensor.ID, Sensor.Configuration<?>> configurationMap,
-            Cursor cursor, int measurementIdIndex, int customNameIndex,
-            Warner<LogicalSensor.Value> warner) {
-        LogicalSensorConfiguration configuration = new LogicalSensorConfiguration();
-        String customName = cursor.getString(customNameIndex);
+            Map<ID, Configuration<?>> configurationMap,
+            Cursor cursor, int measurementIdIndex,
+            int customNameIndex, int typeIndex,
+            int measurementConfigIdIndex,
+            Warner<DisplayMeasurement.Value> warner) {
+        ID id = new ID(cursor.getLong(measurementIdIndex));
+        DisplayMeasurementConfiguration configuration = buildMeasurementConfiguration(cursor, customNameIndex, typeIndex, measurementConfigIdIndex, warner);
+        configurationMap.put(id, configuration);
+    }
+
+    @NonNull
+    private static DisplayMeasurementConfiguration buildMeasurementConfiguration(Cursor cursor, int customNameIndex, int typeIndex, int measurementConfigIdIndex, Warner<DisplayMeasurement.Value> warner) {
+        return buildMeasurementConfiguration(cursor, customNameIndex, typeIndex, cursor.getLong(measurementConfigIdIndex), warner);
+    }
+
+    @NonNull
+    private static DisplayMeasurementConfiguration buildMeasurementConfiguration(Cursor cursor, int customNameIndex, int typeIndex, long measurementConfigId, Warner<DisplayMeasurement.Value> warner) {
+        return buildMeasurementConfiguration(measurementConfigId, cursor.getInt(typeIndex), cursor.getString(customNameIndex), warner);
+    }
+
+//    @NonNull
+//    private static DisplayMeasurementConfiguration buildMeasurementConfiguration(Cursor cursor, int customNameIndex, int typeIndex, Warner<DisplayMeasurement.Value> warner, long measurementConfigId) {
+//        DisplayMeasurementConfiguration configuration = buildDisplayMeasurementConfigurationByType(cursor, typeIndex, measurementConfigId);
+//        String customName = cursor.getString(customNameIndex);
+//        if (!TextUtils.isEmpty(customName)) {
+//            configuration.setDecorator(new CommonMeasurementDecorator(customName));
+//        }
+//        configuration.setWarner(warner);
+//        return configuration;
+//    }
+
+    @NonNull
+    private static DisplayMeasurementConfiguration buildMeasurementConfiguration(long measurementConfigId, int type, String customName, Warner<DisplayMeasurement.Value> warner) {
+        DisplayMeasurementConfiguration configuration = buildDisplayMeasurementConfigurationByType(type, measurementConfigId);
+        //String customName = cursor.getString(customNameIndex);
         if (!TextUtils.isEmpty(customName)) {
-            configuration.setDecorator(new CommonLogicalSensorDecorator(customName));
+            configuration.setDecorator(new CommonMeasurementDecorator(customName));
         }
         configuration.setWarner(warner);
-        configurationMap.put(new Sensor.ID(cursor.getLong(measurementIdIndex)), configuration);
+        return configuration;
+    }
+
+//    private static DisplayMeasurementConfiguration buildDisplayMeasurementConfigurationByType(Cursor cursor, int typeIndex, long measurementConfigId) {
+//        String type = cursor.getString(typeIndex);
+//        if (TextUtils.isEmpty(type)) {
+//            return new DisplayMeasurementConfiguration();
+//        } else {
+//            switch (type) {
+//                case COLUMN_TYPE:
+//                    return buildRatchetWheelMeasurementConfiguration(measurementConfigId);
+//                default:
+//                    throw new IllegalArgumentException("abnormal type for measurement configuration");
+//            }
+//        }
+//    }
+
+    private static DisplayMeasurementConfiguration buildDisplayMeasurementConfigurationByType(int type, long measurementConfigId) {
+        switch (type) {
+            case SensorConfiguration.Measure.CT_NORMAL:
+                return new DisplayMeasurementConfiguration();
+            case SensorConfiguration.Measure.CT_RATCHET_WHEEL:
+                return buildRatchetWheelMeasurementConfiguration(measurementConfigId);
+            default:
+                throw new IllegalArgumentException("abnormal type for measurement configuration");
+        }
+    }
+
+    private static RatchetWheelMeasurementConfiguration buildRatchetWheelMeasurementConfiguration(long measurementConfigId) {
+        RatchetWheelMeasurementConfiguration configuration = new RatchetWheelMeasurementConfiguration();
+        Cursor cursor = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append("SELECT ").append(COLUMN_INITIAL_DISTANCE)
+                    .append(",").append(COLUMN_INITIAL_VALUE)
+                    .append(" FROM ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+                    .append(" WHERE ").append(COLUMN_COMMON_ID)
+                    .append(" = ").append(measurementConfigId);
+            cursor = database.rawQuery(builder.toString(), null);
+            if (cursor != null) {
+                int initialDistanceIndex = cursor.getColumnIndex(COLUMN_INITIAL_DISTANCE);
+                int initialValueIndex = cursor.getColumnIndex(COLUMN_INITIAL_VALUE);
+                while (cursor.moveToNext()) {
+                    configuration.setInitialDistance(cursor.getDouble(initialDistanceIndex));
+                    configuration.setInitialValue(cursor.getDouble(initialValueIndex));
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return configuration;
     }
 
     public static boolean importDevices(long providerId, @NonNull OnImportDeviceListener listener) {
@@ -1005,9 +1122,13 @@ public class SensorDatabase implements Constant {
                 nodeNameIndex = cNode.getColumnIndex(COLUMN_NODE_NAME);
                 sensorIdIndex = cNode.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
                 List<Node> nodes = new ArrayList<>(cNode.getCount());
+                Measurement measurement;
                 while (cNode.moveToNext()) {
-                    nodes.add(new Node(cNode.getString(nodeNameIndex),
-                            SensorManager.getLogicalSensor(cNode.getLong(sensorIdIndex), true)));
+                    measurement = SensorManager.getMeasurement(cNode.getLong(sensorIdIndex));
+                    if (measurement instanceof DisplayMeasurement) {
+                        nodes.add(new Node(cNode.getString(nodeNameIndex),
+                                (DisplayMeasurement<?>) measurement));
+                    }
                 }
                 name = cDevice.getString(deviceNameIndex);
                 if (cNode != null) {
@@ -1034,14 +1155,56 @@ public class SensorDatabase implements Constant {
         void onImportDevice(@NonNull Device device);
     }
 
+    public static Cursor importDevices(long providerId) {
+        if (database == null) {
+            return null;
+        }
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append("SELECT ").append(COLUMN_COMMON_ID)
+                    .append(',').append(COLUMN_DEVICE_NAME)
+                    .append(" FROM ").append(TABLE_DEVICE)
+                    .append(" WHERE ").append(COLUMN_CONFIGURATION_PROVIDER_ID)
+                    .append(" = ").append(providerId)
+                    .append(" ORDER BY ").append(COLUMN_DEVICE_NAME)
+                    .append(" ASC");
+            return database.rawQuery(builder.toString(), null);
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        }
+        return null;
+    }
+
+    public static Cursor importNodes(long deviceId) {
+        if (database == null) {
+            return null;
+        }
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append("SELECT ").append(COLUMN_COMMON_ID)
+                    .append(',').append(COLUMN_MEASUREMENT_VALUE_ID)
+                    .append(',').append(COLUMN_NODE_NAME)
+                    .append(" FROM ").append(TABLE_NODE)
+                    .append(" WHERE ").append(COLUMN_DEVICE_ID)
+                    .append(" = ").append(deviceId)
+                    .append(" ORDER BY ").append(COLUMN_MEASUREMENT_VALUE_ID)
+                    .append(" ASC");
+            return database.rawQuery(builder.toString(), null);
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        }
+        return null;
+    }
+
     public static Cursor importValueContainerConfigurationProviders() {
         if (database == null) {
             return null;
         }
         try {
             return database.query(TABLE_CONFIGURATION_PROVIDER,
-                    new String[] { COLUMN_COMMON_ID, COLUMN_CONFIGURATION_PROVIDER_NAME},
-                    null, null, null, null, null);
+                    new String[] { COLUMN_COMMON_ID, COLUMN_CONFIGURATION_PROVIDER_NAME },
+                    null, null, null, null,
+                    COLUMN_COMMON_ID + " ASC");
         } catch (Exception e) {
             ExceptionLog.record(e);
         }
@@ -1072,8 +1235,125 @@ public class SensorDatabase implements Constant {
 
     //public static boolean exportValueContainerConfigurationProviderToXml(int )
 
+    public static Cursor importSensorsConfiguration(long providerId) {
+        if (database == null) {
+            return null;
+        }
+        try {
+            return database.query(TABLE_SENSOR_CONFIGURATION,
+                    new String[] { COLUMN_COMMON_ID, COLUMN_SENSOR_ADDRESS, COLUMN_CUSTOM_NAME },
+                    COLUMN_CONFIGURATION_PROVIDER_ID + " = ?",
+                    new String[] { String.valueOf(providerId) },
+                    null, null, COLUMN_SENSOR_ADDRESS + " ASC");
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        }
+        return null;
+    }
+
     public static SimpleSQLiteAsyncEventHandler buildAsyncEventHandler(SimpleSQLiteAsyncEventHandler.OnMissionCompleteListener listener) {
         return new SimpleSQLiteAsyncEventHandler(new SQLiteResolverDelegate(database), listener);
+    }
+
+    public static SensorConfiguration importSensorConfiguration(long sensorConfigId) {
+        if (database == null) {
+            return null;
+        }
+        Cursor cursor = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append("SELECT ")
+                    .append(COLUMN_SENSOR_ADDRESS).append(',')
+                    .append(COLUMN_CUSTOM_NAME)
+                    .append(" FROM ").append(TABLE_SENSOR_CONFIGURATION)
+                    .append(" WHERE ").append(COLUMN_COMMON_ID)
+                    .append(" = ").append(sensorConfigId);
+            cursor = database.rawQuery(builder.toString(), null);
+            if (cursor == null || !cursor.moveToNext()) {
+                return null;
+            }
+            int address = cursor.getInt(cursor.getColumnIndex(COLUMN_SENSOR_ADDRESS));
+            //PhysicalSensor sensor = SensorManager.getPhysicalSensor(address);
+            SensorConfiguration sensorConfiguration = new SensorConfiguration(address);
+            String customName = cursor.getString(cursor.getColumnIndex(COLUMN_CUSTOM_NAME));
+            SensorInfoConfiguration infoConfiguration = new SensorInfoConfiguration();
+            if (!TextUtils.isEmpty(customName)) {
+                infoConfiguration.setDecorator(new CommonSensorInfoDecorator(customName));
+            }
+            sensorConfiguration.setBaseConfiguration(infoConfiguration);
+            cursor.close();
+            builder.setLength(0);
+            builder.append("SELECT ").append(COLUMN_COMMON_ID)
+                    .append(",").append(COLUMN_MEASUREMENT_VALUE_ID)
+                    .append(",").append(COLUMN_CUSTOM_NAME)
+                    .append(",").append(COLUMN_TYPE)
+                    .append(" FROM ").append(TABLE_MEASUREMENT_CONFIGURATION)
+                    .append(" WHERE ").append(COLUMN_SENSOR_CONFIGURATION_ID)
+                    .append(" = ").append(sensorConfigId);
+            cursor = database.rawQuery(builder.toString(), null);
+            if (cursor == null) {
+                return sensorConfiguration;
+            }
+            int idIndex = cursor.getColumnIndex(COLUMN_COMMON_ID);
+            int valueIdIndex = cursor.getColumnIndex(COLUMN_MEASUREMENT_VALUE_ID);
+            int customNameIndex = cursor.getColumnIndex(COLUMN_CUSTOM_NAME);
+            int typeIndex = cursor.getColumnIndex(COLUMN_TYPE);
+            long measurementConfigId;
+            long measurementId;
+            Warner<DisplayMeasurement.Value> warner;
+            DisplayMeasurement.Configuration measurementConfiguration;
+            while (cursor.moveToNext()) {
+                measurementConfigId = cursor.getLong(idIndex);
+                measurementId = cursor.getLong(valueIdIndex);
+                warner = importMeasurementWarner(measurementConfigId, builder);
+                measurementConfiguration = buildMeasurementConfiguration(cursor, customNameIndex, typeIndex, measurementConfigId, warner);
+                sensorConfiguration.setMeasureConfiguration(measurementId, measurementConfigId, measurementConfiguration);
+            }
+            return sensorConfiguration;
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
+    }
+
+    private static Warner<DisplayMeasurement.Value> importMeasurementWarner(long measurementConfigId, StringBuilder builder) {
+        Cursor cursor = null;
+        try {
+            builder.setLength(0);
+            builder.append("SELECT ").append(COLUMN_LOW_LIMIT)
+                    .append(',').append(COLUMN_HIGH_LIMIT)
+                    .append(" FROM ").append(TABLE_GENERAL_SINGLE_RANGE_WARNER)
+                    .append(" WHERE ").append(COLUMN_COMMON_ID)
+                    .append(" = ").append(measurementConfigId);
+            cursor = database.rawQuery(builder.toString(), null);
+            if (cursor != null && cursor.moveToNext()) {
+                CommonSingleRangeWarner warner = new CommonSingleRangeWarner();
+                warner.setHighLimit(cursor.getDouble(cursor.getColumnIndex(COLUMN_HIGH_LIMIT)));
+                warner.setLowLimit(cursor.getDouble(cursor.getColumnIndex(COLUMN_LOW_LIMIT)));
+                return warner;
+            }
+            cursor.close();
+            builder.setLength(0);
+            builder.append("SELECT ").append(COLUMN_ABNORMAL_VALUE)
+                    .append(" FROM ").append(TABLE_GENERAL_SWITCH_WARNER)
+                    .append(" WHERE ").append(COLUMN_COMMON_ID)
+                    .append(" = ").append(measurementConfigId);
+            cursor = database.rawQuery(builder.toString(), null);
+            if (cursor != null && cursor.moveToNext()) {
+                CommonSwitchWarner warner = new CommonSwitchWarner();
+                warner.setAbnormalValue(cursor.getDouble(cursor.getColumnIndex(COLUMN_ABNORMAL_VALUE)));
+                return warner;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return null;
     }
 
     public interface SensorDataProvider {
@@ -1181,6 +1461,16 @@ public class SensorDatabase implements Constant {
                     updater.onVersionUpdateToBrokenTime(db, builder);
                 }
             }
+            if (oldVersion < VN_VIRTUAL_CONFIG) {
+                addColumnTypeForMeasurementConfiguration(db, builder);
+                createRatchetWheelMeasurementConfigurationDataTable(db, builder);
+            }
+            if (oldVersion < VN_GOOD_TYPE) {
+                modifyMeasurementConfigurationColumnTypeDataType(db, builder);
+            }
+            if (oldVersion < VN_THIN_RATCHET_WHEEL) {
+                deleteColumnCustomNameFromTablRatchetWheelConfiguration(db, builder);
+            }
         }
 
         private void createConfigurationProviderDataTable(SQLiteDatabase db, StringBuilder builder) {
@@ -1218,6 +1508,7 @@ public class SensorDatabase implements Constant {
                     .append(COLUMN_SENSOR_CONFIGURATION_ID).append(" INTEGER NOT NULL,")
                     .append(COLUMN_MEASUREMENT_VALUE_ID).append(" BIGINT NOT NULL,")
                     .append(COLUMN_CUSTOM_NAME).append(" VARCHAR(255),")
+                    .append(COLUMN_TYPE).append(" INT,")   //版本VN_VIRTUAL_CONFIG添加，版本VN_GOOD_TYPE将类型从VARCHAR(255)改为INT
                     .append("UNIQUE(").append(COLUMN_SENSOR_CONFIGURATION_ID)
                     .append(", ").append(COLUMN_MEASUREMENT_VALUE_ID).append("),")
                     .append("FOREIGN KEY(").append(COLUMN_SENSOR_CONFIGURATION_ID)
@@ -1281,6 +1572,77 @@ public class SensorDatabase implements Constant {
                     .append('(').append(COLUMN_COMMON_ID).append(") ON DELETE CASCADE")
                     .append(')').toString());
         }
+
+        private void addColumnTypeForMeasurementConfiguration(SQLiteDatabase db, StringBuilder builder) {
+            builder.setLength(0);
+            db.execSQL(builder.append("ALTER TABLE ")
+                    .append(TABLE_MEASUREMENT_CONFIGURATION)
+                    .append(" ADD COLUMN ")
+                    .append(COLUMN_TYPE)
+                    .append(" VARCHAR(255)")
+                    .toString());
+        }
+
+        private void createRatchetWheelMeasurementConfigurationDataTable(SQLiteDatabase db, StringBuilder builder) {
+            builder.setLength(0);
+            db.execSQL(builder.append("CREATE TABLE ")
+                    .append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION).append(" (")
+                    .append(COLUMN_COMMON_ID).append(" INTEGER NOT NULL PRIMARY KEY,")
+                    .append(COLUMN_INITIAL_DISTANCE).append(" DOUBLE NOT NULL,")
+                    .append(COLUMN_INITIAL_VALUE).append(" DOUBLE NOT NULL,")
+                    //.append(COLUMN_CUSTOM_NAME).append(" VARCHAR(255),")  //版本VN_THIN_RATCHET_WHEEL移除
+                    .append("FOREIGN KEY(").append(COLUMN_COMMON_ID).append(") ")
+                    .append("REFERENCES ").append(TABLE_MEASUREMENT_CONFIGURATION)
+                    .append('(').append(COLUMN_COMMON_ID).append(") ON DELETE CASCADE")
+                    .append(')').toString());
+        }
+
+        private void modifyMeasurementConfigurationColumnTypeDataType(SQLiteDatabase db, StringBuilder builder) {
+            //把原表改成另外一个名字作为暂存表
+            builder.setLength(0);
+            builder.append("ALTER TABLE ").append(TABLE_MEASUREMENT_CONFIGURATION)
+                    .append(" RENAME TO ").append(TABLE_MEASUREMENT_CONFIGURATION)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+            //用原表的名字创建新表
+            createMeasurementConfigurationDataTable(db, builder);
+            //将暂存表数据写入到新表，很方便的是不需要去理会自动增长的 ID
+            builder.setLength(0);
+            builder.append("INSERT INTO ").append(TABLE_MEASUREMENT_CONFIGURATION)
+                    .append(" SELECT * FROM ").append(TABLE_MEASUREMENT_CONFIGURATION)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+            //删除暂存表
+            builder.setLength(0);
+            builder.append("DROP TABLE ").append(TABLE_MEASUREMENT_CONFIGURATION)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+        }
+
+        private void deleteColumnCustomNameFromTablRatchetWheelConfiguration(SQLiteDatabase db, StringBuilder builder) {
+            //把原表改成另外一个名字作为暂存表
+            builder.setLength(0);
+            builder.append("ALTER TABLE ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+                    .append(" RENAME TO ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+            //用原表的名字创建新表
+            createRatchetWheelMeasurementConfigurationDataTable(db, builder);
+            //将暂存表数据写入到新表，很方便的是不需要去理会自动增长的 ID
+            builder.setLength(0);
+            builder.append("INSERT INTO ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+                    .append(" SELECT ").append(COLUMN_COMMON_ID)
+                    .append(',').append(COLUMN_INITIAL_VALUE)
+                    .append(',').append(COLUMN_INITIAL_DISTANCE)
+                    .append(" FROM ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+            //删除暂存表
+            builder.setLength(0);
+            builder.append("DROP TABLE ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+        }
     }
 
     private static class ValueContainerConfigurationProviderHandler extends DefaultHandler {
@@ -1297,6 +1659,7 @@ public class SensorDatabase implements Constant {
         private String mSensorName;
         private String mMeasurementName;
         private boolean mIntoMeasurementElement;
+        private int mMeasurementType;
         private long mMeasurementValueId;
         //private String mWarnerTableName;
         private double mAbnormalValue;
@@ -1305,6 +1668,8 @@ public class SensorDatabase implements Constant {
         private String mWarnerType;
         private String mProviderName;
         private int mProviderCount;
+        private double mInitValue;
+        private double mInitDistance;
 
         public ValueContainerConfigurationProviderHandler(SQLiteDatabase database) {
             //mDatabase = database;
@@ -1324,7 +1689,7 @@ public class SensorDatabase implements Constant {
             }
             mSensorConfigId = getNextAutoIncrementId(TABLE_SENSOR_CONFIGURATION);
             if (mSensorConfigId == 0) {
-                throw new SqlExecuteFailed("sensor id get failed");
+                throw new SqlExecuteFailed("measurement id get failed");
             }
             mMeasurementConfigId = getNextAutoIncrementId(TABLE_MEASUREMENT_CONFIGURATION);
             if (mMeasurementConfigId == 0) {
@@ -1334,6 +1699,9 @@ public class SensorDatabase implements Constant {
             if (mDeviceId == 0) {
                 throw new SqlExecuteFailed("device id get failed");
             }
+            mMeasurementType = SensorConfiguration.Measure.CT_NORMAL;
+            mInitValue = 0.0;
+            mInitDistance = 0.0;
 //            mNodeId = getNextAutoIncrementId(TABLE_NODE);
 //            if (mNodeId == 0) {
 //                throw new SqlExecuteFailed("node id get failed");
@@ -1351,10 +1719,13 @@ public class SensorDatabase implements Constant {
                     break;
                 case TAG_MEASUREMENT: {
                     mIntoMeasurementElement = true;
+                    String dataType = attributes.getValue(TAG_TYPE);
                     String index = attributes.getValue(TAG_INDEX);
-                    mMeasurementValueId = LogicalSensor.ID.getId(mAddress,
-                            (byte) Integer.parseInt(attributes.getValue(TAG_TYPE), 16),
+                    String measurementType = attributes.getValue("pattern");
+                    mMeasurementValueId = ID.getId(mAddress,
+                            TextUtils.isEmpty(dataType) ? 0 : (byte) Integer.parseInt(dataType, 16),
                             TextUtils.isEmpty(index) ? 0 : Integer.parseInt(index));
+                    mMeasurementType = TextUtils.isEmpty(measurementType) ? SensorConfiguration.Measure.CT_NORMAL : Integer.parseInt(measurementType);
                 } break;
                 case TAG_WARNER:
                     mWarnerType = attributes.getValue(TAG_TYPE);
@@ -1374,12 +1745,13 @@ public class SensorDatabase implements Constant {
                 case TAG_NODE:
                     mValues.clear();
                     mValues.put(COLUMN_DEVICE_ID, mDeviceId);
+                    String dataType = attributes.getValue(TAG_TYPE);
                     String index = attributes.getValue(TAG_INDEX);
-                    long measurementValueId = LogicalSensor.ID.getId(Integer.parseInt(attributes.getValue(TAG_ADDRESS), 16),
-                            (byte) Integer.parseInt(attributes.getValue(TAG_TYPE), 16),
+                    long measurementValueId = ID.getId(Integer.parseInt(attributes.getValue(TAG_ADDRESS), 16),
+                            TextUtils.isEmpty(dataType) ? 0 : (byte) Integer.parseInt(dataType, 16),
                             TextUtils.isEmpty(index) ? 0 : Integer.parseInt(index));
                     if (measurementValueId == 0) {
-                        throw new LackParameterException("sensor address and measurement type may not be empty");
+                        throw new LackParameterException("measurement address and measurement type may not be empty");
                     }
                     mValues.put(COLUMN_MEASUREMENT_VALUE_ID, measurementValueId);
                     String nodeName = attributes.getValue(TAG_NAME);
@@ -1429,14 +1801,21 @@ public class SensorDatabase implements Constant {
                     mValues.clear();
                     mValues.put(COLUMN_SENSOR_CONFIGURATION_ID, mSensorConfigId);
                     if (mMeasurementValueId == 0) {
-                        throw new LackParameterException("sensor address and measurement type may not be empty");
+                        throw new LackParameterException("measurement address and measurement type may not be empty");
                     }
                     mValues.put(COLUMN_MEASUREMENT_VALUE_ID, mMeasurementValueId);
                     if (!TextUtils.isEmpty(mMeasurementName)) {
                         mValues.put(COLUMN_CUSTOM_NAME, mMeasurementName);
                     }
+                    if (mMeasurementType != SensorConfiguration.Measure.CT_NORMAL) {
+                        mValues.put(COLUMN_TYPE, mMeasurementType);
+                    }
                     if (database.insert(TABLE_MEASUREMENT_CONFIGURATION, null, mValues) == -1) {
                         throw new SqlExecuteFailed("insert measurement configuration failed");
+                    }
+                    if (mMeasurementType != SensorConfiguration.Measure.CT_NORMAL) {
+                        insertExtraMeasurementConfig();
+                        mMeasurementType = SensorConfiguration.Measure.CT_NORMAL;
                     }
                     mMeasurementValueId = 0;
                     mMeasurementName = null;
@@ -1447,14 +1826,14 @@ public class SensorDatabase implements Constant {
                     mValues.clear();
                     mValues.put(COLUMN_CONFIGURATION_PROVIDER_ID, mProviderConfigId);
                     if (mAddress == 0) {
-                        throw new LackParameterException("sensor address may not be empty");
+                        throw new LackParameterException("measurement address may not be empty");
                     }
                     mValues.put(COLUMN_SENSOR_ADDRESS, mAddress);
                     if (!TextUtils.isEmpty(mSensorName)) {
                         mValues.put(COLUMN_CUSTOM_NAME, mSensorName);
                     }
                     if (database.insert(TABLE_SENSOR_CONFIGURATION, null, mValues) == -1) {
-                        throw new SqlExecuteFailed("insert sensor configuration failed");
+                        throw new SqlExecuteFailed("insert measurement configuration failed");
                     }
                     mAddress = 0;
                     mSensorName = null;
@@ -1479,6 +1858,28 @@ public class SensorDatabase implements Constant {
                 case TAG_DEVICE:
                     ++mDeviceId;
                     break;
+                case "InitValue":
+                    mInitValue = Double.parseDouble(mBuilder.toString());
+                    break;
+                case "InitDistance":
+                    mInitDistance = Double.parseDouble(mBuilder.toString());
+                    break;
+            }
+        }
+
+        private void insertExtraMeasurementConfig() {
+            switch (mMeasurementType) {
+                case SensorConfiguration.Measure.CT_RATCHET_WHEEL: {
+                    mValues.clear();
+                    mValues.put(COLUMN_COMMON_ID, mMeasurementConfigId);
+                    mValues.put(COLUMN_INITIAL_VALUE, mInitValue);
+                    mValues.put(COLUMN_INITIAL_DISTANCE, mInitDistance);
+                    if (database.insert(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION, null, mValues) == -1) {
+                        throw new SqlExecuteFailed("insert measurement extra configuration failed");
+                    }
+                    mInitValue = 0.0;
+                    mInitDistance = 0.0;
+                } break;
             }
         }
 

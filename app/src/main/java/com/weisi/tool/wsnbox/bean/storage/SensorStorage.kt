@@ -6,7 +6,5 @@ import com.cjq.lib.weisi.iot.Sensor
 /**
  * Created by CJQ on 2018/5/28.
  */
-class SensorStorage<S : Sensor<*, *>>(provider: ElementsProvider<S>) : Storage<S>(provider) {
-
-
+class SensorStorage<S : Sensor>(provider: ElementsProvider<S>) : Storage<S>(provider) {
 }

@@ -10,11 +10,11 @@ import com.cjq.lib.weisi.iot.PhysicalSensor
 class PhysicalSensorInfoFilter(var keyWord: String = "") : Filter<PhysicalSensor> {
 
     override fun match(sensor: PhysicalSensor): Boolean {
-        if (sensor.name.contains(keyWord)) {
+        if (sensor.info.name.contains(keyWord)) {
             return true
         }
-        for (measurement in sensor.measurementCollections) {
-            if (measurement.name.contains(keyWord)) {
+        for (i in 0 until sensor.displayMeasurementSize) {
+            if (sensor.getDisplayMeasurementByPosition(i).name.contains(keyWord)) {
                 return true
             }
         }

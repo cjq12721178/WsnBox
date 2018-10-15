@@ -15,9 +15,10 @@ android {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 28
-        versionName "1.7.2"
+        versionCode 30
+        versionName "1.8.0"
         flavorDimensions "wsn"
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     productFlavors {
@@ -31,16 +32,24 @@ android {
                     actionStartAboutActivity: "android.intent.action.ABOUT_GUOMI"
             ]
             applicationIdSuffix ".guomi"
-            versionCode 24
-            versionName "0.8.2"
+            versionCode 26
+            versionName "0.9.0"
         }
         jiugang {
             manifestPlaceholders = [
                     actionStartAboutActivity: "android.intent.action.ABOUT_JIUGANG"
             ]
             applicationIdSuffix ".jiugang"
-            versionCode 11
-            versionName "0.3.2"
+            versionCode 13
+            versionName "0.4.0"
+        }
+        show {
+            manifestPlaceholders = [
+                    actionStartAboutActivity: "android.intent.action.ABOUT_SHOW"
+            ]
+            applicationIdSuffix ".show"
+            versionCode 8
+            versionName "0.2.0"
         }
     }
 
@@ -104,8 +113,8 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation(name: 'com.cjq.tool.qbox-1.6.7', ext: 'aar')
-    implementation(name: 'com.cjq.lib.weisi-5.3.2', ext: 'aar')
+    implementation(name: 'com.cjq.tool.qbox-1.7.4', ext: 'aar')
+    implementation(name: 'com.cjq.lib.weisi-6.2.2', ext: 'aar')
     implementation 'com.android.support:appcompat-v7:27.0.2'
     implementation 'com.android.support:recyclerview-v7:27.0.2'
     implementation 'com.android.support:preference-v7:27.0.2'
@@ -122,7 +131,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
-    implementation "io.reactivex.rxjava2:rxjava:2.1.16"
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.16'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
 }
 
@@ -150,9 +159,57 @@ afterEvaluate {
             def outputDir = "${projectDir}/${productName}/release"
             def version = "${product.versionName}"
             def apkName
+            def hasVersionDescription = false
+            def versionDescriptions = []
+            def versionDescriptionFileName = "${outputDir}/版本说明.txt"
             new File(outputDir).eachFile {
                 if (it.name.contains(version)) {
                     apkName = it.name
+                }
+                if (it.name.contains("版本说明")) {
+                    //versionDescriptionFileName = it.name
+                    it.eachLine { line ->
+                        if (hasVersionDescription) {
+                            versionDescriptions.add(line)
+                        }
+                        if (line.contains(version)) {
+                            hasVersionDescription = true
+                        }
+                    }
+                }
+            }
+            if (!hasVersionDescription) {
+                new File("${projectDir}/general/release").eachFile {
+                    if (it.name.contains("版本说明")) {
+                        def latestVersionLineNo = 0
+                        def lineNo = 0
+                        it.eachLine { line ->
+                            lineNo++
+                            if (line.contains("):")) {
+                                latestVersionLineNo = lineNo
+                            }
+                        }
+                        if (latestVersionLineNo > 0) {
+                            hasVersionDescription = true
+                            lineNo = 0
+                            it.eachLine() { line ->
+                                lineNo++
+                                if (latestVersionLineNo < lineNo) {
+                                    versionDescriptions.add(line)
+                                }
+                            }
+                        }
+                        if (hasVersionDescription) {
+                            def versionDescriptionFile = new File(versionDescriptionFileName)
+                            versionDescriptionFile.append("\r\n", "utf8")
+                            //versionDescriptionFile.append("${lineNo}\r\n")
+                            //versionDescriptionFile.append("${latestVersionLineNo}\r\n")
+                            versionDescriptionFile.append("${buildTime()}-${version}(${product.versionCode}):\r\n", "utf8")
+                            versionDescriptions.forEach() { line ->
+                                versionDescriptionFile.append("${line}\r\n", "utf8")
+                            }
+                        }
+                    }
                 }
             }
             new File("${outputDir}/update.json").withPrintWriter("UTF-8") { writer ->
@@ -161,10 +218,20 @@ afterEvaluate {
                 writer.println("    \"versionName\": \"${version}\",")
                 writer.println("    \"versionCode\": ${product.versionCode},")
                 writer.println("    \"forceUpdate\": true,")
-                writer.println("    \"versionDescription\": \"" +
-                        "1. 新增对动作计数器、振动传感器、用电状态终端、线路状态指示器、太阳能充电管理模块、应急灯监测模块、棘轮状态监测装置、无线中继器、导线综合状态监测器球等传感器的数据解析支持\\n" +
-                        "2. 修复数据浏览界面降序排列时传感器显示有误的问题\\n" +
-                        "3. 修复版本查询不显示的问题\"")
+//                writer.println("    \"versionDescription\": \"" +
+//                        //"1. 修复BLE协议解析阵列传感器时数据类型区分失败的问题\\n" +
+//                        "1. 修复历史数据对话框时间选择异常的问题\"")
+                writer.print("    \"versionDescription\": \"")
+                if (versionDescriptions.empty) {
+                    writer.print("无更新说明")
+                } else {
+                    writer.print(versionDescriptions.remove(0))
+                    versionDescriptions.forEach() { description ->
+                        writer.print("\\n")
+                        writer.print(description)
+                    }
+                }
+                writer.println("\"")
                 writer.println("}")
                 writer.flush()
                 writer.close()
