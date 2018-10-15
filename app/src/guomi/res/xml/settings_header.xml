@@ -2,8 +2,13 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
     <header
         android:title="@string/serial_port"
-        android:fragment="com.weisi.tool.wsnbox.fragment.SerialPortSettingsFragment"/>
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.SerialPortSettingsFragment"/>
     <header
         android:title="@string/data_store"
-        android:fragment="com.weisi.tool.wsnbox.fragment.DataStoreSettingsFragment"/>
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.DataStoreSettingsFragment"/>
+    <header
+        android:title="@string/about_app">
+        <intent
+            android:action="action_start_about_activity"/>
+    </header>
 </preference-headers>
