@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/size_sensor_info_row_header_width"
+    android:layout_height="@dimen/size_sensor_info_column_header_height"
+    android:background="@color/bg_unselected_header">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/timestamp"
+        android:textColor="@color/tc_unselected_cell"
+        android:gravity="center"
+        android:lines="1"
+        android:textSize="@dimen/size_text_view_label"/>
+
+    <View
+        android:layout_width="@dimen/divider_width_fix"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:background="@color/tbv_separator"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_width_fix"
+        android:layout_alignParentBottom="true"
+        android:background="@color/tbv_separator"/>
+
+</RelativeLayout>

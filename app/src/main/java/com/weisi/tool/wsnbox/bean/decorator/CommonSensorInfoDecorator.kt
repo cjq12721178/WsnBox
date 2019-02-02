@@ -7,7 +7,11 @@ import com.cjq.lib.weisi.iot.Sensor
  */
 class CommonSensorInfoDecorator(customName: String) : CommonBaseDecorator<Sensor.Info.Value>(customName) {
 
+    override fun decorateValue(rawValue: Double, para: Int): String {
+        return ""
+    }
+
     override fun decorateValue(value: Sensor.Info.Value, para: Int): String {
-        throw UnsupportedOperationException("not implemented")
+        return ""
     }
 }

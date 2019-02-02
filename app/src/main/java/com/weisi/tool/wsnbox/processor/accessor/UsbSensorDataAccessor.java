@@ -2,16 +2,20 @@ package com.weisi.tool.wsnbox.processor.accessor;
 
 import android.content.Context;
 import android.hardware.usb.UsbDevice;
+import android.support.annotation.NonNull;
 
-import com.cjq.lib.weisi.communicator.Communicator;
 import com.cjq.lib.weisi.communicator.usb.UsbKit;
 import com.cjq.lib.weisi.communicator.usb.UsbSerialPort;
-import com.cjq.lib.weisi.protocol.BleOnUsbSensorProtocol;
-import com.cjq.lib.weisi.protocol.EsbOnUsbSensorProtocol;
-import com.cjq.lib.weisi.protocol.OnFrameAnalyzedListener;
-import com.cjq.lib.weisi.protocol.UsbSensorProtocol;
 import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
+import com.wsn.lib.wsb.communicator.Communicator;
+import com.wsn.lib.wsb.protocol.Analyzable;
+import com.wsn.lib.wsb.protocol.BleOnUsbSensorProtocol;
+import com.wsn.lib.wsb.protocol.EsbOnUsbSensorProtocol;
+import com.wsn.lib.wsb.protocol.OnFrameAnalyzedListener;
+import com.wsn.lib.wsb.protocol.UsbSensorProtocol;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -34,7 +38,7 @@ public class UsbSensorDataAccessor
     }
 
     @Override
-    protected void onStartDataAccess(Context context, Settings settings, OnStartResultListener listener) {
+    protected void onStartDataAccess(@NonNull Context context, @NonNull Settings settings, @NonNull OnStartResultListener listener) {
         mTmpContext = context;
         mTmpSettings = settings;
         mTmpListener = listener;
@@ -128,8 +132,14 @@ public class UsbSensorDataAccessor
     }
 
     @Override
-    public int onDataReceived(byte[] data, int len) {
+    public int onDataReceived(@NonNull byte[] data, int len) {
         return mProtocol.analyzeMultiplePackages(data, 0, len, this);
+    }
+
+    @Override
+    public boolean onErrorOccurred(@NonNull Exception e) {
+
+        return false;
     }
 
     static class CommunicatorDelegate implements Communicator {
@@ -137,12 +147,12 @@ public class UsbSensorDataAccessor
         private UsbSerialPort mUsbSerialPort;
 
         //注意，暂时只支持连接一个USB设备
-        public void setUsbSerialPort(UsbSerialPort usbSerialPort) {
+        void setUsbSerialPort(UsbSerialPort usbSerialPort) {
             mUsbSerialPort = usbSerialPort;
         }
 
         @Override
-        public int read(byte[] dst, int offset, int length) throws IOException {
+        public int read(@NonNull byte[] dst, int offset, int length) throws IOException {
             return mUsbSerialPort != null
                     ? mUsbSerialPort.read(dst, offset, length)
                     : 0;
@@ -154,26 +164,26 @@ public class UsbSensorDataAccessor
         }
 
         @Override
-        public void stopRead() throws IOException {
+        public void stopRead() {
             if (mUsbSerialPort != null) {
                 mUsbSerialPort.stopRead();
             }
         }
 
-        public void setParameters(int baudRate, int dataBits, int stopBits, int parity) throws IOException {
+        void setParameters(int baudRate, int dataBits, int stopBits, int parity) throws IOException {
             if (mUsbSerialPort != null) {
                 mUsbSerialPort.setParameters(baudRate, dataBits, stopBits, parity);
             }
         }
 
-        public void close() throws IOException {
+        void close() throws IOException {
             if (mUsbSerialPort != null) {
                 mUsbSerialPort.close();
                 mUsbSerialPort = null;
             }
         }
 
-        public void write(byte[] src, int timeoutMillis) throws IOException {
+        void write(byte[] src, int timeoutMillis) throws IOException {
             if (mUsbSerialPort != null) {
                 mUsbSerialPort.write(src, timeoutMillis);
             }
@@ -196,17 +206,17 @@ public class UsbSensorDataAccessor
             }
         }
 
-        protected ProtocolDelegate() {
-            super(null);
+        ProtocolDelegate() {
+            super(new EmptyAnalyzer());
         }
 
         @Override
-        public void analyze(byte[] udpData, int offset, int length, OnFrameAnalyzedListener listener) {
+        public void analyze(@NonNull byte[] udpData, int offset, int length, @NonNull OnFrameAnalyzedListener listener) {
             mProtocol.analyze(udpData, offset, length, listener);
         }
 
         @Override
-        public int analyzeMultiplePackages(byte[] udpData, int offset, int length, OnFrameAnalyzedListener listener) {
+        public int analyzeMultiplePackages(@NonNull byte[] udpData, int offset, int length, @NonNull OnFrameAnalyzedListener listener) {
             return mProtocol.analyzeMultiplePackages(udpData, offset, length, listener);
         }
 
@@ -216,8 +226,15 @@ public class UsbSensorDataAccessor
         }
 
         @Override
-        protected void onDataAnalyzed(byte[] data, int realDataZoneStart, int realDataZoneLength, OnFrameAnalyzedListener listener) {
+        protected void onDataAnalyzed(@NonNull byte[] data, int realDataZoneStart, int realDataZoneLength, @NonNull OnFrameAnalyzedListener listener) {
 
+        }
+
+        static class EmptyAnalyzer implements Analyzable {
+            @Override
+            public long analyzeTimestamp(@NotNull byte[] bytes, int i) {
+                return 0;
+            }
         }
     }
 }

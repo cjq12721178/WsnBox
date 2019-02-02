@@ -3,6 +3,7 @@ package com.weisi.tool.wsnbox.activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -65,7 +66,7 @@ public class MainActivity
     }
 
     @Override
-    public void onServiceConnectionCreate(DataPrepareService service) {
+    public void onServiceConnectionCreate(@NonNull DataPrepareService service) {
         if (service.importSensorConfigurations()) {
             service.startAccessSensorData(this);
             if (SensorDatabase.launch(this)) {
@@ -87,7 +88,7 @@ public class MainActivity
     }
 
     @Override
-    public void onServiceConnectionDestroy(DataPrepareService service) {
+    public void onServiceConnectionDestroy(@NonNull DataPrepareService service) {
         service.stopAccessSensorData();
         service.stopCaptureAndRecordSensorData();
     }
@@ -118,6 +119,9 @@ public class MainActivity
 
     @Override
     public boolean onConfirm(BaseDialog dialog) {
+        if (dialog.getTag() == null) {
+            return true;
+        }
         switch (dialog.getTag()) {
             case DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED:
             case DIALOG_TAG_CONFIGURATION_NOT_PREPARED:
@@ -141,8 +145,17 @@ public class MainActivity
                 startActivity(new Intent(this, ParameterConfigurationActivity.class));
                 break;
             case R.id.cl_freedom_scout:
-            case R.id.cl_scout_config:
                 showExpectDialog();
+                break;
+            case R.id.cl_product_display:
+                if (getSettings().getProductDisplayValueContainerConfigurationProviderId() != 0) {
+                    startActivity(new Intent(this, DemonstrationActivity.class));
+                } else {
+                    ConfirmDialog dialog = new ConfirmDialog();
+                    dialog.setTitle(R.string.product_display_provider_not_apply);
+                    dialog.setDrawCancelButton(false);
+                    dialog.show(getSupportFragmentManager(), "pd_no_cfg");
+                }
                 break;
         }
     }

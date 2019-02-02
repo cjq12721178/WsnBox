@@ -8,6 +8,7 @@ import android.support.annotation.StringRes;
 import java.util.ArrayList;
 import java.util.List;
 
+import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
 /**
@@ -94,6 +95,17 @@ public abstract class PermissionsRequester implements EasyPermissions.Permission
             notifyPermissionsGranted();
         } else {
             notifyPermissionsDenied();
+        }
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        if (requestCode == REQUEST_CODE) {
+            if (EasyPermissions.somePermissionPermanentlyDenied(getActivity(), perms)) {
+                new AppSettingsDialog.Builder(getActivity()).build().show();
+            } else {
+                notifyPermissionsDenied();
+            }
         }
     }
 

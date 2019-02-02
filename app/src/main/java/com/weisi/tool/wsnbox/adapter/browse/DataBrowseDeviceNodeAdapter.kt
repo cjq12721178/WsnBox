@@ -3,24 +3,19 @@ package com.weisi.tool.wsnbox.adapter.browse
 import android.graphics.Color
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
-import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.cjq.lib.weisi.data.Storage
-import com.cjq.lib.weisi.iot.DisplayMeasurement
 import com.cjq.tool.qbox.ui.adapter.AdapterDelegate
 import com.cjq.tool.qbox.ui.adapter.MapAdapterDelegateManager
 import com.cjq.tool.qbox.ui.adapter.RecyclerViewBaseAdapter
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.bean.data.Device
-import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor
 import kotlinx.android.synthetic.main.li_device_node.view.*
 import kotlinx.android.synthetic.main.li_logical_sensor.view.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  * Created by CJQ on 2018/6/8.
@@ -48,12 +43,12 @@ class DataBrowseDeviceNodeAdapter(private val storage: Storage<Device>) : Recycl
 
     class Delegate(private val nodeCount: Int) : AdapterDelegate<Device> {
 
-        companion object {
-            internal var realTime = true
-            internal var warnProcessor: CommonWarnProcessor<View>? = null
-            private val TIMESTAMP_SETTER = Date()
-            private val DATE_FORMAT = SimpleDateFormat("HH:mm:ss")
-        }
+//        companion object {
+//            internal var realTime = true
+//            internal var warnProcessor: CommonWarnProcessor<View>? = null
+//            private val TIMESTAMP_SETTER = Date()
+//            private val DATE_FORMAT = SimpleDateFormat("HH:mm:ss")
+//        }
 
         init {
             if (nodeCount < 0) {
@@ -66,12 +61,12 @@ class DataBrowseDeviceNodeAdapter(private val storage: Storage<Device>) : Recycl
                     .from(parent?.context)
                     .inflate(R.layout.li_device_node,
                             parent,
-                            false), nodeCount);
+                            false), nodeCount)
         }
 
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, item: Device?, position: Int) {
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, item: Device, position: Int) {
             val h = holder as ViewHolder
-            h.tvDeviceName.text = item!!.name
+            h.tvDeviceName.text = item.name
             var i = 0
             while (i < nodeCount) {
                 setNodeInfoText(h, i++, item)
@@ -81,30 +76,31 @@ class DataBrowseDeviceNodeAdapter(private val storage: Storage<Device>) : Recycl
         private fun setNodeInfoText(h: ViewHolder, index: Int, item: Device) {
             val measurement = item.nodes[index].measurement
             h.tvNodeNames[index].text = item.nodes[index].name ?: measurement.defaultName
-            setMeasurementTimestampAndValueText(h.tvTimestamps[index], h.tvValues[index], measurement)
+            BaseDataBrowseSensorAdapterDelegate.setMeasurementTimestampAndValueText(h.tvTimestamps[index], h.tvValues[index], measurement)
+            BaseDataBrowseSensorAdapterDelegate.setItemBackground(h.tvNodeNames[index].parent as View, measurement)
             //val value = getValue(measurement)
             //setTimestampText(h.tvTimestamps[index], value)
             //setMeasurementValueText(h.tvValues[index], measurement, value)
         }
 
-        private fun setMeasurementTimestampAndValueText(tvTimestamp: TextView, tvMeasurementValue: TextView, measurement: DisplayMeasurement<*>) {
-            val value = getValue(measurement)
-            if (value != null) {
-                TIMESTAMP_SETTER.time = value.timestamp
-                tvTimestamp.text = DATE_FORMAT.format(TIMESTAMP_SETTER)
-                tvMeasurementValue.text = measurement.formatValue(value)
-                warnProcessor?.process(value, measurement.configuration.warner, tvMeasurementValue)
-            } else {
-                tvTimestamp.text = null
-                tvMeasurementValue.text = null
-            }
-        }
+//        private fun setMeasurementTimestampAndValueText(tvTimestamp: TextView, tvMeasurementValue: TextView, measurement: DisplayMeasurement<*>) {
+//            val value = getValue(measurement)
+//            if (value != null) {
+//                TIMESTAMP_SETTER.time = value.timestamp
+//                tvTimestamp.text = DATE_FORMAT.format(TIMESTAMP_SETTER)
+//                tvMeasurementValue.text = measurement.formatValue(value)
+//                warnProcessor?.process(value, measurement.configuration.warner, tvMeasurementValue)
+//            } else {
+//                tvTimestamp.text = null
+//                tvMeasurementValue.text = null
+//            }
+//        }
 
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, item: Device?, position: Int, payloads: MutableList<Any?>?) {
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, item: Device, position: Int, payloads: MutableList<Any?>?) {
             if (payloads != null && !payloads.isEmpty() && payloads[0] is Int) {
                 val index: Int = payloads[0] as Int
                 if (index in 0..(nodeCount - 1)) {
-                    setNodeInfoText(holder as ViewHolder, index, item!!)
+                    setNodeInfoText(holder as ViewHolder, index, item)
                     return
                 }
             }
@@ -115,13 +111,13 @@ class DataBrowseDeviceNodeAdapter(private val storage: Storage<Device>) : Recycl
             return nodeCount
         }
 
-        private fun getValue(measurement: DisplayMeasurement<*>): DisplayMeasurement.Value? {
-            return if (realTime) {
-                measurement.realTimeValue
-            } else {
-                measurement.historyValueContainer.earliestValue
-            }
-        }
+//        private fun getValue(measurement: DisplayMeasurement<*>): DisplayMeasurement.Value? {
+//            return if (realTime) {
+//                measurement.realTimeValue
+//            } else {
+//                measurement.historyValueContainer.earliestValue
+//            }
+//        }
 
 //        private fun setTimestampText(tvTimestamp: TextView, value: DisplayMeasurement.Value?) {
 //            if (value != null) {
@@ -142,7 +138,7 @@ class DataBrowseDeviceNodeAdapter(private val storage: Storage<Device>) : Recycl
 //        }
     }
 
-    class ViewHolder(itemView: View?, nodeCount: Int) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View, nodeCount: Int) : RecyclerView.ViewHolder(itemView) {
 
         val tvDeviceName: TextView
         val tvNodeNames: Array<TextView>
@@ -150,18 +146,18 @@ class DataBrowseDeviceNodeAdapter(private val storage: Storage<Device>) : Recycl
         val tvValues: Array<TextView>
 
         init {
-            val context = itemView!!.context
+            val context = itemView.context
             tvDeviceName = itemView.tv_device_name
             val clDevice = itemView.cl_device_node
             val constraintSet = ConstraintSet()
             var topViewId = R.id.v_device_node_divider
-            val textBackground = ContextCompat.getColor(context, R.color.bg_node)
+            //val textBackground = ContextCompat.getColor(context, R.color.bg_node)
             val margin = context.resources.getDimensionPixelSize(R.dimen.margin_small)
             constraintSet.clone(clDevice)
             val inflater = LayoutInflater.from(context)
             val liNodes = Array<View>(nodeCount) {
                 val view = inflater.inflate(R.layout.li_logical_sensor, null)
-                view.setBackgroundColor(textBackground)
+                //view.setBackgroundColor(textBackground)
                 val id = View.generateViewId()
                 view.id = id
                 clDevice.addView(view)

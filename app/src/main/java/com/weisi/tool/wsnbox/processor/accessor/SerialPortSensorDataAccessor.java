@@ -3,8 +3,8 @@ package com.weisi.tool.wsnbox.processor.accessor;
 import android.content.Context;
 
 import com.cjq.lib.weisi.communicator.SerialPortKit;
-import com.cjq.lib.weisi.protocol.UdpSensorProtocol;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
+import com.wsn.lib.wsb.protocol.UdpSensorProtocol;
 
 import java.io.IOException;
 
@@ -39,7 +39,7 @@ public class SerialPortSensorDataAccessor extends CommonSensorDataAccessor<Seria
     }
 
     @Override
-    protected void onTimeSynchronize(Settings settings) throws IOException {
+    protected void onTimeSynchronize(Settings settings) {
     }
 
     @Override

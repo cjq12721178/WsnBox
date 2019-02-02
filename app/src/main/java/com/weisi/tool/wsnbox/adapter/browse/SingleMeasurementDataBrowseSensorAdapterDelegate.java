@@ -15,7 +15,7 @@ import java.util.List;
  * Created by CJQ on 2017/9/22.
  */
 
-public class SingleMeasurementSensorAdapterDelegate extends BaseSensorAdapterDelegate {
+public class SingleMeasurementDataBrowseSensorAdapterDelegate extends BaseDataBrowseSensorAdapterDelegate {
 
     @Override
     public int getItemViewType() {
@@ -38,6 +38,7 @@ public class SingleMeasurementSensorAdapterDelegate extends BaseSensorAdapterDel
         setTimestampText(holder.mTvTimestamp, sensor);
         //LogicalSensor measurement = measurement.getMeasurementCollections().get(0);
         setMeasurementText(holder.mTvMeasurementNameType, holder.mTvMeasurementValue, sensor.getDisplayMeasurementByPosition(0));
+        setItemBackground(holder.itemView, sensor);
     }
 
     @Override
@@ -66,10 +67,10 @@ public class SingleMeasurementSensorAdapterDelegate extends BaseSensorAdapterDel
 
         public ViewHolder(View itemView) {
             super(itemView);
-            mTvSensorNameAddress = (TextView) itemView.findViewById(R.id.tv_sensor_name_address);
-            mTvTimestamp = (TextView) itemView.findViewById(R.id.tv_timestamp);
-            mTvMeasurementNameType = (TextView) itemView.findViewById(R.id.tv_measurement_name_type);
-            mTvMeasurementValue = (TextView) itemView.findViewById(R.id.tv_measurement_value);
+            mTvSensorNameAddress = itemView.findViewById(R.id.tv_sensor_name_address);
+            mTvTimestamp = itemView.findViewById(R.id.tv_timestamp);
+            mTvMeasurementNameType = itemView.findViewById(R.id.tv_measurement_name_type);
+            mTvMeasurementValue = itemView.findViewById(R.id.tv_measurement_value);
         }
     }
 }

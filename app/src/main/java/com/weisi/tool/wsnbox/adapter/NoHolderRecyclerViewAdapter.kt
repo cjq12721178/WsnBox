@@ -8,13 +8,13 @@ import com.cjq.tool.qbox.ui.adapter.RecyclerViewBaseAdapter
 
 abstract class NoHolderRecyclerViewAdapter<E> : RecyclerViewBaseAdapter<E>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return ViewHolder(onCreateView(parent, viewType))
     }
 
     protected abstract fun onCreateView(parent: ViewGroup?, viewType: Int): View
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         onBindViewHolder(holder as ViewHolder, getItemByPosition(position), position)
     }
 
@@ -35,7 +35,7 @@ abstract class NoHolderRecyclerViewAdapter<E> : RecyclerViewBaseAdapter<E>() {
         }
 
         fun <T : View> View.findViewOften(viewId: Int): T {
-            var viewHolder: SparseArray<View> = tag as? SparseArray<View> ?: SparseArray()
+            val viewHolder: SparseArray<View> = tag as? SparseArray<View> ?: SparseArray()
             tag = viewHolder
             var childView: View? = viewHolder.get(viewId)
             if (null == childView) {

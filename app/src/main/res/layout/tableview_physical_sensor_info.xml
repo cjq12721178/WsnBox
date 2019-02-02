@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.evrencoskun.tableview.TableView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/tbv_sensor_info"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:column_header_height="@dimen/size_sensor_info_column_header_height"
+    app:row_header_width="@dimen/size_sensor_info_row_header_width"
+    app:separator_color="@color/tbv_separator"/>

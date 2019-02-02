@@ -13,9 +13,9 @@ open class ConfigurationFragment : BaseFragment(), OnDataSetChangedListener {
 
     }
 
-    open fun onAdd() {
-    }
-
-    open fun onDelete() {
-    }
+//    open fun onAdd() {
+//    }
+//
+//    open fun onDelete() {
+//    }
 }

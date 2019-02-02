@@ -22,9 +22,9 @@ class ParameterConfigAdapter : RecyclerViewCursorAdapter() {
                         false))
     }
 
-    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder?, item: Cursor?, position: Int) {
-        var holder = viewHolder as ViewHolder
-        holder.tvName?.text = getProviderName(item!!)
+    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, item: Cursor, position: Int) {
+        //var holder = viewHolder as ViewHolder
+        viewHolder.itemView.tv_config_provider_name.text = getProviderName(item)
     }
 
     fun getProviderName(position: Int) : String {
@@ -48,7 +48,7 @@ class ParameterConfigAdapter : RecyclerViewCursorAdapter() {
         return ""
     }
 
-    private class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-        var tvName = itemView?.tv_config_provider_name
+    private class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        //var tvName = itemView.tv_config_provider_name
     }
 }

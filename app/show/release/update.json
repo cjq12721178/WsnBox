@@ -1,7 +1,7 @@
-﻿{
-    "apkName": "com.weisi.tool.wsnbox.show_0.2.0_20181015.apk",
-    "versionName": "0.2.0",
-    "versionCode": 8,
-    "forceUpdate": true,
-    "versionDescription": "1. 修复未配置物理传感器名称为空的问题\n2. 新增查看、添加、修改参数配置等功能"
+{
+    "apkName": "com.weisi.tool.wsnbox.show_0.3.0_20190202.apk",
+    "versionName": "0.3.0",
+    "versionCode": 17,
+    "forceUpdate": false,
+    "versionDescription": "新年快乐，为此献上智联之窗最新版本，喜迎新春^_^\n1. 优化历史数据加载\n2. 新增智能垫片产品展示功能（需要先行配置）\n3. 优化数据浏览界面\n4. 优化传感器详情界面数据表格，新增曲线绘制功能及与数据表格互动功能\n5. 新增通过搜索附近传感器批量添加传感器配置的功能\n6. 调整界面部分配色"
 }

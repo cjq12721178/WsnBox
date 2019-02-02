@@ -54,10 +54,10 @@ class DeviceConfigAdapter : BaseConfigAdapter() {
     fun findNodeConfigById(id: Long) =
             Collections.binarySearch(ids, id)
 
-    private class ViewHolder(itemView: View?) : BaseConfigAdapter.ViewHolder(itemView) {
-        val tvMeasureId = itemView!!.findViewById<TextView>(R.id.tv_measurement_id_value)
-        val tvMeasureName = itemView!!.findViewById<TextView>(R.id.tv_measurement_name_value)
-        val tvNodeName = itemView!!.findViewById<TextView>(R.id.tv_node_name_value)
+    private class ViewHolder(itemView: View) : BaseConfigAdapter.ViewHolder(itemView) {
+        val tvMeasureId = itemView.findViewById<TextView>(R.id.tv_measurement_id_value)
+        val tvMeasureName = itemView.findViewById<TextView>(R.id.tv_measurement_name_value)
+        val tvNodeName = itemView.findViewById<TextView>(R.id.tv_node_name_value)
     }
 
     private inner class IdList : List<Long>, RandomAccess {

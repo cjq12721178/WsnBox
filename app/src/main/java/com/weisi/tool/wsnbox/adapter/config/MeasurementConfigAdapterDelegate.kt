@@ -31,8 +31,8 @@ open class MeasurementConfigAdapterDelegate protected constructor(warnerType: In
         return R.string.warner_type_none
     }
 
-    protected open fun onCreateViewHolder(itemView: View?, warnerLayoutRes: Int, extraConfigLayoutRes: Int): RecyclerView.ViewHolder {
-        return ViewHolder(itemView, warnerLayoutRes, extraConfigLayoutRes);
+    protected open fun onCreateViewHolder(itemView: View, warnerLayoutRes: Int, extraConfigLayoutRes: Int): RecyclerView.ViewHolder {
+        return ViewHolder(itemView, warnerLayoutRes, extraConfigLayoutRes)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?): RecyclerView.ViewHolder {
@@ -58,14 +58,14 @@ open class MeasurementConfigAdapterDelegate protected constructor(warnerType: In
         return type
     }
 
-    open class ViewHolder(itemView: View?, warnerLayoutRes: Int, extraConfigLayoutRes: Int) : RecyclerView.ViewHolder(itemView) {
+    open class ViewHolder(itemView: View, warnerLayoutRes: Int, extraConfigLayoutRes: Int) : RecyclerView.ViewHolder(itemView) {
         val tvDataType: TextView
         val tvDefaultName: TextView
         val tvCustomName: TextView
         val tvWarnerType: TextView
 
         init {
-            tvDataType = itemView!!.findViewById(R.id.tv_measurement_id_value)
+            tvDataType = itemView.findViewById(R.id.tv_measurement_id_value)
             tvDefaultName = itemView.findViewById(R.id.tv_default_name_value)
             tvCustomName = itemView.findViewById(R.id.tv_custom_name_value)
             tvWarnerType = itemView.findViewById(R.id.tv_warner_type_value)

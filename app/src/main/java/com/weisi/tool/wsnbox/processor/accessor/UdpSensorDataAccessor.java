@@ -1,14 +1,16 @@
 package com.weisi.tool.wsnbox.processor.accessor;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
-import com.cjq.lib.weisi.communicator.UdpKit;
-import com.cjq.lib.weisi.protocol.UdpSensorProtocol;
+import com.wsn.lib.wsb.communicator.UdpKit;
+import com.wsn.lib.wsb.protocol.UdpSensorProtocol;
+import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.TimerTask;
 
 /**
  * Created by CJQ on 2017/12/27.
@@ -28,31 +30,41 @@ public class UdpSensorDataAccessor extends CommonSensorDataAccessor<UdpKit, UdpS
     @Override
     protected boolean onInitDataRequestTaskParameter(Settings settings) {
         try {
-            mCommunicator.setSendParameter(settings.getBaseStationIp(),
-                    settings.getBaseStationPort(),
-                    getDataRequestFrame());
+            mCommunicator.setSendIp(settings.getBaseStationIp());
+            mCommunicator.setSendPort(settings.getBaseStationPort());
+//            mCommunicator.setSendParameter(settings.getBaseStationIp(),
+//                    settings.getBaseStationPort(),
+//                    getDataRequestFrame());
             return true;
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            ExceptionLog.record(e);
         }
         return false;
     }
 
     @Override
     protected void onTimeSynchronize(final Settings settings) throws IOException {
-        executeOneTimeTimerTask(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    mCommunicator.send(settings.getBaseStationIp(),
-                            settings.getBaseStationPort(),
-                            getTimeSynchronizationFrame());
-                    onInitDataRequestTaskParameter(settings);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        mCommunicator.setSendData(getTimeSynchronizationFrame());
+        mCommunicator.send();
+//        executeOneTimeTimerTask(new TimerTask() {
+//            @Override
+//            public void run() {
+//                try {
+//                    mCommunicator.send(settings.getBaseStationIp(),
+//                            settings.getBaseStationPort(),
+//                            getTimeSynchronizationFrame());
+//                    onInitDataRequestTaskParameter(settings);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+    }
+
+    @Override
+    public void onTimeSynchronizationAnalyzed(long timestamp) {
+        super.onTimeSynchronizationAnalyzed(timestamp);
+        mCommunicator.setSendData(getDataRequestFrame());
     }
 
     @Override
@@ -68,6 +80,14 @@ public class UdpSensorDataAccessor extends CommonSensorDataAccessor<UdpKit, UdpS
     @Override
     protected void sendDataRequestFrame() throws IOException {
         mCommunicator.send();
+    }
+
+    @Override
+    public boolean onErrorOccurred(@NonNull Exception e) {
+        if (e instanceof SocketException && e.getMessage().equals("Socket closed")) {
+            return true;
+        }
+        return super.onErrorOccurred(e);
     }
 
     public void setDataRequestTaskTargetIp(String ip) throws UnknownHostException {

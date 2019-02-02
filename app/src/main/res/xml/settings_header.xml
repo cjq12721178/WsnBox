@@ -19,6 +19,8 @@
         android:title="@string/data_store"
         android:fragment="com.weisi.tool.wsnbox.fragment.settings.DataStoreSettingsFragment"/>
     <header
+        android:title="@string/data_export"/>
+    <header
         android:title="@string/about_app">
         <intent
             android:action="action_start_about_activity"/>

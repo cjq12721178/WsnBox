@@ -122,9 +122,9 @@ class Updater {
         @JvmStatic
         private fun getDownloadStatus(downloadManager: DownloadManager, downloadId: Long): Int {
             val query = DownloadManager.Query().setFilterById(downloadId)
-            val c = downloadManager.query(query)
-            if (c != null) {
-                c.use { c ->
+            val cursor = downloadManager.query(query)
+            if (cursor != null) {
+                cursor.use { c ->
                     if (c.moveToFirst()) {
                         return c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
                     }
@@ -172,7 +172,7 @@ class Updater {
             //req.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, "$appName.apk")
             //第二种
             //file:///storage/emulated/0/Download/update.apk
-            req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, updateInfo.apkName);
+            req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, updateInfo.apkName)
             //第三种 自定义文件路径
             //req.setDestinationUri()
 
@@ -180,7 +180,7 @@ class Updater {
             req.setTitle(updateInfo.apkName)
             req.setDescription(context.getString(R.string.download_apk_description))
             val sp = PreferenceManager.getDefaultSharedPreferences(context)
-            sp.edit().putLong(DownloadManager.EXTRA_DOWNLOAD_ID, downloadManager.enqueue(req)).commit()
+            sp.edit().putLong(DownloadManager.EXTRA_DOWNLOAD_ID, downloadManager.enqueue(req)).apply()
         }
 
         @JvmStatic

@@ -6,20 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.cjq.lib.weisi.data.Storage
-import com.cjq.lib.weisi.iot.DisplayMeasurement
 import com.cjq.lib.weisi.iot.LogicalSensor
-import com.cjq.lib.weisi.iot.PracticalMeasurement
 import com.cjq.tool.qbox.ui.adapter.RecyclerViewBaseAdapter
 import com.weisi.tool.wsnbox.R
-import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor
 import kotlinx.android.synthetic.main.li_logical_sensor.view.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  * Created by CJQ on 2018/6/5.
  */
-class DataBrowseLogicalSensorAdapter(private val storage: Storage<LogicalSensor>, var realTime: Boolean) : RecyclerViewBaseAdapter<LogicalSensor>() {
+class DataBrowseLogicalSensorAdapter(private val storage: Storage<LogicalSensor>) : RecyclerViewBaseAdapter<LogicalSensor>() {
 
     companion object {
         @JvmStatic
@@ -28,10 +23,10 @@ class DataBrowseLogicalSensorAdapter(private val storage: Storage<LogicalSensor>
         val UPDATE_TYPE_MEASUREMENT_LABEL_CHANGED = 2
     }
 
-    private val TIMESTAMP_SETTER = Date()
-    private val DATE_FORMAT = SimpleDateFormat("HH:mm:ss")
+    //private val TIMESTAMP_SETTER = Date()
+    //private val DATE_FORMAT = SimpleDateFormat("HH:mm:ss")
     var showMeasurementNameOrId = true
-    var warnProcessor: CommonWarnProcessor<View>? = null
+    //var warnProcessor: CommonWarnProcessor<View>? = null
 
     override fun getItemByPosition(position: Int): LogicalSensor {
         return storage.get(position)
@@ -41,13 +36,13 @@ class DataBrowseLogicalSensorAdapter(private val storage: Storage<LogicalSensor>
         return storage.size()
     }
 
-    private fun getValue(measurement: PracticalMeasurement): DisplayMeasurement.Value {
-        return if (realTime) {
-            measurement.realTimeValue
-        } else {
-            measurement.historyValueContainer.earliestValue
-        }
-    }
+//    private fun getValue(measurement: PracticalMeasurement): DisplayMeasurement.Value {
+//        return if (realTime) {
+//            measurement.realTimeValue
+//        } else {
+//            measurement.historyValueContainer.earliestValue
+//        }
+//    }
 
     private fun setSensorNameIdText(tvSensorNameId: TextView, sensor: LogicalSensor) {
         tvSensorNameId.text = if (showMeasurementNameOrId)
@@ -56,13 +51,15 @@ class DataBrowseLogicalSensorAdapter(private val storage: Storage<LogicalSensor>
             sensor.id.toString()
     }
 
-    private fun setMeasurementTimestampAndValueText(tvTimestamp: TextView, tvMeasurementValue: TextView, measurement: PracticalMeasurement) {
-        val value = getValue(measurement)
-        TIMESTAMP_SETTER.time = value.timestamp
-        tvTimestamp.text = DATE_FORMAT.format(TIMESTAMP_SETTER)
-        tvMeasurementValue.text = measurement.formatValue(value)
-        warnProcessor?.process(value, measurement.configuration.warner, tvMeasurementValue)
-    }
+//    private fun setMeasurementTimestampAndValueText(tvTimestamp: TextView, tvMeasurementValue: TextView, measurement: PracticalMeasurement) {
+//        val value = BaseDataBrowseSensorAdapterDelegate.getValue(measurement)
+//        BaseDataBrowseSensorAdapterDelegate.setTimestampText(tvTimestamp, value)
+//        BaseDataBrowseSensorAdapterDelegate.setMeasurementValueText(tvMeasurementValue, measurement, value)
+////        TIMESTAMP_SETTER.time = value.timestamp
+////        tvTimestamp.text = DATE_FORMAT.format(TIMESTAMP_SETTER)
+////        tvMeasurementValue.text = measurement.formatValue(value)
+////        warnProcessor?.process(value, measurement.configuration.warner, tvMeasurementValue)
+//    }
 
 //    protected fun setTimestampText(tvTimestamp: TextView, measurement: PracticalMeasurement) {
 //        TIMESTAMP_SETTER.time = getValue(measurement).timestamp
@@ -84,24 +81,25 @@ class DataBrowseLogicalSensorAdapter(private val storage: Storage<LogicalSensor>
                 .from(parent?.context)
                 .inflate(R.layout.li_logical_sensor,
                         parent,
-                        false));
+                        false))
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, item: LogicalSensor?, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, item: LogicalSensor, position: Int) {
         val h = holder as ViewHolder
-        setSensorNameIdText(h.tvSensorNameId, item!!)
+        setSensorNameIdText(h.tvSensorNameId, item)
         //setTimestampText(holder.tvTimestamp, item.practicalMeasurement)
         //setMeasurementValueText(holder.tvValue, item.practicalMeasurement)
-        setMeasurementTimestampAndValueText(holder.tvTimestamp, holder.tvValue, item.practicalMeasurement)
+        BaseDataBrowseSensorAdapterDelegate.setMeasurementTimestampAndValueText(holder.tvTimestamp, holder.tvValue, item.practicalMeasurement)
+        BaseDataBrowseSensorAdapterDelegate.setItemBackground(holder.itemView, item)
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, item: LogicalSensor?, position: Int, payloads: MutableList<Any?>?) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, item: LogicalSensor?, position: Int, payloads: MutableList<Any?>?) {
         val h = holder as ViewHolder
         when (payloads?.get(0)) {
             UPDATE_TYPE_VALUE_CHANGED -> {
                 //setTimestampText(holder.tvTimestamp, item!!.practicalMeasurement)
                 //setMeasurementValueText(holder.tvValue, item.practicalMeasurement)
-                setMeasurementTimestampAndValueText(holder.tvTimestamp, holder.tvValue, item!!.practicalMeasurement)
+                BaseDataBrowseSensorAdapterDelegate.setMeasurementTimestampAndValueText(holder.tvTimestamp, holder.tvValue, item!!.practicalMeasurement)
             }
             UPDATE_TYPE_MEASUREMENT_LABEL_CHANGED -> {
                 setSensorNameIdText(h.tvSensorNameId, item!!)

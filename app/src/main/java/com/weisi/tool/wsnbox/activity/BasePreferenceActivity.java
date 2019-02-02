@@ -23,17 +23,30 @@ import com.weisi.tool.wsnbox.service.DataPrepareService;
  * A {@link PreferenceActivity} which implements and proxies the necessary calls
  * to be used with AppCompat.
  */
-public abstract class BasePreferenceActivity extends PreferenceActivity implements ActivityFunctionDelegate.CallBack {
+public abstract class BasePreferenceActivity
+        extends PreferenceActivity
+        implements BaseActivityFunction {
 
     private AppCompatDelegate mDelegate;
     private ActivityFunctionDelegate mFunctionDelegate;
 
+    @Override
     public DataPrepareService getDataPrepareService() {
         return getFunctionDelegate().getDataPrepareService();
     }
 
+    @Override
+    @NonNull
     public final BaseApplication getBaseApplication() {
         return getFunctionDelegate().getBaseApplication();
+    }
+
+    @Override
+    public void notifyRegisteredFragmentsServiceConnectionCreate() {
+    }
+
+    @Override
+    public void notifyRegisteredFragmentsServiceConnectionStart() {
     }
 
     @Override
@@ -59,6 +72,7 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
     }
 
     @Override
+    @NonNull
     public MenuInflater getMenuInflater() {
         return getDelegate().getMenuInflater();
     }
@@ -156,7 +170,7 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
 
     private ActivityFunctionDelegate getFunctionDelegate() {
         if (mFunctionDelegate == null) {
-            mFunctionDelegate = new ActivityFunctionDelegate(this, this);
+            mFunctionDelegate = new ActivityFunctionDelegate(this);
         }
         return mFunctionDelegate;
     }
@@ -171,32 +185,32 @@ public abstract class BasePreferenceActivity extends PreferenceActivity implemen
     }
 
     @Override
-    public void onServiceConnectionCreate(DataPrepareService service) {
-
+    public void onServiceConnectionCreate(@NonNull DataPrepareService service) {
     }
 
     @Override
-    public void onServiceConnectionStart(DataPrepareService service) {
-
+    public void onServiceConnectionStart(@NonNull DataPrepareService service) {
     }
 
     @Override
-    public void onServiceConnectionStop(DataPrepareService service) {
-
+    public void onServiceConnectionStop(@NonNull DataPrepareService service) {
     }
 
     @Override
-    public void onServiceConnectionDestroy(DataPrepareService service) {
-
+    public void onServiceConnectionDestroy(@NonNull DataPrepareService service) {
     }
 
     @Override
-    public void onInitActionBar(View customView) {
-
+    public void onInitActionBar(@NonNull View customView) {
     }
 
     @Override
     public PermissionsRequester build(int type) {
         return getFunctionDelegate().build(type);
+    }
+
+    @Override
+    public boolean invalid() {
+        return getFunctionDelegate().isActivityInvalid();
     }
 }

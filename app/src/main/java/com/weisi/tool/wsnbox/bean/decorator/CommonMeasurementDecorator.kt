@@ -7,7 +7,11 @@ import com.cjq.lib.weisi.iot.DisplayMeasurement
  */
 class CommonMeasurementDecorator(customName: String) : CommonBaseDecorator<DisplayMeasurement.Value>(customName) {
 
+    override fun decorateValue(rawValue: Double, para: Int): String {
+        return ""
+    }
+
     override fun decorateValue(value: DisplayMeasurement.Value, para: Int): String {
-        throw UnsupportedOperationException("not implemented")
+        return ""
     }
 }

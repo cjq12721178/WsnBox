@@ -1,8 +1,9 @@
 package com.weisi.tool.wsnbox.processor.accessor;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
-import com.cjq.lib.weisi.protocol.BaseSensorProtocol;
+import com.wsn.lib.wsb.protocol.BaseSensorProtocol;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;
 import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
@@ -65,9 +66,9 @@ public abstract class SensorDynamicDataAccessor<P extends BaseSensorProtocol> {
         return PermissionsRequesterBuilder.TYPE_NONE;
     }
 
-    protected abstract void onStartDataAccess(Context context,
-                                              Settings settings,
-                                              OnStartResultListener listener);
+    protected abstract void onStartDataAccess(@NonNull Context context,
+                                              @NonNull Settings settings,
+                                              @NonNull OnStartResultListener listener);
 
     public void stopDataAccess(Context context) {
         onStopDataAccess(context);

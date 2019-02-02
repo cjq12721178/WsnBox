@@ -42,8 +42,8 @@ class DevicesConfigAdapter : BaseConfigAdapter() {
     fun findDeviceConfigByName(name: String) =
             Collections.binarySearch(names, name)
 
-    class ViewHolder(itemView: View?) : BaseConfigAdapter.ViewHolder(itemView) {
-        val tvName = itemView!!.findViewById<TextView>(R.id.tv_device_name)
+    class ViewHolder(itemView: View) : BaseConfigAdapter.ViewHolder(itemView) {
+        val tvName = itemView.findViewById<TextView>(R.id.tv_device_name)
     }
 
     private inner class NameList : List<String>, RandomAccess {

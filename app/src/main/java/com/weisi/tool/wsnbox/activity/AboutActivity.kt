@@ -23,9 +23,9 @@ class AboutActivity : BaseActivity(), View.OnClickListener, BaseDialog.OnDialogC
             getString(R.string.app_name)
         } + BuildConfig.VERSION_NAME
 
-        if (baseApplication.settings.latestVersionName != BuildConfig.VERSION_NAME) {
+        if (getBaseApplication().settings.latestVersionName != BuildConfig.VERSION_NAME) {
             vs_has_new_version.inflate()
-            tv_new_version.text = baseApplication.settings.latestVersionName
+            tv_new_version.text = getBaseApplication().settings.latestVersionName
         } else {
             tv_version_update.setText(R.string.check_latest_version)
         }

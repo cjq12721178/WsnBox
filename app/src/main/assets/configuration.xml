@@ -5,7 +5,7 @@
 	<settings>
 		<communicators>
 			<communicator name="UDP">
-				<enable>true</enable>
+				<enable>false</enable>
 				<ip>192.168.1.18</ip>
 				<port>5000</port>
 				<DataRequestCycle>500</DataRequestCycle>

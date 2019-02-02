@@ -1,6 +1,7 @@
 package com.weisi.tool.wsnbox.fragment.browse
 
 import android.os.Bundle
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,19 +18,20 @@ import com.cjq.tool.qbox.ui.dialog.SortDialog
 import com.cjq.tool.qbox.ui.manager.OnDataSetChangedListener
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.activity.DataBrowseActivity
-import com.weisi.tool.wsnbox.adapter.info.SensorInfoAdapter
-import com.weisi.tool.wsnbox.bean.filter.SensorWithHistoryValueFilter
-import com.weisi.tool.wsnbox.bean.warner.processor.CommonWarnProcessor
-import com.weisi.tool.wsnbox.fragment.BaseFragment
+import com.weisi.tool.wsnbox.bean.filter.BleProtocolFilter
+import com.weisi.tool.wsnbox.bean.filter.EsbProtocolFilter
+import com.weisi.tool.wsnbox.bean.filter.SensorHasRealTimeValueFilter
+import com.weisi.tool.wsnbox.bean.filter.SensorOnlyHasHistoryValueFilter
+import com.weisi.tool.wsnbox.fragment.BaseFragment2
 import com.weisi.tool.wsnbox.processor.transfer.DataTransferStation
 import com.weisi.tool.wsnbox.service.DataPrepareService
 
 /**
  * Created by CJQ on 2018/5/25.
  */
-open class DataBrowseFragment<E, A : RecyclerViewBaseAdapter<E>> : BaseFragment(),
+abstract class DataBrowseFragment<E, A : RecyclerViewBaseAdapter<E>> : BaseFragment2(),
         OnDataSetChangedListener,
-        DataTransferStation.OnEventListener,
+        DataTransferStation.Detector,
         Storage.OnFilterChangeListener,
         Storage.OnSortChangeListener<E>,
         SortDialog.OnSortTypeChangedListener,
@@ -37,14 +39,7 @@ open class DataBrowseFragment<E, A : RecyclerViewBaseAdapter<E>> : BaseFragment(
         SearchDialog.OnSearchListener {
 
     companion object {
-        @JvmStatic
-        protected val ARGUMENT_KEY_SELECTED_SENSOR_INDEX = "selected_index"
-        @JvmStatic
-        protected val ARGUMENT_KEY_SELECTED_SENSOR_ADDRESS = "selected_sensor_addr"
-        @JvmStatic
-        protected val ARGUMENT_KEY_SELECTED_SENSOR_ID = "selected_sensor_id"
-        @JvmStatic
-        protected val ARGUMENT_KEY_STORAGE = "storage"
+        protected const val ARGUMENT_KEY_STORAGE = "storage"
         @JvmStatic
         protected val FILTER_ID_DATA_SOURCE = 1
         @JvmStatic
@@ -53,20 +48,33 @@ open class DataBrowseFragment<E, A : RecyclerViewBaseAdapter<E>> : BaseFragment(
         protected val FILTER_ID_SENSOR_TYPE = 3
         @JvmStatic
         protected val FILTER_ID_SENSOR_INFO = 4
-        //@JvmStatic
-        //protected var warnProcessor: CommonWarnProcessor<View>? = null
+        @JvmStatic
+        protected val DIALOG_TAG_SORT = "sort"
+        @JvmStatic
+        protected val DIALOG_TAG_FILTER = "filter"
+        @JvmStatic
+        protected val DIALOG_TAG_SEARCH = "search"
+        @JvmStatic
+        protected val DIALOG_TAG_INFO = "info"
     }
+
+    override var enableDetectPhysicalSensorNetIn = false
+    override var enableDetectLogicalSensorNetIn = false
+    override var enableDetectMeasurementHistoryValueUpdate = false
+    override var enableDetectMeasurementDynamicValueUpdate = false
+    override var enableDetectSensorInfoHistoryValueUpdate = false
+    override var enableDetectSensorInfoDynamicValueUpdate = false
 
     protected lateinit var storage : Storage<E>
     protected lateinit var adapter: A
 
     override fun getBaseActivity(): DataBrowseActivity {
-        return activity as DataBrowseActivity;
+        return activity as DataBrowseActivity
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         establishStorage(savedInstanceState)
-        onRecoverInformationDialog(savedInstanceState)
+        //onRecoverInformationDialog(savedInstanceState)
         val view = onInitView(inflater, container, savedInstanceState)
         adapter = onInitAdapter(view, storage)
         return view
@@ -77,34 +85,38 @@ open class DataBrowseFragment<E, A : RecyclerViewBaseAdapter<E>> : BaseFragment(
                 ?: onCreateStorage()
     }
 
-    protected open fun onCreateStorage(): Storage<E> {
-        throw NullPointerException("please override onCreateStorage for storage")
-    }
+    protected abstract fun onCreateStorage(): Storage<E>
 
-    protected open fun onRecoverInformationDialog(savedInstanceState: Bundle?) {
-    }
+//    protected open fun onRecoverInformationDialog(savedInstanceState: Bundle?) {
+//    }
 
-    protected open fun onInitView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        throw NullPointerException("please override onInitView for view")
-    }
+    protected abstract fun onInitView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View
 
-    protected open fun onInitAdapter(view: View, storage: Storage<E>): A {
-        throw NullPointerException("please override onInitAdapter for adapter")
-    }
+    protected abstract fun onInitAdapter(view: View, storage: Storage<E>): A
 
-    override fun onDestroy() {
-        SensorInfoAdapter.warnProcessor = null
-        super.onDestroy()
-    }
+//    override fun onDestroy() {
+//        SensorInfoAdapter.warnProcessor = null
+//        super.onDestroy()
+//    }
 
-    override fun onServiceConnectionCreate(service: DataPrepareService) {
+//    override fun onServiceConnectionCreate(service: DataPrepareService) {
+//        //performImportWarnProcessor()
+//        //service.dataTransferStation.register(this)
+//        //onDataSourceChange(isRealTime())
+//    }
+
+    override fun onServiceConnectionStart(service: DataPrepareService) {
         service.dataTransferStation.register(this)
-        onDataSourceChange(isRealTime())
+        storage.refresh(null, null)
     }
 
-    override fun onServiceConnectionDestroy(service: DataPrepareService) {
+    override fun onServiceConnectionStop(service: DataPrepareService) {
         service.dataTransferStation.unregister(this)
     }
+
+//    override fun onServiceConnectionDestroy(service: DataPrepareService) {
+//        service.dataTransferStation.unregister(this)
+//    }
 
     override fun onSortChange(newSorter: Sorter<E>?, newOrder: Boolean) {
         adapter.notifyItemRangeChanged(0, adapter.itemCount)
@@ -123,13 +135,13 @@ open class DataBrowseFragment<E, A : RecyclerViewBaseAdapter<E>> : BaseFragment(
     override fun onPhysicalSensorNetIn(sensor: PhysicalSensor) {
     }
 
-    override fun onPhysicalSensorDynamicValueUpdate(sensor: PhysicalSensor, infoValuePosition: Int) {
-    }
-
     override fun onLogicalSensorNetIn(sensor: LogicalSensor) {
     }
 
-    override fun onLogicalSensorDynamicValueUpdate(sensor: LogicalSensor, measurementValuePosition: Int) {
+    override fun onSensorInfoDynamicValueUpdate(info: Sensor.Info, valuePosition: Int) {
+    }
+
+    override fun onMeasurementDynamicValueUpdate(measurement: PracticalMeasurement, valuePosition: Int) {
     }
 
     override fun onSensorInfoHistoryValueUpdate(info: Sensor.Info, valuePosition: Int) {
@@ -138,103 +150,116 @@ open class DataBrowseFragment<E, A : RecyclerViewBaseAdapter<E>> : BaseFragment(
     override fun onMeasurementHistoryValueUpdate(measurement: PracticalMeasurement, valuePosition: Int) {
     }
 
-//    override fun onSensorInfoHistoryValueUpdate(sensor: PhysicalSensor, infoValuePosition: Int) {
-//    }
-//
-//    override fun onMeasurementHistoryValueUpdate(sensor: LogicalSensor, measurementValuePosition: Int) {
-//    }
-
     override fun onDataSetChanged() {
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        setTitle(isRealTime())
-        processServiceConnection(true)
-        performImportWarnProcessor()
+//    override fun onActivityCreated(savedInstanceState: Bundle?) {
+//        super.onActivityCreated(savedInstanceState)
+//        setTitle(isRealTime())
+//        processServiceConnection(true)
+//        performImportWarnProcessor()
+//    }
+
+//    protected fun setTitle(realTime: Boolean) {
+//        getBaseActivity().title = if (realTime) {
+//            getString(R.string.real_time) + getString(R.string.data_browse)
+//        } else {
+//            getString(R.string.history) + getString(R.string.data_browse)
+//        }
+//    }
+
+    //protected open fun isRealTime() = storage.getFilter(FILTER_ID_DATA_SOURCE) !is SensorOnlyHasHistoryValueFilter
+
+//    private fun performImportWarnProcessor() {
+//        //val processor = getBaseActivity().warnProcessor ?: return
+//        onImportWarnProcessor()
+//    }
+
+//    override fun onHiddenChanged(hidden: Boolean) {
+//        processServiceConnection(!hidden)
+//        if (!hidden) {
+//            performImportWarnProcessor()
+//        }
+//    }
+
+//    private fun processServiceConnection(connected: Boolean) {
+//        val service = getBaseActivity().dataPrepareService ?: return
+//        if (connected) {
+//            onServiceConnectionCreate(service)
+//            onServiceConnectionStart(service)
+//        } else {
+//            onServiceConnectionStop(service)
+//            onServiceConnectionDestroy(service)
+//        }
+//    }
+
+    fun onImportWarnProcessor() {
+        adapter.notifyItemRangeChanged(0, adapter.itemCount)
+        //SensorInfoAdapter.warnProcessor = processor
     }
 
-    protected fun setTitle(realTime: Boolean) {
-        getBaseActivity().title = if (realTime) {
-            getString(R.string.real_time) + getString(R.string.data_browse)
-        } else {
-            getString(R.string.history) + getString(R.string.data_browse)
-        }
+//    fun changeDataSource() {
+//        onDataSourceChange(!isRealTime())
+//    }
+
+//    protected open fun onDataSourceChange(realTime: Boolean) {
+//        setTitle(realTime)
+//    }
+
+    open fun onSortButtonClick() {
     }
 
-    protected open fun isRealTime() = storage.getFilter(FILTER_ID_DATA_SOURCE) !is SensorWithHistoryValueFilter
+//    protected open fun onInitSortDialog(dialog: SortDialog) : SortDialog {
+//        return  dialog
+//    }
 
-    private fun performImportWarnProcessor() {
-        val processor = getBaseActivity().warnProcessor ?: return
-        onImportWarnProcessor(processor)
+    open fun onFilterButtonClick() {
     }
 
-    override fun onHiddenChanged(hidden: Boolean) {
-        processServiceConnection(!hidden)
-        if (!hidden) {
-            performImportWarnProcessor()
-        }
+//    protected open fun onInitFilterDialog(dialog: FilterDialog) : FilterDialog {
+//        return dialog
+//    }
+
+    open fun onSearchButtonClick() {
     }
 
-    private fun processServiceConnection(connected: Boolean) {
-        val service = getBaseActivity().dataPrepareService ?: return
-        if (connected) {
-            onServiceConnectionCreate(service)
-            onServiceConnectionStart(service)
-        } else {
-            onServiceConnectionStop(service)
-            onServiceConnectionDestroy(service)
-        }
-    }
-
-    open fun onImportWarnProcessor(processor: CommonWarnProcessor<View>) {
-        SensorInfoAdapter.warnProcessor = processor
-    }
-
-    fun changeDataSource() {
-        onDataSourceChange(!isRealTime())
-    }
-
-    protected open fun onDataSourceChange(realTime: Boolean) {
-        setTitle(realTime)
-    }
-
-    open fun onSortButtonClick(dialog: SortDialog?) : SortDialog? {
-        val d = dialog ?: onInitSortDialog(SortDialog())
-        d.show(childFragmentManager, "sort_dialog")
-        return d
-    }
-
-    protected open fun onInitSortDialog(dialog: SortDialog) : SortDialog {
-        return  dialog
-    }
-
-    open fun onFilterButtonClick(dialog: FilterDialog?) : FilterDialog? {
-        val d = dialog ?: onInitFilterDialog(FilterDialog())
-        d.show(childFragmentManager, "filter_dialog")
-        return d
-    }
-
-    protected open fun onInitFilterDialog(dialog: FilterDialog) : FilterDialog {
-        return dialog
-    }
-
-    open fun onSearchButtonClick(dialog: SearchDialog?) : SearchDialog? {
-        val d = dialog ?: onInitSearchDialog(SearchDialog())
-        d.show(childFragmentManager, "search_dialog")
-        return d
-    }
-
-    protected open fun onInitSearchDialog(dialog: SearchDialog) : SearchDialog {
-        return dialog
-    }
+//    protected open fun onInitSearchDialog(dialog: SearchDialog) : SearchDialog {
+//        return dialog
+//    }
 
     override fun onSortTypeChanged(checkedId: Int, isAscending: Boolean) {
     }
 
-    override fun onFilterChange(dialog: FilterDialog?, hasFilters: BooleanArray?, checkedFilterEntryValues: Array<out MutableList<Int>>?) {
+    override fun onFilterChange(dialog: FilterDialog, hasFilters: BooleanArray, checkedFilterEntryValues: Array<out MutableList<Int>>) {
+
     }
 
     override fun onSearch(target: String?) {
+    }
+
+    protected fun processSensorInsertAtTop(recyclerView: RecyclerView, itemPosition: Int) {
+        if (itemPosition == 0 && recyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE && !recyclerView.canScrollVertically(-1)) {
+            recyclerView.smoothScrollToPosition(0)
+        }
+    }
+
+    protected fun addSensorProtocolFilterType(dialog: FilterDialog): FilterDialog {
+        return dialog.addFilterType(getString(R.string.sensor_protocol),
+                resources.getStringArray(R.array.usb_protocols),
+                when (storage.getFilter(FILTER_ID_SENSOR_PROTOCOL)) {
+                    is BleProtocolFilter -> booleanArrayOf(false, true)
+                    is EsbProtocolFilter -> booleanArrayOf(true, false)
+                    else -> booleanArrayOf(false, false)
+                })
+    }
+
+    protected fun addDataSourceFilterType(dialog: FilterDialog): FilterDialog {
+        return dialog.addFilterType(getString(R.string.data_source),
+                arrayOf(getString(R.string.real_time), getString(R.string.history)),
+                when (storage.getFilter(FILTER_ID_DATA_SOURCE)) {
+                    is SensorHasRealTimeValueFilter -> booleanArrayOf(true, false)
+                    is SensorOnlyHasHistoryValueFilter -> booleanArrayOf(false, true)
+                    else -> booleanArrayOf(false, false)
+                })
     }
 }

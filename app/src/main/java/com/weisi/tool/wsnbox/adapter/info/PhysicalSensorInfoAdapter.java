@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.cjq.lib.weisi.iot.DisplayMeasurement;
 import com.cjq.lib.weisi.iot.Measurement;
 import com.cjq.lib.weisi.iot.PhysicalSensor;
+import com.cjq.lib.weisi.iot.PracticalMeasurement;
 import com.cjq.lib.weisi.iot.Sensor;
 import com.cjq.lib.weisi.iot.container.ValueContainer;
 import com.weisi.tool.wsnbox.R;
@@ -50,7 +51,7 @@ public class PhysicalSensorInfoAdapter extends SensorInfoAdapter<Sensor.Info.Val
                                      boolean isRealTime,
                                      int displayStartIndex) {
         super(sensor, isRealTime);
-        mSensorValueBackground = new ColorDrawable(ContextCompat.getColor(context, R.color.bg_li_sensor_data));
+        mSensorValueBackground = new ColorDrawable(ContextCompat.getColor(context, R.color.bg_real_time_sensor_data));
         mDisplayCount = sensor.getDisplayMeasurementSize() + 1;
         mDisplayStartIndex = displayStartIndex;
     }
@@ -192,6 +193,18 @@ public class PhysicalSensorInfoAdapter extends SensorInfoAdapter<Sensor.Info.Val
                     ? mSensorValueBackground
                     : null);
         }
+    }
+
+    public void notifyDynamicSensorValueUpdate(PracticalMeasurement measurement, int valueLogicalPosition) {
+        if (measurement.getDynamicValueContainer().interpretAddResult(valueLogicalPosition) == ValueContainer.ADD_VALUE_FAILED) {
+            return;
+        }
+        int valuePosition = measurement.getDynamicValueContainer().getPhysicalPositionByLogicalPosition(valueLogicalPosition);
+        int sensorInfoPosition = getSensorInfo().getSensor().getInfo().getDynamicValueContainer().findValuePosition(valuePosition, measurement.getDynamicValueContainer().getValue(valuePosition).getTimestamp());
+        if (sensorInfoPosition < 0) {
+            return;
+        }
+        notifyItemChanged(getItemCount() - sensorInfoPosition - 1);
     }
 
     public static class SensorInfo extends SensorInfoAdapter.SensorInfo<Sensor.Info.Value, PhysicalSensor> {

@@ -27,9 +27,14 @@
     <dimen name="size_image_small">32dp</dimen>
     <dimen name="size_image_middle">48dp</dimen>
     <dimen name="size_image_large">64dp</dimen>
+    <dimen name="size_image_huge">96dp</dimen>
 
     <!-- 其他 -->
     <dimen name="size_sensor_browse_measurement_height">20dp</dimen>
+    <dimen name="size_sensor_info_cell_height">28dp</dimen>
+    <dimen name="size_sensor_info_column_header_height">32dp</dimen>
+    <dimen name="size_sensor_info_row_header_width">100dp</dimen>
     <dimen name="height_fragment_sensor_info">400dp</dimen>
     <dimen name="width_fragment_sensor_info">300dp</dimen>
+    <dimen name="divider_width_fix">1dp</dimen>
 </resources>

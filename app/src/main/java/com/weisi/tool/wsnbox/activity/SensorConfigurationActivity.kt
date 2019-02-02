@@ -205,7 +205,7 @@ class SensorConfigurationActivity : BaseActivity(),
 
     private fun getSensorConfigId() = intent.getLongExtra(Constant.COLUMN_SENSOR_CONFIGURATION_ID, -1)
 
-    override fun onLoadFinished(loader: Loader<SensorConfiguration>?, data: SensorConfiguration?) {
+    override fun onLoadFinished(loader: Loader<SensorConfiguration>, data: SensorConfiguration?) {
         updateBasicInfo(data)
         updateMeasureList(data)
     }
@@ -226,7 +226,7 @@ class SensorConfigurationActivity : BaseActivity(),
         adapter.notifyDataSetChanged(previousSize)
     }
 
-    override fun onLoaderReset(loader: Loader<SensorConfiguration>?) {
+    override fun onLoaderReset(loader: Loader<SensorConfiguration>) {
         updateBasicInfo(null)
         updateMeasureList(null)
     }
@@ -276,7 +276,7 @@ class SensorConfigurationActivity : BaseActivity(),
                     confirmDialog.show(supportFragmentManager, "input_value_empty")
                     return false
                 }
-                val value = newValue!!.toDoubleOrNull()
+                val value = newValue.toDoubleOrNull()
                 if (value === null) {
                     val confirmDialog = ConfirmDialog()
                     confirmDialog.setTitle(R.string.input_value_parse_failed)
@@ -365,7 +365,7 @@ class SensorConfigurationActivity : BaseActivity(),
                 values, SQLiteDatabase.CONFLICT_NONE)
     }
 
-    override fun onItemSelected(dialog: ListDialog, position: Int) {
+    override fun onItemSelected(dialog: ListDialog, position: Int, items: Array<out Any>) {
         when (dialog.tag) {
             DIALOG_TAG_CHOOSE_WARNER_TYPE -> {
                 val oldMeasureType = getMeasurementType(dialog)
@@ -584,7 +584,7 @@ class SensorConfigurationActivity : BaseActivity(),
                 .append(" WHERE ").append(Constant.COLUMN_SENSOR_CONFIGURATION_ID)
                 .append(" = ").append(getSensorConfigId())
                 .append(" AND ").append(Constant.COLUMN_MEASUREMENT_VALUE_ID)
-                .append(" = ").append(cookie.getLong(ARGUMENT_KEY_MEASUREMENT_ID));
+                .append(" = ").append(cookie.getLong(ARGUMENT_KEY_MEASUREMENT_ID))
         databaseHandler.startRawQuery(TOKEN_QUERY_MEASUREMENT_CONFIG_ID,
                 cookie, builder.toString(), null)
     }
@@ -627,6 +627,6 @@ class SensorConfigurationActivity : BaseActivity(),
     }
 
     private fun refreshSensorConfig() {
-        supportLoaderManager.getLoader<SensorConfiguration>(0).onContentChanged()
+        supportLoaderManager.getLoader<SensorConfiguration>(0)?.onContentChanged()
     }
 }

@@ -16,13 +16,13 @@ import com.cjq.tool.qbox.ui.dialog.BaseDialog
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog
 import com.cjq.tool.qbox.ui.dialog.EditDialog
 import com.cjq.tool.qbox.ui.gesture.SimpleRecyclerViewItemTouchListener
-import com.cjq.tool.qbox.ui.loader.SimpleCursorLoader
 import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.activity.DeviceConfigurationActivity
 import com.weisi.tool.wsnbox.adapter.config.DevicesConfigAdapter
 import com.weisi.tool.wsnbox.io.Constant
 import com.weisi.tool.wsnbox.io.database.SensorDatabase
+import com.weisi.tool.wsnbox.processor.loader.DevicesConfigInfoLoader
 import kotlinx.android.synthetic.main.fragment_device_configuration.view.*
 
 class DeviceConfigurationFragment : ConfigurationFragment(),
@@ -30,7 +30,7 @@ class DeviceConfigurationFragment : ConfigurationFragment(),
         LoaderManager.LoaderCallbacks<Cursor>,
         BaseDialog.OnDialogConfirmListener,
         BaseDialog.OnDialogCancelListener,
-        EditDialog.OnContentReceiver {
+        EditDialog.OnContentReceiver, View.OnClickListener {
 
     private val LOADER_ID = 2
     private val DIALOG_TAG_ADD_DEVICE_CONFIG = "add_dev_cfg"
@@ -47,6 +47,8 @@ class DeviceConfigurationFragment : ConfigurationFragment(),
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_device_configuration, null)
+        view.btn_add.setOnClickListener(this)
+        view.btn_delete.setOnClickListener(this)
         view.rv_devices.layoutManager = LinearLayoutManager(context)
         view.rv_devices.addOnItemTouchListener(object : SimpleRecyclerViewItemTouchListener(view.rv_devices) {
             override fun onItemClick(v: View?, position: Int) {
@@ -65,14 +67,10 @@ class DeviceConfigurationFragment : ConfigurationFragment(),
     }
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        return object : SimpleCursorLoader(context!!) {
-            override fun loadInBackground(): Cursor? {
-                return SensorDatabase.importDevices(getConfigurationProviderId())
-            }
-        }
+        return DevicesConfigInfoLoader(context!!, getConfigurationProviderId())
     }
 
-    override fun onLoadFinished(loader: Loader<Cursor>?, data: Cursor?) {
+    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
         adapter.swapCursor(data)
         startNewDeviceConfigurationActivityIfPossible()
     }
@@ -85,23 +83,26 @@ class DeviceConfigurationFragment : ConfigurationFragment(),
         }
     }
 
-    override fun onLoaderReset(loader: Loader<Cursor>?) {
+    override fun onLoaderReset(loader: Loader<Cursor>) {
         adapter.changeCursor(null)
     }
 
-    override fun onAdd() {
-        val dialog = EditDialog()
-        dialog.setTitle(R.string.input_device_name)
-        dialog.show(childFragmentManager, DIALOG_TAG_ADD_DEVICE_CONFIG)
-    }
-
-    override fun onDelete() {
-        if (adapter.inDeleteMode) {
-            val dialog = ConfirmDialog()
-            dialog.setTitle(R.string.confirm_delete_device_config)
-            dialog.show(childFragmentManager, DIALOG_TAG_CONFIRM_DELETE_DEVICE_CONFIG)
-        } else {
-            adapter.changeDeleteModeWithNotification()
+    override fun onClick(v: View) {
+        when (v.id) {
+            R.id.btn_add -> {
+                val dialog = EditDialog()
+                dialog.setTitle(R.string.input_device_name)
+                dialog.show(childFragmentManager, DIALOG_TAG_ADD_DEVICE_CONFIG)
+            }
+            R.id.btn_delete -> {
+                if (adapter.inDeleteMode) {
+                    val dialog = ConfirmDialog()
+                    dialog.setTitle(R.string.confirm_delete_device_config)
+                    dialog.show(childFragmentManager, DIALOG_TAG_CONFIRM_DELETE_DEVICE_CONFIG)
+                } else {
+                    adapter.changeDeleteModeWithNotification()
+                }
+            }
         }
     }
 
@@ -122,7 +123,7 @@ class DeviceConfigurationFragment : ConfigurationFragment(),
             dialog.show(childFragmentManager, "dev_name_null")
             return false
         }
-        val position = adapter.findDeviceConfigByName(name!!)
+        val position = adapter.findDeviceConfigByName(name)
         if (position >= 0) {
             val dialog = ConfirmDialog()
             dialog.arguments?.putInt(ARGUMENT_KEY_DEVICE_CONFIG_POSITION, position)

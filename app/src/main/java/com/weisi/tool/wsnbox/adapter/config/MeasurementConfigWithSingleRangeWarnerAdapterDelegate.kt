@@ -28,12 +28,12 @@ open class MeasurementConfigWithSingleRangeWarnerAdapterDelegate protected const
         holder.tvLowLimit.text = warner.lowLimit.toString()
     }
 
-    open class ViewHolder(itemView: View?, warnerLayoutRes: Int, extraConfigLayoutRes: Int) : MeasurementConfigAdapterDelegate.ViewHolder(itemView, warnerLayoutRes, extraConfigLayoutRes) {
+    open class ViewHolder(itemView: View, warnerLayoutRes: Int, extraConfigLayoutRes: Int) : MeasurementConfigAdapterDelegate.ViewHolder(itemView, warnerLayoutRes, extraConfigLayoutRes) {
         val tvHighLimit: TextView
         val tvLowLimit: TextView
 
         init {
-            tvHighLimit = itemView!!.findViewById(R.id.tv_high_limit_value)
+            tvHighLimit = itemView.findViewById(R.id.tv_high_limit_value)
             tvLowLimit = itemView.findViewById(R.id.tv_low_limit_value)
         }
     }

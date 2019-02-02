@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/bg_lh_sensor_data">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_dialog_title"
+        android:textSize="@dimen/qbox_size_text_dialog_title"
+        android:padding="@dimen/padding_small"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_sensor_address"
+        android:textSize="@dimen/size_text_dialog"
+        android:padding="@dimen/padding_micro"
+        android:layout_marginStart="@dimen/margin_micro"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_sensor_state"
+        app:layout_constraintTop_toBottomOf="@id/tv_dialog_title"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_sensor_state"
+        android:textSize="@dimen/size_text_dialog"
+        android:padding="@dimen/padding_micro"
+        android:layout_marginStart="@dimen/margin_micro"
+        app:layout_constraintStart_toEndOf="@id/tv_sensor_address"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_dialog_title"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_date"
+        android:textSize="@dimen/size_text_dialog"
+        android:padding="@dimen/padding_micro"
+        android:layout_marginStart="@dimen/margin_micro"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/chk_filtrate_info"
+        app:layout_constraintTop_toBottomOf="@id/tv_sensor_address"/>
+
+    <com.cjq.tool.qbox.ui.view.CustomDrawableSizeCheckBox
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/chk_filtrate_info"
+        android:text="@string/filtrate_info"
+        android:textSize="@dimen/size_text_dialog"
+        android:padding="@dimen/padding_micro"
+        android:layout_marginStart="@dimen/margin_micro"
+        android:button="@null"
+        android:background="@null"
+        android:checked="false"
+        android:drawableRight="@drawable/selector_sensor_info_filters"
+        app:drawableRight_width="@dimen/size_image_micro"
+        app:drawableRight_height="@dimen/size_image_micro"
+        app:layout_constraintStart_toEndOf="@id/tv_date"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_sensor_state"
+        app:layout_constraintBottom_toBottomOf="@id/tv_date"/>
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/fbl_info_filters"
+        android:padding="@dimen/padding_micro"
+        android:visibility="gone"
+        app:flexWrap="wrap"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_date"/>
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_real_time"
+        android:text="@string/real_time"
+        android:textSize="@dimen/size_text_dialog"
+        android:background="@color/bg_time_selection_latest"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_today"/>
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_today"
+        android:text="@string/today"
+        android:textSize="@dimen/size_text_dialog"
+        android:background="@color/bg_time_selection_today"
+        app:layout_constraintStart_toEndOf="@id/btn_real_time"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_previous_day"/>
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_previous_day"
+        android:text="@string/previous_day"
+        android:textSize="@dimen/size_text_dialog"
+        android:background="@color/bg_time_selection_previous_day"
+        app:layout_constraintStart_toEndOf="@id/btn_today"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_next_day"/>
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_next_day"
+        android:text="@string/next_day"
+        android:textSize="@dimen/size_text_dialog"
+        android:background="@color/bg_time_selection_next_day"
+        app:layout_constraintStart_toEndOf="@id/btn_previous_day"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_custom_day"/>
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_custom_day"
+        android:text="@string/custom_day"
+        android:textSize="@dimen/size_text_dialog"
+        android:background="@color/bg_time_selection_custom"
+        app:layout_constraintStart_toEndOf="@id/btn_next_day"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!--<android.support.constraint.Guideline-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/gl_bt_curve_and_table"-->
+        <!--android:orientation="horizontal"-->
+        <!--app:layout_constraintGuide_percent="0.5"-->
+        <!--app:layout_constraintTop_toBottomOf="@id/fbl_info_filters"-->
+        <!--app:layout_constraintBottom_toTopOf="@id/btn_real_time"/>-->
+
+    <fr.castorflex.android.verticalviewpager.VerticalViewPager
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/vp_sensor_data_curve"
+        android:background="@android:color/white"
+        android:padding="@dimen/padding_micro"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+        <!--app:layout_constraintTop_toBottomOf="@id/fbl_info_filters"-->
+
+
+</android.support.constraint.ConstraintLayout>

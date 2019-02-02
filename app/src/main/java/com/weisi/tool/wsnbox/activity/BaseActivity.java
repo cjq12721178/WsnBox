@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,8 +19,8 @@ import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.application.BaseApplication;
+import com.weisi.tool.wsnbox.fragment.BaseFragmentFunction;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;
-import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
 import com.weisi.tool.wsnbox.permission.ReadPermissionsRequester;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 import com.weisi.tool.wsnbox.version.update.UpdateInfo;
@@ -27,14 +28,16 @@ import com.weisi.tool.wsnbox.version.update.Updater;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Created by CJQ on 2017/9/7.
  */
 
-public class BaseActivity
+public abstract class BaseActivity
         extends AppCompatActivity
-        implements PermissionsRequesterBuilder,
-        ActivityFunctionDelegate.CallBack {
+        implements BaseActivityFunction {
 
     protected static final String DIALOG_TAG_UPDATE_APP = "tag_update_app";
     private static final String ARGUMENT_KEY_UPDATE_INFO = "ak_update_info";
@@ -42,12 +45,57 @@ public class BaseActivity
 
     private ActivityFunctionDelegate mFunctionDelegate;
 
+    @Override
     public DataPrepareService getDataPrepareService() {
         return getFunctionDelegate().getDataPrepareService();
     }
 
-    public final BaseApplication getBaseApplication() {
+    @Override
+    @NonNull
+    public BaseApplication getBaseApplication() {
         return getFunctionDelegate().getBaseApplication();
+    }
+
+    @Override
+    public void notifyRegisteredFragmentsServiceConnectionCreate() {
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        for (Fragment fragment :
+                fragments) {
+            if (fragment instanceof BaseFragmentFunction) {
+                ((BaseFragmentFunction) fragment).performServiceConnectionCreate();
+            }
+        }
+//        ArrayList<String> fragmentTags = getIntent().getStringArrayListExtra(BaseFragmentFunction.ARGUMENT_KEY_REGISTER_TAG);
+//        if (fragmentTags != null) {
+//            for (String tag :
+//                    fragmentTags) {
+//                Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+//                if (fragment instanceof BaseFragmentFunction) {
+//                    ((BaseFragmentFunction) fragment).performServiceConnectionCreate();
+//                }
+//            }
+//        }
+    }
+
+    @Override
+    public void notifyRegisteredFragmentsServiceConnectionStart() {
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        for (Fragment fragment :
+                fragments) {
+            if (fragment instanceof BaseFragmentFunction) {
+                ((BaseFragmentFunction) fragment).performServiceConnectionStart();
+            }
+        }
+//        ArrayList<String> fragmentTags = getIntent().getStringArrayListExtra(BaseFragmentFunction.ARGUMENT_KEY_REGISTER_TAG);
+//        if (fragmentTags != null) {
+//            for (String tag :
+//                    fragmentTags) {
+//                Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+//                if (fragment instanceof BaseFragmentFunction) {
+//                    ((BaseFragmentFunction) fragment).performServiceConnectionStart();
+//                }
+//            }
+//        }
     }
 
     @Override
@@ -103,12 +151,12 @@ public class BaseActivity
 
     @Override
     public void onServiceConnectionCreate(@NonNull DataPrepareService service) {
-
+        notifyRegisteredFragmentsServiceConnectionCreate();
     }
 
     @Override
     public void onServiceConnectionStart(@NonNull DataPrepareService service) {
-
+        notifyRegisteredFragmentsServiceConnectionStart();
     }
 
     @Override
@@ -122,8 +170,7 @@ public class BaseActivity
     }
 
     @Override
-    public void onInitActionBar(View customView) {
-
+    public void onInitActionBar(@NonNull View customView) {
     }
 
     @Override
@@ -133,7 +180,7 @@ public class BaseActivity
 
     private ActivityFunctionDelegate getFunctionDelegate() {
         if (mFunctionDelegate == null) {
-            mFunctionDelegate = new ActivityFunctionDelegate(this, this);
+            mFunctionDelegate = new ActivityFunctionDelegate(this);
         }
         return mFunctionDelegate;
     }
@@ -143,11 +190,11 @@ public class BaseActivity
             @Override
             public void onVersionChecked(@NotNull UpdateInfo updateInfo) {
                 if (Updater.hasNewVersion(getApplicationContext(), updateInfo)) {
-                    getBaseApplication().getSettings().setLatestVersionName(updateInfo.getVersionName());
+                    getSettings().setLatestVersionName(updateInfo.getVersionName());
                     ConfirmDialog dialog = new ConfirmDialog();
                     dialog.setTitle(getString(R.string.check_for_new_version, updateInfo.getVersionName()));
                     dialog.setContent(updateInfo.getVersionDescription());
-                    dialog.getArguments().putParcelable(ARGUMENT_KEY_UPDATE_INFO, updateInfo);
+                    Objects.requireNonNull(dialog.getArguments()).putParcelable(ARGUMENT_KEY_UPDATE_INFO, updateInfo);
                     ConfirmDialog.Decorator decorator = dialog.getCustomDecorator();
                     decorator.setDrawSeparationLine(true);
                     if (updateInfo.getForceUpdate()) {
@@ -181,12 +228,12 @@ public class BaseActivity
     }
 
     protected void updateVersion(BaseDialog dialog) {
-        UpdateInfo info = dialog.getArguments().getParcelable(ARGUMENT_KEY_UPDATE_INFO);
+        UpdateInfo info = Objects.requireNonNull(dialog.getArguments()).getParcelable(ARGUMENT_KEY_UPDATE_INFO);
         new ReadPermissionsRequester(this, RC_READ_PERMISSION)
                 .requestPermissions(new PermissionsRequester.OnRequestResultListener() {
                     @Override
                     public void onPermissionsGranted() {
-                        Updater.update(getApplicationContext(), info);
+                        Updater.update(getApplicationContext(), Objects.requireNonNull(info));
                     }
 
                     @Override
@@ -206,5 +253,10 @@ public class BaseActivity
             ((TextView) view).setText(labelResId);
         }
         return view;
+    }
+
+    @Override
+    public boolean invalid() {
+        return getFunctionDelegate().isActivityInvalid();
     }
 }

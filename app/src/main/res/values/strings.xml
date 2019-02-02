@@ -10,7 +10,7 @@
     <string name="data_browse">数据浏览</string>
     <string name="freedom_scout">自由巡检</string>
     <string name="parameter_config">参数配置</string>
-    <string name="scout_config">巡检配置</string>
+    <string name="product_display">产品展示</string>
     <string name="settings">设置</string>
     <string name="function_expect">敬请期待</string>
     <string name="timestamp">时间</string>
@@ -41,6 +41,7 @@
     <string name="sensor_info_state_on">状态：在线</string>
     <string name="sensor_info_state_off">状态：离线</string>
     <string name="sensor_info_date" formatted="false">日期：%tF</string>
+    <string name="sensor_info_date_real_time" formatted="false">日期：%tF（实时）</string>
     <string name="sensor_info_id" formatted="false">ID：%s</string>
     <string name="communicator">通讯模块</string>
     <string name="udp">UDP</string>
@@ -49,12 +50,13 @@
     <string name="serial_port">串口</string>
     <string name="usb">USB</string>
     <string name="data_store">数据保存</string>
+    <string name="data_export">数据导出</string>
     <string name="sensor_protocol">协议</string>
     <string name="physical_sensor_mode">传感器</string>
     <string name="logical_sensor_mode">测量量</string>
     <string name="device_node_mode">设备</string>
     <string name="switch_data_source">切换数据源</string>
-    <string name="battery_voltage">电压</string>
+    <string name="battery_voltage">电源电压</string>
     <string name="function_introduction">功能介绍</string>
     <string name="prompt_error">BUG提交</string>
     <string name="version_update">版本更新</string>
@@ -89,7 +91,7 @@
     <string name="import_para_configs">导入配置</string>
     <string name="choose_scene_config">选择场景配置</string>
     <string name="remove_config_provider">移除配置</string>
-    <string name="version_description">浙江维思 版权所有\nCopyright @ 2017-2020 Weisi.\nAll Rights Reserved.</string>
+    <string name="version_description">浙江维思 版权所有\nCopyright @ 2017–2020 Weisi.\nAll Rights Reserved.</string>
     <string name="download_apk_description">下载完成后，点击安装</string>
     <string name="check_for_new_version" formatted="false">检测到新版本%s</string>
     <string name="immediate_update">立即更新</string>
@@ -114,6 +116,10 @@
     <string name="select_configured_sensors">请在已配置过的传感器中选择所需作为节点</string>
     <string name="input_sensor_address_or_measurement_id">请输入传感器地址或测量量ID</string>
     <string name="insert_node_input_description">地址格式为XXXX或XXXXXX，ID格式为XXXX-XX-D或XXXXXX-XX-D，其中X为16进制数字，D为十进制数字</string>
+    <string name="input_parameter_config_name">请输入参数配置名称</string>
+    <string name="intelligent_gasket_demo">智能垫片演示</string>
+    <string name="filtrate_info">信息筛选</string>
+    <string name="dialog_title_select_available_sensors">请在检测到的传感器中选择所需进行配置</string>
 
     <!-- 设置相关 -->
     <string name="preference_key_udp_enable">udp_enable</string>
@@ -192,7 +198,7 @@
     <string name="udp_launch_failed">UDP通讯模块启动失败</string>
     <string name="tcp_launch_succeed">TCP通讯模块启动成功</string>
     <string name="tcp_launch_failed">TCP通讯模块启动失败</string>
-    <string name="tcp_connecting">正在连接服务器...</string>
+    <string name="tcp_connecting">正在连接服务器…</string>
     <string name="ble_launch_succeed">蓝牙通讯模块启动成功</string>
     <string name="ble_launch_failed">蓝牙通讯模块启动失败</string>
     <string name="serial_port_launch_failed">串口通讯模块启动失败</string>
@@ -202,7 +208,7 @@
     <string name="set_failed">设置失败</string>
     <string name="set_base_station_ip_failed">基站IP地址设置失败</string>
     <string name="port_format_error">端口号格式错误</string>
-    <string name="port_out_of_bounds">端口号范围为0-65535</string>
+    <string name="port_out_of_bounds">端口号范围为0–65535</string>
     <string name="time_format_error">时间参数格式错误</string>
     <string name="data_request_less_than_min_cycle">数据申请周期最小为100毫秒</string>
     <string name="udp_shutdown">UDP通讯模块关闭</string>
@@ -238,8 +244,10 @@
     <string name="choose_config_provider">选择参数配置文件</string>
     <string name="file_manager_open_failed">文件管理器打开失败</string>
     <string name="grant_read_permission">请给予文件读取权限</string>
+    <string name="grant_write_permission">请给予文件写入权限</string>
     <string name="grant_all_permissions">请给予应用相关权限</string>
-    <string name="lack_read_permissions">缺少读取权限</string>
+    <string name="lack_read_permissions">缺少文件读取权限</string>
+    <string name="lack_write_permissions">缺少文件写入权限</string>
     <string name="config_provider_null">配置文件路径为空</string>
     <string name="insert_config_provider_failed">导入配置失败</string>
     <string name="delete_config_provider_failed">参数配置删除失败</string>
@@ -282,6 +290,13 @@
     <string name="set_initial_distance_failed">棘轮距离值设置失败</string>
     <string name="sensor_or_measurement_id_parse_failed">传感器地址或测量量ID输入有误</string>
     <string name="export_configuration_provider">导出参数配置至文件</string>
+    <string name="devices_not_config">设备未配置</string>
+    <string name="devices_config_error">设备配置有误</string>
+    <string name="product_display_provider_not_apply">请先在参数配置界面为产品展示应用相应配置</string>
+    <string name="excel_export_success">导出传感器数据至“内部存储/WsnBox/data.xls”</string>
+    <string name="excel_export_failed">导出传感器数据至Excel文件失败</string>
+    <string name="exporting_sensor_data">正在导出传感器数据，请稍候</string>
+    <string name="no_available_sensors">未检测到可用传感器</string>
 
     <!-- 常数 -->
     <string-array name="baud_rates">

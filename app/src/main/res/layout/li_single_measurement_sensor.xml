@@ -3,7 +3,6 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/bg_li_sensor_data"
     android:paddingTop="@dimen/padding_micro"
     android:paddingBottom="@dimen/padding_micro">
 

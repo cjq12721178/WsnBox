@@ -1,14 +1,15 @@
 package com.weisi.tool.wsnbox.processor.accessor;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.cjq.lib.weisi.communicator.Communicator;
-import com.cjq.lib.weisi.communicator.UdpKit;
-import com.cjq.lib.weisi.communicator.receiver.DataReceiver;
-import com.cjq.lib.weisi.communicator.receiver.SyncDataReceiver;
-import com.cjq.lib.weisi.protocol.ControllableSensorProtocol;
-import com.cjq.lib.weisi.protocol.OnFrameAnalyzedListener;
+import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
+import com.wsn.lib.wsb.communicator.Communicator;
+import com.wsn.lib.wsb.communicator.receiver.DataReceiver;
+import com.wsn.lib.wsb.protocol.ControllableSensorProtocol;
+import com.wsn.lib.wsb.protocol.OnFrameAnalyzedListener;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -41,6 +42,7 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
     protected final C mCommunicator;
     private final DataReceiver mDataReceiver;
     private DataRequestTask mDataRequestTask;
+    private boolean mHasTimeSynchronized;
 
     public CommonSensorDataAccessor(C communicator, P protocol) {
         super(protocol);
@@ -49,13 +51,11 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
         }
         mCommunicator = communicator;
         //mCommunicator = onCreateCommunicator();
-        mDataReceiver = mCommunicator instanceof UdpKit
-                ? new SyncDataReceiver(mCommunicator)
-                : new DataReceiver(mCommunicator);
+        mDataReceiver = new DataReceiver(mCommunicator);
     }
 
     @Override
-    protected void onStartDataAccess(Context context, Settings settings, OnStartResultListener listener) {
+    protected void onStartDataAccess(@NonNull Context context, @NonNull Settings settings, @NonNull OnStartResultListener listener) {
         if (onPreLaunchCommunicator(context)) {
             if (launchCommunicator(context, settings)) {
                 onPostLaunchCommunicator(context, settings, listener);
@@ -75,7 +75,7 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
 
     protected void onPostLaunchCommunicator(Context context, Settings settings, OnStartResultListener listener) {
         if (mDataReceiver.startListen(this)) {
-            timeSynchronize(settings);
+            //timeSynchronize(settings);
             if (onInitDataRequestTaskParameter(settings)) {
                 startDataRequestTask(getDataRequestCycle(settings));
                 notifyStartSuccess(listener);
@@ -89,17 +89,17 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
 
     protected abstract boolean onInitDataRequestTaskParameter(Settings settings);
 
-    public boolean timeSynchronize(Settings settings) {
+    public boolean timeSynchronize(@Nullable Settings settings) {
         try {
             onTimeSynchronize(settings);
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            ExceptionLog.record(e);
         }
         return false;
     }
 
-    protected abstract void onTimeSynchronize(Settings settings) throws IOException;
+    protected abstract void onTimeSynchronize(@Nullable Settings settings) throws IOException;
 
     protected abstract long getDataRequestCycle(Settings settings);
 
@@ -123,6 +123,7 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
         if (mDataRequestTask != null) {
             mDataRequestTask.cancel();
             mDataRequestTask = null;
+            mHasTimeSynchronized = false;
         }
     }
 
@@ -132,13 +133,14 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
     }
 
     @Override
-    public int onDataReceived(byte[] data, int len) {
+    public int onDataReceived(@NonNull byte[] data, int len) {
         mProtocol.analyze(data, 0, len, this);
         return len;
     }
 
     @Override
-    public boolean onErrorOccurred(Exception e) {
+    public boolean onErrorOccurred(@NonNull Exception e) {
+        ExceptionLog.record(e);
         return false;
     }
 
@@ -149,6 +151,7 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
 
     @Override
     public void onTimeSynchronizationAnalyzed(long timestamp) {
+        mHasTimeSynchronized = true;
     }
 
     public void restartDataRequestTask(long cycle) {
@@ -161,7 +164,6 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
             dataRequestTimer.cancel();
             dataRequestTimer = null;
         }
-        SyncDataReceiver.shutdown();
     }
 
     protected abstract void sendDataRequestFrame() throws IOException;
@@ -174,8 +176,12 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
         return mProtocol.makeTimeSynchronizationFrame();
     }
 
-    protected void executeOneTimeTimerTask(TimerTask task) {
-        getDataRequestTimer().schedule(task, 0);
+//    protected void executeOneTimeTimerTask(TimerTask task) {
+//        getDataRequestTimer().schedule(task, 0);
+//    }
+
+    public void setHasTimeSynchronized(boolean hasTimeSynchronized) {
+        mHasTimeSynchronized = hasTimeSynchronized;
     }
 
     private class DataRequestTask extends TimerTask {
@@ -183,7 +189,11 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
         @Override
         public void run() {
             try {
-                sendDataRequestFrame();
+                if (mHasTimeSynchronized) {
+                    sendDataRequestFrame();
+                } else {
+                    timeSynchronize(null);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -5,6 +5,8 @@ import android.os.Parcelable
 import com.cjq.lib.weisi.data.Filter
 import com.cjq.lib.weisi.iot.LogicalSensor
 import com.cjq.lib.weisi.iot.SensorManager
+import java.text.Collator
+import java.util.*
 
 /**
  * Created by CJQ on 2018/6/6.
@@ -37,7 +39,9 @@ class LogicalSensorTypeFilter(selectedSensorTypeNumbers: List<Int>) : Filter<Log
                 sensorTypeNameSet.add(it.name)
             }
             sensorTypeNameSet.add("未知测量量")
-            return sensorTypeNameSet.toTypedArray()
+            val result = sensorTypeNameSet.toTypedArray()
+            Arrays.sort(result, Collator.getInstance(java.util.Locale.CHINA))
+            return result
         }
 
         val CREATOR : Parcelable.Creator<LogicalSensorTypeFilter> = object : Parcelable.Creator<LogicalSensorTypeFilter> {

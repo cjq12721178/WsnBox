@@ -68,6 +68,9 @@ public class Settings {
     //最新版本
     private String mLatestVersionName;
 
+    //数据导出模块处理
+    private boolean mExportingSensorData;
+
     public Settings(Context context) {
         mContext = context.getApplicationContext();
         mLatestVersionName = BuildConfig.VERSION_NAME;
@@ -441,6 +444,17 @@ public class Settings {
                 .commit();
     }
 
+    public long getProductDisplayValueContainerConfigurationProviderId() {
+        return getSharedPreferences().getLong("demo_cfg_pvd_id", 0);
+    }
+
+    public void setProductDisplayValueContainerConfigurationProviderId(long id) {
+        getSharedPreferences()
+                .edit()
+                .putLong("demo_cfg_pvd_id", id)
+                .commit();
+    }
+
     public String getOutputFilePath() {
         return getString(R.string.preference_key_output_file_path, Environment.getExternalStorageDirectory() + File.separator + "WsnBox");
     }
@@ -464,9 +478,9 @@ public class Settings {
                 .commit();
     }
 
-    public void clearLastDataBrowseViewMode() {
-        getSharedPreferences().edit().remove("view_mode").commit();
-    }
+//    public void clearLastDataBrowseViewMode() {
+//        getSharedPreferences().edit().remove("view_mode").commit();
+//    }
 
     public String getLatestVersionName() {
         return mLatestVersionName;
@@ -474,5 +488,13 @@ public class Settings {
 
     public void setLatestVersionName(String latestVersionName) {
         mLatestVersionName = latestVersionName;
+    }
+
+    public boolean isExportingSensorData() {
+        return mExportingSensorData;
+    }
+
+    public void setExportingSensorData(boolean exportingSensorData) {
+        mExportingSensorData = exportingSensorData;
     }
 }

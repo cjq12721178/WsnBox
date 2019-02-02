@@ -20,12 +20,12 @@ import com.cjq.tool.qbox.ui.dialog.ConfirmDialog
 import com.cjq.tool.qbox.ui.dialog.EditDialog
 import com.cjq.tool.qbox.ui.dialog.ListDialog
 import com.cjq.tool.qbox.ui.gesture.SimpleRecyclerViewItemTouchListener
-import com.cjq.tool.qbox.ui.loader.SimpleCursorLoader
 import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.adapter.config.DeviceConfigAdapter
 import com.weisi.tool.wsnbox.io.Constant
 import com.weisi.tool.wsnbox.io.database.SensorDatabase
+import com.weisi.tool.wsnbox.processor.loader.DeviceConfigInfoLoader
 import kotlinx.android.synthetic.main.activity_device_configuration.*
 import kotlinx.android.synthetic.main.lh_device_base_config.view.*
 
@@ -55,14 +55,14 @@ class DeviceConfigurationActivity : BaseActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_device_configuration)
 
-        btn_add.setOnClickListener() {
+        btn_add.setOnClickListener {
             val dialog = EditDialog()
             dialog.setTitle(R.string.input_sensor_address_or_measurement_id)
             dialog.setSummary(R.string.insert_node_input_description)
             dialog.customDecorator.contentGroupWidth = ConstraintSet.WRAP_CONTENT
             dialog.show(supportFragmentManager, DIALOG_TAG_INSERT_NODES)
         }
-        btn_select.setOnClickListener() {
+        btn_select.setOnClickListener {
             val addresses = getConfiguredSensorAddresses()
             if (addresses?.isNotEmpty() == true) {
                 val dialog = ListDialog()
@@ -74,7 +74,7 @@ class DeviceConfigurationActivity : BaseActivity(),
                 btn_add.performClick()
             }
         }
-        btn_delete.setOnClickListener() {
+        btn_delete.setOnClickListener {
             if (adapter.inDeleteMode) {
                 val dialog = ConfirmDialog()
                 dialog.setTitle(R.string.confirm_delete_node_config)
@@ -137,14 +137,10 @@ class DeviceConfigurationActivity : BaseActivity(),
             intent.getLongExtra(Constant.COLUMN_COMMON_ID, -1)
 
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
-        return object : SimpleCursorLoader(this) {
-            override fun loadInBackground(): Cursor? {
-                return SensorDatabase.importNodes(getDeviceId())
-            }
-        }
+        return DeviceConfigInfoLoader(this, getDeviceId())
     }
 
-    override fun onLoadFinished(loader: Loader<Cursor>?, data: Cursor?) {
+    override fun onLoadFinished(loader: Loader<Cursor>, data: Cursor?) {
         updateBaseInfo()
         adapter.swapCursor(data)
     }
@@ -153,7 +149,7 @@ class DeviceConfigurationActivity : BaseActivity(),
         vBaseInfo.tv_device_name.text = getDeviceName()
     }
 
-    override fun onLoaderReset(loader: Loader<Cursor>?) {
+    override fun onLoaderReset(loader: Loader<Cursor>) {
         adapter.changeCursor(null)
     }
 
@@ -238,7 +234,7 @@ class DeviceConfigurationActivity : BaseActivity(),
         return true
     }
 
-    override fun onItemsSelected(dialog: ListDialog, positions: IntArray) {
+    override fun onItemsSelected(dialog: ListDialog, positions: IntArray, items: Array<out Any>) {
         when (dialog.tag) {
             DIALOG_TAG_INSERT_NODES -> {
                 if (positions.isNotEmpty()) {
@@ -269,7 +265,6 @@ class DeviceConfigurationActivity : BaseActivity(),
     }
 
     override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onDeleteComplete(token: Int, cookie: Any?, affectedRowCount: Int) {
@@ -290,11 +285,9 @@ class DeviceConfigurationActivity : BaseActivity(),
     }
 
     override fun onReplaceComplete(token: Int, cookie: Any?, rowId: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onExecSqlComplete(token: Int, cookie: Any?, result: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onInsertComplete(token: Int, cookie: Any?, rowId: Long) {
@@ -336,6 +329,6 @@ class DeviceConfigurationActivity : BaseActivity(),
     }
 
     private fun refreshDeviceConfig() {
-        supportLoaderManager.getLoader<Cursor>(0).onContentChanged()
+        supportLoaderManager.getLoader<Cursor>(0)?.onContentChanged()
     }
 }

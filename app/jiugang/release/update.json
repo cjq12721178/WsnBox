@@ -1,7 +1,7 @@
 {
-    "apkName": "com.weisi.tool.wsnbox.jiugang_0.4.0_20181015.apk",
-    "versionName": "0.4.0",
-    "versionCode": 13,
-    "forceUpdate": true,
-    "versionDescription": "1. 优化数据浏览UI\n2. 修复BLE协议解析阵列传感器时数据类型区分失败的问题\n3. 修复部分校正数据显示有误的问题\n4. 修复自动安装闪退的问题\n5. 修复BLE协议部分传感器数据丢失的问题\n6. 修复异常记录功能在Android6.0以上版本失效的问题\n7. 修复关于界面启动异常的问题\n8. 修复未配置物理传感器名称为空的问题\n9. 新增查看、添加、修改参数配置等功能"
+    "apkName": "com.weisi.tool.wsnbox.jiugang_0.5.0_20190202.apk",
+    "versionName": "0.5.0",
+    "versionCode": 22,
+    "forceUpdate": false,
+    "versionDescription": "新年快乐，为此献上智联之窗最新版本，喜迎新春^_^\n1. 优化历史数据加载\n2. 新增智能垫片产品展示功能（需要先行配置）\n3. 优化数据浏览界面\n4. 优化传感器详情界面数据表格，新增曲线绘制功能及与数据表格互动功能\n5. 新增通过搜索附近传感器批量添加传感器配置的功能\n6. 调整界面部分配色"
 }

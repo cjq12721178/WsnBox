@@ -1,13 +1,14 @@
 package com.weisi.tool.wsnbox.bean.sorter;
 
-import com.cjq.lib.weisi.data.Sorter;
+import android.support.annotation.NonNull;
+
 import com.cjq.lib.weisi.iot.Sensor;
 
 /**
  * Created by CJQ on 2017/9/14.
  */
 
-public class SensorNetInTimeSorter<S extends Sensor> extends Sorter<S> {
+public class SensorNetInTimeSorter<S extends Sensor> extends SensorIdSorter<S> {
 
 //    @Override
 //    public int add(List<S> sensors, S measurement) {
@@ -16,7 +17,8 @@ public class SensorNetInTimeSorter<S extends Sensor> extends Sorter<S> {
 //    }
 
     @Override
-    public int compare(S s1, S s2) {
-        return Long.compare(s1.getNetInTimestamp(), s2.getNetInTimestamp());
+    public int compare(@NonNull S s1, @NonNull S s2) {
+        int result = Long.compare(s1.getNetInTimestamp(), s2.getNetInTimestamp());
+        return result == 0 ? super.compare(s1, s2) : result;
     }
 }

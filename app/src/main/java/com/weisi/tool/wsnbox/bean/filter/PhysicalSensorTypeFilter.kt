@@ -6,6 +6,7 @@ import android.os.Parcelable
 import com.cjq.lib.weisi.data.Filter
 import com.cjq.lib.weisi.iot.PhysicalSensor
 import com.cjq.lib.weisi.iot.SensorManager
+import java.text.Collator
 import java.util.*
 
 /**
@@ -27,8 +28,7 @@ class PhysicalSensorTypeFilter(selectedSensorTypeNos: List<Int>) : Filter<Physic
         }
 
         private fun generateSensorTypeNames(): Array<String> {
-
-            var sensorTypeNameSet = HashSet<String>()
+            val sensorTypeNameSet = HashSet<String>()
             SensorManager.getBleSensorTypes().forEach(fun(type: PhysicalSensor.Type) {
                 sensorTypeNameSet.add(type.sensorGeneralName)
             })
@@ -36,7 +36,9 @@ class PhysicalSensorTypeFilter(selectedSensorTypeNos: List<Int>) : Filter<Physic
                 sensorTypeNameSet.add(type.sensorGeneralName)
             })
             sensorTypeNameSet.add("未知传感器")
-            return sensorTypeNameSet.toTypedArray()
+            val result = sensorTypeNameSet.toTypedArray()
+            Arrays.sort(result, Collator.getInstance(java.util.Locale.CHINA))
+            return result;
         }
 
         val CREATOR : Parcelable.Creator<PhysicalSensorTypeFilter> = object : Parcelable.Creator<PhysicalSensorTypeFilter> {

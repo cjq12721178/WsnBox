@@ -20,7 +20,7 @@ open class MeasurementConfigWithSwitchWarnerAdapterDelegate protected constructo
         return R.string.warner_type_switch
     }
 
-    override fun onCreateViewHolder(itemView: View?, warnerLayoutRes: Int, extraConfigLayoutRes: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(itemView: View, warnerLayoutRes: Int, extraConfigLayoutRes: Int): RecyclerView.ViewHolder {
         return ViewHolder(itemView, warnerLayoutRes, extraConfigLayoutRes)
     }
 
@@ -31,7 +31,7 @@ open class MeasurementConfigWithSwitchWarnerAdapterDelegate protected constructo
         holder.tvAbnormal.text = warner.abnormalValue.toString()
     }
 
-    open class ViewHolder(itemView: View?, warnerLayoutRes: Int, extraConfigLayoutRes: Int) : MeasurementConfigAdapterDelegate.ViewHolder(itemView, warnerLayoutRes, extraConfigLayoutRes) {
-        val tvAbnormal: TextView = itemView!!.findViewById(R.id.tv_abnormal_value)
+    open class ViewHolder(itemView: View, warnerLayoutRes: Int, extraConfigLayoutRes: Int) : MeasurementConfigAdapterDelegate.ViewHolder(itemView, warnerLayoutRes, extraConfigLayoutRes) {
+        val tvAbnormal: TextView = itemView.findViewById(R.id.tv_abnormal_value)
     }
 }

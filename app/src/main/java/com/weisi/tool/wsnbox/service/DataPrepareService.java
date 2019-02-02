@@ -17,29 +17,43 @@ import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
 import com.weisi.tool.wsnbox.processor.accessor.BleSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.CommonSensorDataAccessor;
+import com.weisi.tool.wsnbox.processor.accessor.IntelligentGasketSimulationDataAccess;
 import com.weisi.tool.wsnbox.processor.accessor.OnSensorDynamicDataAccessListener;
 import com.weisi.tool.wsnbox.processor.accessor.OnSensorHistoryDataAccessListener;
 import com.weisi.tool.wsnbox.processor.accessor.SensorDynamicDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.SensorHistoryDataAccessor;
-import com.weisi.tool.wsnbox.processor.exporter.SensorDataExporter;
 import com.weisi.tool.wsnbox.processor.accessor.SerialPortSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.TcpSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.UdpSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.UsbSensorDataAccessor;
+import com.weisi.tool.wsnbox.processor.exporter.SensorDataExcelExporter;
+import com.weisi.tool.wsnbox.processor.exporter.SensorDataSQLiteExporter;
 import com.weisi.tool.wsnbox.processor.transfer.DataTransferStation;
 import com.weisi.tool.wsnbox.util.FlavorClassBuilder;
+import com.weisi.tool.wsnbox.util.SafeAsyncTask;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
-public class DataPrepareService extends Service implements SensorDynamicDataAccessor.OnStartResultListener, OnSensorDynamicDataAccessListener, OnSensorHistoryDataAccessListener {
+import kotlin.Unit;
+
+public class DataPrepareService
+        extends Service
+        implements SensorDynamicDataAccessor.OnStartResultListener,
+        OnSensorDynamicDataAccessListener,
+        OnSensorHistoryDataAccessListener {
 
     private final LocalBinder mLocalBinder = new LocalBinder();
-    private SensorDataExporter mSensorDataExporter;
+    private SensorDataSQLiteExporter mSensorDataSQLiteExporter;
     private BleSensorDataAccessor mBleSensorDataAccessor;
     private UdpSensorDataAccessor mUdpSensorDataAccessor;
     private SerialPortSensorDataAccessor mSerialPortSensorDataAccessor;
     private UsbSensorDataAccessor mUsbSensorDataAccessor;
     private TcpSensorDataAccessor mTcpSensorDataAccessor;
+
+    private IntelligentGasketSimulationDataAccess mIntelligentGasketSimulationDataAccess;
 
     private SensorHistoryDataAccessor mSensorHistoryDataAccessor;
     private final DataTransferStation mDataTransferStation = new DataTransferStation();
@@ -49,10 +63,10 @@ public class DataPrepareService extends Service implements SensorDynamicDataAcce
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case SensorDataExporter.DATABASE_INSERT_SENSOR_DATA_ERROR:
+                case SensorDataSQLiteExporter.DATABASE_INSERT_SENSOR_DATA_ERROR:
                     SimpleCustomizeToast.show(getString(R.string.database_insert_sensor_data_error));
                     break;
-                case SensorDataExporter.SENSOR_DATA_RECORDER_SHUTDOWN:
+                case SensorDataSQLiteExporter.SENSOR_DATA_RECORDER_SHUTDOWN:
                     SensorDatabase.shutdown();
                     break;
             }
@@ -60,6 +74,11 @@ public class DataPrepareService extends Service implements SensorDynamicDataAcce
     };
 
     public DataPrepareService() {
+    }
+
+    @Override
+    public void onCreate() {
+        mDataTransferStation.init();
     }
 
     @Override
@@ -238,6 +257,10 @@ public class DataPrepareService extends Service implements SensorDynamicDataAcce
         if (settings.isTcpEnable()) {
             getTcpSensorDataAccessor().startDataAccess(this, settings, null, this);
         }
+//        if (mIntelligentGasketSimulationDataAccess == null) {
+//            mIntelligentGasketSimulationDataAccess = new IntelligentGasketSimulationDataAccess();
+//        }
+//        mIntelligentGasketSimulationDataAccess.startDataAccess(this, settings, null, this);
     }
 
     public void stopAccessSensorData() {
@@ -260,6 +283,10 @@ public class DataPrepareService extends Service implements SensorDynamicDataAcce
         if (mTcpSensorDataAccessor != null) {
             mTcpSensorDataAccessor.stopDataAccess(this);
             mTcpSensorDataAccessor = null;
+        }
+        if (mIntelligentGasketSimulationDataAccess != null) {
+            mIntelligentGasketSimulationDataAccess.stopDataAccess(this);
+            mIntelligentGasketSimulationDataAccess = null;
         }
         CommonSensorDataAccessor.release();
         SensorDynamicDataAccessor.setOnSensorDynamicDataAccessListener(null);
@@ -299,28 +326,69 @@ public class DataPrepareService extends Service implements SensorDynamicDataAcce
     }
 
     public void startCaptureAndRecordSensorDataWithoutAllowance() {
-        if (mSensorDataExporter == null) {
-            mSensorDataExporter = new SensorDataExporter(mEventHandler);
+        if (mSensorDataSQLiteExporter == null) {
+            mSensorDataSQLiteExporter = new SensorDataSQLiteExporter(mEventHandler);
         }
         setSensorDataGatherCycleImpl(getBaseApplication().getSettings().getSensorDataGatherCycle());
-        mSensorDataExporter.startCaptureAndRecordSensorData();
+        mSensorDataSQLiteExporter.startCaptureAndRecordSensorData();
     }
 
     private void setSensorDataGatherCycleImpl(long cycle) {
-        mSensorDataExporter.setMinTimeIntervalForDuplicateValue(TimeUnit.SECONDS.toMillis(cycle));
+        mSensorDataSQLiteExporter.setMinTimeIntervalForDuplicateValue(TimeUnit.SECONDS.toMillis(cycle));
     }
 
     public void stopCaptureAndRecordSensorData() {
-        if (mSensorDataExporter == null) {
+        if (mSensorDataSQLiteExporter == null) {
             return;
         }
-        mSensorDataExporter.stopCaptureAndRecordSensorData();
+        mSensorDataSQLiteExporter.stopCaptureAndRecordSensorData();
     }
 
     public void setSensorDataGatherCycle(long cycle) {
-        if (mSensorDataExporter == null) {
+        if (mSensorDataSQLiteExporter == null) {
             return;
         }
         setSensorDataGatherCycleImpl(cycle);
+    }
+
+    public void exportSensorDataToExcel() {
+        SimpleCustomizeToast.show(R.string.exporting_sensor_data);
+        if (!getBaseApplication().getSettings().isExportingSensorData()) {
+//            new AsyncTask<String, Void, Boolean>() {
+//
+//                @Override
+//                protected Boolean doInBackground(String... params) {
+//                    return SensorDatabase.exportSensorDataToExcel(params[0]);
+//                }
+//
+//                @Override
+//                protected void onPostExecute(Boolean result) {
+//                    SimpleCustomizeToast.show(result
+//                            ? R.string.excel_export_success
+//                            : R.string.excel_export_failed);
+//                    getBaseApplication().getSettings().setExportingSensorData(result);
+//                }
+//            }.execute(getBaseApplication().getSettings().getOutputFilePath());
+            new SensorDataExcelExporter(new SafeAsyncTask.ResultAchiever<Boolean, Unit>() {
+                @Override
+                public void onProgressUpdate(@NotNull Unit[] values) {
+                }
+
+                @Override
+                public void onResultAchieved(@Nullable Boolean result) {
+                    if (result != null && result) {
+                        SimpleCustomizeToast.show(R.string.excel_export_success);
+                        getBaseApplication().getSettings().setExportingSensorData(false);
+                    } else {
+                        SimpleCustomizeToast.show(R.string.excel_export_failed);
+                    }
+                }
+
+                @Override
+                public boolean invalid() {
+                    return false;
+                }
+            }).execute(getBaseApplication().getSettings().getOutputFilePath());
+        }
     }
 }

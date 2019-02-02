@@ -51,7 +51,7 @@ open class BaseConfigAdapter : RecyclerViewCursorAdapter() {
         }
     }
 
-    open class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-        val chkDelete = itemView!!.findViewById<CheckBox>(R.id.chk_delete_selection)!!
+    open class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val chkDelete = itemView.findViewById<CheckBox>(R.id.chk_delete_selection)!!
     }
 }

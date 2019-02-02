@@ -2,21 +2,25 @@
 <!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
 <!-- 本文件适用于BLE协议族 -->
 <!-- 数值解释方式目前为止有5种-->
-<!-- 保留若干小数位浮点型，使用decimal标签设置保留小数位数 -->
-<!-- 开关型， 使用status标签设置on和off时的名称 -->
-<!-- 数值解释型，使用paraphrases标签，然后用paraphrase标签一一定义“数值-解释” -->
-<!-- 日历时间型，使用calendar标签设置时间显示模式 -->
-<!-- 默认类型，直接显示value -->
+<!--   保留若干小数位浮点型，使用decimal标签设置保留小数位数 -->
+<!--   开关型， 使用status标签设置on和off时的名称 -->
+<!--   数值解释型，使用paraphrases标签，然后用paraphrase标签一一定义“数值-解释” -->
+<!--   日历时间型，使用calendar标签设置时间显示模式 -->
+<!--   默认类型，直接显示value -->
 <!-- 自定义数据类型名称的type，0时为在默认名称之后附加，1为替换 -->
+<!-- 使用curve标签标示进行曲线绘制时的类型(16进制，分为两部分)，-->
+<!--   16位以上部分表示类别，1表示模拟量，2表示开关量，3表示计数量，默认为1 -->
+<!--   16位以下部分表示类型，1为传感器基础信息（包括电源电量、RSSI等），其余具体见《数据曲线类型》 -->
 <Sensor>
-    <correctors>
-        <corrector>
-            <label>kgTokN</label>
-            <function>0.0098 * v</function>
-        </corrector>
-    </correctors>
+	<correctors>
+		<corrector>
+			<label>kgTokN</label>
+			<function>0.0098 * v</function>
+		</corrector>
+	</correctors>
 	<DataTypes>
 		<DataType>
+			<curve>10002</curve>
 			<value>05</value>
 			<name>温度</name>
 			<float>
@@ -25,6 +29,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10002</curve>
 			<value>06</value>
 			<name>最高温度</name>
 			<float>
@@ -33,6 +38,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10002</curve>
 			<value>07</value>
 			<name>最低温度</name>
 			<float>
@@ -41,6 +47,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10002</curve>
 			<value>08</value>
 			<name>平均温度</name>
 			<float>
@@ -49,6 +56,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>30004</curve>
 			<value>11</value>
 			<name>动作次数</name>
 			<float>
@@ -57,6 +65,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10003</curve>
 			<value>18</value>
 			<name>阻性电流</name>
 			<float>
@@ -65,6 +74,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10003</curve>
 			<value>1A</value>
 			<name>泄露电流</name>
 			<float>
@@ -73,6 +83,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10006</curve>
 			<value>1B</value>
 			<name>电流</name>
 			<float>
@@ -81,6 +92,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10009</curve>
 			<value>1D</value>
 			<name>电压</name>
 			<float>
@@ -89,6 +101,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10018</curve>
 			<value>20</value>
 			<name>有功功率</name>
 			<float>
@@ -97,6 +110,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10017</curve>
 			<value>21</value>
 			<name>无功功率</name>
 			<float>
@@ -105,6 +119,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10019</curve>
 			<value>22</value>
 			<name>视在功率</name>
 			<float>
@@ -113,6 +128,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10005</curve>
 			<value>23</value>
 			<name>功率因素</name>
 			<float>
@@ -121,6 +137,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10006</curve>
 			<value>24</value>
 			<name>相电流</name>
 			<float>
@@ -129,6 +146,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10009</curve>
 			<value>25</value>
 			<name>相电压</name>
 			<float>
@@ -137,6 +155,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1001A</curve>
 			<value>26</value>
 			<name>相能耗</name>
 			<float>
@@ -145,6 +164,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1001B</curve>
 			<value>27</value>
 			<name>相频率</name>
 			<float>
@@ -153,6 +173,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10006</curve>
 			<value>28</value>
 			<name>电流三次谐波</name>
 			<float>
@@ -161,6 +182,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10006</curve>
 			<value>29</value>
 			<name>电流五次谐波</name>
 			<float>
@@ -169,6 +191,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10006</curve>
 			<value>2A</value>
 			<name>电流七次谐波</name>
 			<float>
@@ -177,6 +200,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10006</curve>
 			<value>2B</value>
 			<name>电流九次谐波</name>
 			<float>
@@ -185,6 +209,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10009</curve>
 			<value>2C</value>
 			<name>电压三次谐波</name>
 			<float>
@@ -193,6 +218,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10009</curve>
 			<value>2D</value>
 			<name>电压五次谐波</name>
 			<float>
@@ -201,6 +227,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10009</curve>
 			<value>2E</value>
 			<name>电压七次谐波</name>
 			<float>
@@ -209,6 +236,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10009</curve>
 			<value>2F</value>
 			<name>电压九次谐波</name>
 			<float>
@@ -217,6 +245,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1000D</curve>
 			<value>40</value>
 			<name>相对湿度</name>
 			<float>
@@ -225,6 +254,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10002</curve>
 			<value>41</value>
 			<name>露点温度</name>
 			<float>
@@ -233,6 +263,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1000E</curve>
 			<value>42</value>
 			<name>液位高度</name>
 			<float>
@@ -241,6 +272,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1000E</curve>
 			<value>45</value>
 			<name>雨量</name>
 			<float>
@@ -249,6 +281,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1001D</curve>
 			<value>46</value>
 			<name>风速</name>
 			<float>
@@ -257,6 +290,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10005</curve>
 			<value>47</value>
 			<name>风向</name>
 			<float>
@@ -265,6 +299,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1001C</curve>
 			<value>48</value>
 			<name>气压</name>
 			<float>
@@ -273,6 +308,16 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1001C</curve>
+			<value>49</value>
+			<name>差压</name>
+			<float>
+				<decimal>3</decimal>
+				<unit>Pa</unit>
+			</float>
+		</DataType>
+		<DataType>
+			<curve>10012</curve>
 			<value>4A</value>
 			<name>光照度</name>
 			<float>
@@ -281,6 +326,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1000A</curve>
 			<value>4C</value>
 			<name>声强</name>
 			<float>
@@ -289,6 +335,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1000D</curve>
 			<value>4E</value>
 			<name>容积含水率</name>
 			<float>
@@ -297,6 +344,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>20027</curve>
 			<value>50</value>
 			<name>水浸状态</name>
 			<status>
@@ -305,6 +353,7 @@
 			</status>
 		</DataType>
 		<DataType>
+			<curve>20028</curve>
 			<value>52</value>
 			<name>振动状态</name>
 			<status>
@@ -313,6 +362,7 @@
 			</status>
 		</DataType>
 		<DataType>
+			<curve>2000F</curve>
 			<value>54</value>
 			<name>开关状态</name>
 			<status>
@@ -321,6 +371,7 @@
 			</status>
 		</DataType>
 		<DataType>
+			<curve>20011</curve>
 			<value>55</value>
 			<name>报警状态</name>
 			<status>
@@ -329,6 +380,7 @@
 			</status>
 		</DataType>
 		<DataType>
+			<curve>20010</curve>
 			<value>56</value>
 			<name>热释电红外</name>
 			<status>
@@ -337,6 +389,7 @@
 			</status>
 		</DataType>
 		<DataType>
+			<curve>20024</curve>
 			<value>5A</value>
 			<name>继电器状态</name>
 			<status>
@@ -345,6 +398,7 @@
 			</status>
 		</DataType>
 		<DataType>
+			<curve>30004</curve>
 			<value>5F</value>
 			<name>开关次数</name>
 			<float>
@@ -353,6 +407,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1001E</curve>
 			<value>60</value>
 			<name>拉力</name>
 			<float>
@@ -362,6 +417,7 @@
 			<ScriptValueCorrectorLabel>kgTokN</ScriptValueCorrectorLabel>
 		</DataType>
 		<DataType>
+			<curve>10014</curve>
 			<value>62</value>
 			<name>形变</name>
 			<float>
@@ -370,6 +426,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10020</curve>
 			<value>65</value>
 			<name>重力加速度</name>
 			<float>
@@ -378,6 +435,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10029</curve>
 			<value>66</value>
 			<name>振动加速度</name>
 			<float>
@@ -386,6 +444,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1001D</curve>
 			<value>67</value>
 			<name>振动速率</name>
 			<float>
@@ -394,6 +453,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1000E</curve>
 			<value>68</value>
 			<name>振动位移</name>
 			<float>
@@ -402,6 +462,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1001B</curve>
 			<value>69</value>
 			<name>振动频率</name>
 			<float>
@@ -410,6 +471,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10021</curve>
 			<value>6A</value>
 			<name>位移</name>
 			<float>
@@ -418,6 +480,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1000E</curve>
 			<value>6B</value>
 			<name>距离</name>
 			<float>
@@ -426,6 +489,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10005</curve>
 			<value>6D</value>
 			<name>角度</name>
 			<float>
@@ -434,6 +498,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1002A</curve>
 			<value>6E</value>
 			<name>朝向</name>
 			<unit/>
@@ -513,6 +578,7 @@
 			</paraphrases>
 		</DataType>
 		<DataType>
+			<curve>10022</curve>
 			<value>80</value>
 			<name>氧气浓度</name>
 			<float>
@@ -521,6 +587,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10023</curve>
 			<value>81</value>
 			<name>一氧化碳浓度</name>
 			<float>
@@ -529,6 +596,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10023</curve>
 			<value>82</value>
 			<name>二氧化碳浓度</name>
 			<float>
@@ -537,6 +605,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1002B</curve>
 			<value>A1</value>
 			<name>温度系数</name>
 			<float>
@@ -545,6 +614,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>10021</curve>
 			<value>A8</value>
 			<name>指示范围</name>
 			<float>
@@ -553,12 +623,14 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1002C</curve>
 			<value>F8</value>
 			<name>日历时间</name>
 			<unit/>
 			<calendar>yyyy-MM-dd HH:mm:ss</calendar>
 		</DataType>
 		<DataType>
+			<curve>1002D</curve>
 			<value>FA</value>
 			<name>MSB</name>
 			<float>
@@ -567,6 +639,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1002D</curve>
 			<value>FB</value>
 			<name>LSB</name>
 			<float>
@@ -575,6 +648,7 @@
 			</float>
 		</DataType>
 		<DataType>
+			<curve>1002D</curve>
 			<value>FC</value>
 			<name>时间间隔</name>
 			<float>
@@ -885,9 +959,28 @@
 			</measurements>
 		</SensorType>
 		<SensorType>
+			<SensorName>智能呼吸器</SensorName>
+			<start>B40000</start>
+			<end>B4FFFF</end>
+			<measurements>
+				<measurement>
+					<DataTypeValue>05</DataTypeValue>
+				</measurement>
+				<measurement>
+					<DataTypeValue>40</DataTypeValue>
+				</measurement>
+				<measurement>
+					<DataTypeValue>48</DataTypeValue>
+				</measurement>
+				<measurement>
+					<DataTypeValue>49</DataTypeValue>
+				</measurement>
+			</measurements>
+		</SensorType>
+		<SensorType>
 			<SensorName>智能用电测控终端</SensorName>
 			<start>C00000</start>
-			<end>C3FFFF</end>
+			<end>C0FFFF</end>
 			<measurements>
 				<measurement>
 					<DataTypeValue>20</DataTypeValue>
@@ -1139,65 +1232,49 @@
 			</measurements>
 		</SensorType>
 		<SensorType>
-			<SensorName>智能避雷器</SensorName>
-			<start>CA0000</start>
-			<end>CDFFFF</end>
+			<SensorName>智能垫片</SensorName>
+			<start>D00000</start>
+			<end>D1FFFF</end>
 			<measurements>
 				<measurement>
 					<DataTypeValue>05</DataTypeValue>
 				</measurement>
 				<measurement>
-					<DataTypeValue>11</DataTypeValue>
-				</measurement>
-				<measurement>
-					<DataTypeValue>1A</DataTypeValue>
-				</measurement>
-				<measurement>
-					<DataTypeValue>FC</DataTypeValue>
+					<DataTypeValue>60</DataTypeValue>
 				</measurement>
 			</measurements>
 		</SensorType>
-        <SensorType>
-            <SensorName>智能垫片</SensorName>
-            <start>D00000</start>
-            <end>D1FFFF</end>
-            <measurements>
-                <measurement>
-                    <DataTypeValue>05</DataTypeValue>
-                </measurement>
-                <measurement>
-                    <DataTypeValue>60</DataTypeValue>
-                </measurement>
-                <measurement>
-                    <DataTypeValue>65</DataTypeValue>
-                    <DataTypeCustomName type="0">X轴</DataTypeCustomName>
-                </measurement>
-                <measurement>
-                    <DataTypeValue>65</DataTypeValue>
-                    <DataTypeCustomName type="0">Y轴</DataTypeCustomName>
-                </measurement>
-            </measurements>
-        </SensorType>
-        <SensorType>
-            <SensorName>智能螺栓</SensorName>
-            <start>D20000</start>
-            <end>D3FFFF</end>
-            <measurements>
-                <measurement>
-                    <DataTypeValue>05</DataTypeValue>
-                </measurement>
-                <measurement>
-                    <DataTypeValue>60</DataTypeValue>
-                </measurement>
-                <measurement>
-                    <DataTypeValue>65</DataTypeValue>
-                    <DataTypeCustomName type="0">X轴</DataTypeCustomName>
-                </measurement>
-                <measurement>
-                    <DataTypeValue>65</DataTypeValue>
-                    <DataTypeCustomName type="0">Y轴</DataTypeCustomName>
-                </measurement>
-            </measurements>
-        </SensorType>
+		<SensorType>
+			<SensorName>智能螺栓</SensorName>
+			<start>D20000</start>
+			<end>D3FFFF</end>
+			<measurements>
+				<measurement>
+					<DataTypeValue>05</DataTypeValue>
+				</measurement>
+				<measurement>
+					<DataTypeValue>60</DataTypeValue>
+				</measurement>
+				<measurement>
+					<DataTypeValue>65</DataTypeValue>
+				</measurement>
+			</measurements>
+		</SensorType>
+		<SensorType>
+			<SensorName>螺母位置传感器</SensorName>
+			<start>D40000</start>
+			<end>D4FFFF</end>
+			<measurements>
+				<measurement>
+					<DataTypeValue>05</DataTypeValue>
+				</measurement>
+				<measurement>
+					<DataTypeValue>65</DataTypeValue>
+				</measurement>
+				<measurement>
+					<DataTypeValue>6D</DataTypeValue>
+				</measurement>
+			</measurements>
+		</SensorType>
 	</SensorTypes>
 </Sensor>

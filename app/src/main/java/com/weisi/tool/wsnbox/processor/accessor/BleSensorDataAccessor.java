@@ -3,10 +3,11 @@ package com.weisi.tool.wsnbox.processor.accessor;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.cjq.lib.weisi.communicator.BleKit;
-import com.cjq.lib.weisi.protocol.BleSensorProtocol;
-import com.cjq.lib.weisi.protocol.OnSensorInfoAnalyzeListener;
+import com.wsn.lib.wsb.protocol.BleSensorProtocol;
+import com.wsn.lib.wsb.protocol.OnSensorInfoAnalyzeListener;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
 import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
 
@@ -37,7 +38,7 @@ public class BleSensorDataAccessor
     }
 
     @Override
-    protected void onStartDataAccess(Context context, Settings settings, OnStartResultListener listener) {
+    protected void onStartDataAccess(@NonNull Context context, @NonNull Settings settings, @NonNull OnStartResultListener listener) {
         if (mBleKit.launch(context)) {
             if (startBleScan(settings.getBleScanCycle(), settings.getBleScanDuration())) {
                 //listener.onStartSuccess(this);

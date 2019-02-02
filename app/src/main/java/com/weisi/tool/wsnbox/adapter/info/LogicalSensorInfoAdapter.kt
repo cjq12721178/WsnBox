@@ -36,7 +36,7 @@ class LogicalSensorInfoAdapter(logicalSensor: LogicalSensor, realTime: Boolean) 
         warnProcessor?.process(value, sensorInfo.sensor.practicalMeasurement.configuration.warner, holder.tvValue)
         holder.tvBattery.text = sensorInfo.sensorInfoValueContainer.findValue(position, value.timestamp)?.formattedBatteryVoltage
         holder.itemView.setBackgroundColor(if (position % 2 == 1) {
-            R.color.bg_li_sensor_data
+            R.color.bg_real_time_sensor_data
         } else {
             android.R.color.transparent
         })
@@ -45,7 +45,7 @@ class LogicalSensorInfoAdapter(logicalSensor: LogicalSensor, realTime: Boolean) 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, item: DisplayMeasurement.Value?, position: Int, payloads: MutableList<Any?>?) {
         if (payloads?.get(0) == UPDATE_TYPE_BACKGROUND_COLOR) {
             holder!!.itemView.setBackgroundColor(if (position % 2 == 1) {
-                R.color.bg_li_sensor_data
+                R.color.bg_real_time_sensor_data
             } else {
                 android.R.color.transparent
             })

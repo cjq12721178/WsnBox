@@ -16,7 +16,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewConfiguration;
 
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
@@ -34,10 +33,9 @@ import java.lang.reflect.Method;
  * Created by CJQ on 2018/1/4.
  */
 
-public class ActivityFunctionDelegate {
+public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction> {
 
-    private final Activity mActivity;
-    private final CallBack mCallBack;
+    private final A mActivity;
     private DataPrepareService mDataPrepareService;
     //private TextView mTvTitle;
 
@@ -46,22 +44,23 @@ public class ActivityFunctionDelegate {
         public void onServiceConnected(ComponentName name, IBinder service) {
             if (mDataPrepareService == null) {
                 mDataPrepareService = ((DataPrepareService.LocalBinder)service).getService();
-                mCallBack.onServiceConnectionCreate(mDataPrepareService);
+                mActivity.onServiceConnectionCreate(mDataPrepareService);
+                mActivity.notifyRegisteredFragmentsServiceConnectionCreate();
             }
-            mCallBack.onServiceConnectionStart(mDataPrepareService);
+            mActivity.onServiceConnectionStart(mDataPrepareService);
+            mActivity.notifyRegisteredFragmentsServiceConnectionStart();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mCallBack.onServiceConnectionStop(mDataPrepareService);
-            mCallBack.onServiceConnectionDestroy(mDataPrepareService);
+            mActivity.onServiceConnectionStop(mDataPrepareService);
+            mActivity.onServiceConnectionDestroy(mDataPrepareService);
             mDataPrepareService = null;
         }
     };
 
-    public ActivityFunctionDelegate(@NonNull Activity activity, @NonNull CallBack callBack) {
+    public ActivityFunctionDelegate(@NonNull A activity) {
         mActivity = activity;
-        mCallBack = callBack;
     }
 
     public DataPrepareService getDataPrepareService() {
@@ -90,17 +89,6 @@ public class ActivityFunctionDelegate {
         }
         actionBar.setDisplayHomeAsUpEnabled(true);
         setOverflowShowingAlways();
-//        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-//        actionBar.setDisplayShowCustomEnabled(true);
-//        actionBar.setBackgroundDrawable(ContextCompat.getDrawable(mActivity, R.color.bg_title));
-//        actionBar.setCustomView(R.layout.title_general);
-//        View customView = actionBar.getCustomView();
-//        mTvTitle = (TextView) customView.findViewById(R.id.tv_title);
-//        if (mTvTitle != null) {
-//            //setTitle(mActivity.getTitle());
-//            mTvTitle.setGravity(Gravity.CENTER);
-//        }
-//        mCallBack.onInitActionBar(customView);
     }
 
     private void setOverflowShowingAlways() {
@@ -118,15 +106,19 @@ public class ActivityFunctionDelegate {
         switch (item.getItemId()) {
             case android.R.id.home:
                 Intent upIntent = NavUtils.getParentActivityIntent(mActivity);
-                if (NavUtils.shouldUpRecreateTask(mActivity, upIntent)) {
-                    TaskStackBuilder.create(mActivity)
-                            .addNextIntentWithParentStack(upIntent)
-                            .startActivities();
+                if (upIntent != null) {
+                    if (NavUtils.shouldUpRecreateTask(mActivity, upIntent)) {
+                        TaskStackBuilder.create(mActivity)
+                                .addNextIntentWithParentStack(upIntent)
+                                .startActivities();
+                    } else {
+                        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        NavUtils.navigateUpTo(mActivity, upIntent);
+                    }
+                    return true;
                 } else {
-                    upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    NavUtils.navigateUpTo(mActivity, upIntent);
+                    return false;
                 }
-                return true;
             default:
                 return false;
         }
@@ -150,13 +142,13 @@ public class ActivityFunctionDelegate {
     }
 
     protected void onPause() {
-        mCallBack.onServiceConnectionStop(mDataPrepareService);
+        mActivity.onServiceConnectionStop(mDataPrepareService);
         mActivity.unbindService(mServiceConnection);
     }
 
     protected void onDestroy() {
         if (mDataPrepareService != null) {
-            mCallBack.onServiceConnectionDestroy(mDataPrepareService);
+            mActivity.onServiceConnectionDestroy(mDataPrepareService);
             mDataPrepareService = null;
         }
     }
@@ -185,12 +177,7 @@ public class ActivityFunctionDelegate {
                 "function_expect");
     }
 
-    public interface CallBack extends PermissionsRequesterBuilder {
-        void onServiceConnectionCreate(DataPrepareService service);
-        void onServiceConnectionStart(DataPrepareService service);
-        void onServiceConnectionStop(DataPrepareService service);
-        void onServiceConnectionDestroy(DataPrepareService service);
-        void onInitActionBar(View customView);
-        PermissionsRequester build(int type);
+    public boolean isActivityInvalid() {
+        return mActivity.isFinishing() || mActivity.isDestroyed();
     }
 }

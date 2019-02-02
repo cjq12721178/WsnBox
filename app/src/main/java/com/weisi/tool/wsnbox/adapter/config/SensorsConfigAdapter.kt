@@ -14,38 +14,7 @@ import java.util.*
 
 class SensorsConfigAdapter : BaseConfigAdapter() {
 
-    //var inDeleteMode = false
-    //private val deleteSelections = mutableListOf<Int>()
     private val addresses = AddressList()
-
-//    fun selectDeletingSensor(position: Int) {
-//        if (position in 0..(itemCount - 1) && inDeleteMode) {
-//            val index = deleteSelections.binarySearch(position)
-//            if (index >= 0) {
-//                deleteSelections.removeAt(index)
-//            } else {
-//                deleteSelections.add(-index - 1, position)
-//            }
-//        }
-//    }
-//
-//    fun changeDeleteModeWithNotification() {
-//        inDeleteMode = !inDeleteMode
-//        notifyItemRangeChanged(0, itemCount)
-//    }
-//
-//    fun getDeletingSensorsPosition() : List<Int> {
-//        return deleteSelections.toList()
-//    }
-//
-//    fun hasDeletingSensors() : Boolean {
-//        return !deleteSelections.isEmpty()
-//    }
-//
-//    override fun scheduleItemRemove(position: Int): Int {
-//        deleteSelections.remove(position)
-//        return super.scheduleItemRemove(position)
-//    }
 
     override fun onCreateViewHolder(parent: ViewGroup?): RecyclerView.ViewHolder {
         return ViewHolder(LayoutInflater.from(parent?.context)
@@ -93,10 +62,9 @@ class SensorsConfigAdapter : BaseConfigAdapter() {
         return Collections.binarySearch(addresses, address)
     }
 
-    private class ViewHolder(itemView: View?) : BaseConfigAdapter.ViewHolder(itemView) {
-        //val chkDelete = itemView!!.findViewById<CheckBox>(R.id.chk_delete_selection)!!
-        val tvName = itemView!!.findViewById<TextView>(R.id.tv_sensor_name)!!
-        val tvAddress = itemView!!.findViewById<TextView>(R.id.tv_sensor_address)!!
+    private class ViewHolder(itemView: View) : BaseConfigAdapter.ViewHolder(itemView) {
+        val tvName = itemView.findViewById<TextView>(R.id.tv_sensor_name)!!
+        val tvAddress = itemView.findViewById<TextView>(R.id.tv_sensor_address)!!
     }
 
     //主要用于二分法查找
@@ -143,22 +111,5 @@ class SensorsConfigAdapter : BaseConfigAdapter() {
         override fun subList(fromIndex: Int, toIndex: Int): List<Int> {
             TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
-
-//        inner class IteratorImpl : Iterator<Int> {
-//
-//            init {
-//                cursor.moveToFirst()
-//                cursor.moveToPrevious()
-//            }
-//
-//            override fun hasNext(): Boolean {
-//                return !cursor.isLast
-//            }
-//
-//            override fun next(): Int {
-//                cursor.moveToNext()
-//                return getSensorAddress(cursor)
-//            }
-//        }
     }
 }

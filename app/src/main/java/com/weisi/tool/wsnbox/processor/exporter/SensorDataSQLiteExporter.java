@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by CJQ on 2017/11/9.
  */
 
-public class SensorDataExporter
+public class SensorDataSQLiteExporter
         implements Runnable,
         SensorDatabase.SensorDataProvider,
         Sensor.OnDynamicValueCaptureListener {
@@ -32,10 +32,10 @@ public class SensorDataExporter
     private LinkedList<SensorData> mTemporarySensorData;
     private Map<Long, SensorData> mLastSensorDataMap;
 
-    public SensorDataExporter(@NonNull Handler messageSender) {
-        if (messageSender == null) {
-            throw new NullPointerException("message sender may not be null");
-        }
+    public SensorDataSQLiteExporter(@NonNull Handler messageSender) {
+//        if (messageSender == null) {
+//            throw new NullPointerException("message sender may not be null");
+//        }
         mMessageSender = messageSender;
     }
 
@@ -111,7 +111,7 @@ public class SensorDataExporter
 
     @Override
     public SensorData provideSensorData() {
-        synchronized (mTemporarySensorData) {
+        synchronized (this) {
             return mTemporarySensorData.poll();
         }
     }
@@ -135,7 +135,7 @@ public class SensorDataExporter
 
     @Override
     public void onDynamicValueCapture(int address, byte dataTypeValue, int dataTypeValueIndex, long timestamp, float batteryVoltage, double rawValue) {
-        synchronized (mTemporarySensorData) {
+        synchronized (this) {
             mTemporarySensorData.addLast(SensorData.build(address,
                     dataTypeValue, dataTypeValueIndex,
                     timestamp, batteryVoltage, rawValue));
