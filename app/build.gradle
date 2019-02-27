@@ -19,8 +19,8 @@ android {
         applicationId "com.weisi.tool.wsnbox"
         minSdkVersion 18
         targetSdkVersion 28
-        versionCode 40
-        versionName "1.9.0"
+        versionCode 41
+        versionName "2.0.0"
         flavorDimensions "wsn"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -39,28 +39,26 @@ android {
                     actionStartAboutActivity: "android.intent.action.ABOUT_GUOMI"
             ]
             applicationIdSuffix ".guomi"
-            versionCode 35
-            versionName "0.10.0"
+            versionCode 36
+            versionName "1.0.0"
         }
         jiugang {
             manifestPlaceholders = [
                     actionStartAboutActivity: "android.intent.action.ABOUT_JIUGANG"
             ]
             applicationIdSuffix ".jiugang"
-            versionCode 22
-            versionName "0.5.0"
+            versionCode 23
+            versionName "1.0.0"
         }
         show {
             manifestPlaceholders = [
                     actionStartAboutActivity: "android.intent.action.ABOUT_SHOW"
             ]
             applicationIdSuffix ".show"
-            versionCode 17
-            versionName "0.3.0"
+            versionCode 18
+            versionName "1.0.0"
         }
     }
-
-
 
     buildTypes {
         debug {
@@ -68,7 +66,8 @@ android {
 
             //resValue "string", "app_name", appDefaultName + "DEBUG"
             manifestPlaceholders = [
-                    appName: "@string/app_name_debug"
+                    appName: "@string/app_name_debug",
+                    actionSuffix: "_DEBUG"
             ]
 
             buildConfigField("boolean", "APP_DEBUG", "true")
@@ -77,7 +76,8 @@ android {
         release {
             //resValue "string", "app_name", appDefaultName
             manifestPlaceholders = [
-                    appName: "@string/app_name"
+                    appName: "@string/app_name",
+                    actionSuffix: ""
             ]
 
             buildConfigField "boolean", "APP_DEBUG", "false"

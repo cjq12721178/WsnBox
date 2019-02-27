@@ -8,6 +8,7 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,7 +38,8 @@ import java.util.Objects;
 
 public abstract class BaseActivity
         extends AppCompatActivity
-        implements BaseActivityFunction {
+        implements BaseActivityFunction,
+        BaseDialog.OnDialogConfirmListener {
 
     protected static final String DIALOG_TAG_UPDATE_APP = "tag_update_app";
     private static final String ARGUMENT_KEY_UPDATE_INFO = "ak_update_info";
@@ -258,5 +260,23 @@ public abstract class BaseActivity
     @Override
     public boolean invalid() {
         return getFunctionDelegate().isActivityInvalid();
+    }
+
+    @Override
+    public void onSensorConfigurationChanged() {
+        getFunctionDelegate().onSensorConfigurationChanged();
+    }
+
+    @Override
+    public boolean onConfirm(BaseDialog dialog) {
+        if (TextUtils.isEmpty(dialog.getTag())) {
+            return true;
+        }
+        switch (dialog.getTag()) {
+            case ActivityFunctionDelegate.DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED:
+                finish();
+                return true;
+        }
+        return false;
     }
 }

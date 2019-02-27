@@ -43,13 +43,6 @@ class DataBrowseDeviceNodeAdapter(private val storage: Storage<Device>) : Recycl
 
     class Delegate(private val nodeCount: Int) : AdapterDelegate<Device> {
 
-//        companion object {
-//            internal var realTime = true
-//            internal var warnProcessor: CommonWarnProcessor<View>? = null
-//            private val TIMESTAMP_SETTER = Date()
-//            private val DATE_FORMAT = SimpleDateFormat("HH:mm:ss")
-//        }
-
         init {
             if (nodeCount < 0) {
                 throw IllegalArgumentException("node count may not less than 0")

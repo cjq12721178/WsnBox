@@ -2,10 +2,10 @@ package com.weisi.tool.wsnbox.processor;
 
 import android.content.Context;
 
-import com.cjq.lib.weisi.protocol.GuomiEsbAnalyzer;
-import com.cjq.lib.weisi.protocol.UdpSensorProtocol;
 import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.processor.accessor.SerialPortSensorDataAccessor;
+import com.wsn.lib.wsb.protocol.GuomiEsbAnalyzer;
+import com.wsn.lib.wsb.protocol.UdpSensorProtocol;
 
 import java.io.IOException;
 

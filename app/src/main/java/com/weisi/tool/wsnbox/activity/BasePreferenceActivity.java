@@ -175,14 +175,14 @@ public abstract class BasePreferenceActivity
         return mFunctionDelegate;
     }
 
-    @Override
-    public void onHeaderClick(Header header, int position) {
-        if (header.fragment == null && header.intent != null) {
-            //getString(R.string.action_start_about_activity)
-            header.intent.setAction(getString(getResources().getIdentifier(header.intent.getAction(), "string", getPackageName())));
-        }
-        super.onHeaderClick(header, position);
-    }
+//    @Override
+//    public void onHeaderClick(Header header, int position) {
+//        if (header.fragment == null && header.intent != null) {
+//            //getString(R.string.action_start_about_activity)
+//            header.intent.setAction(getString(getResources().getIdentifier(header.intent.getAction(), "string", getPackageName())));
+//        }
+//        super.onHeaderClick(header, position);
+//    }
 
     @Override
     public void onServiceConnectionCreate(@NonNull DataPrepareService service) {
@@ -212,5 +212,10 @@ public abstract class BasePreferenceActivity
     @Override
     public boolean invalid() {
         return getFunctionDelegate().isActivityInvalid();
+    }
+
+    @Override
+    public void onSensorConfigurationChanged() {
+        getFunctionDelegate().onSensorConfigurationChanged();
     }
 }

@@ -32,7 +32,6 @@ import kotlinx.android.synthetic.main.lh_sensor_base_config.view.*
 
 class SensorConfigurationActivity : BaseActivity(),
         LoaderManager.LoaderCallbacks<SensorConfiguration>,
-        BaseDialog.OnDialogConfirmListener,
         EditDialog.OnContentReceiver,
         ListDialog.OnItemSelectedListener,
         SimpleSQLiteAsyncEventHandler.OnMissionCompleteListener {
@@ -60,9 +59,7 @@ class SensorConfigurationActivity : BaseActivity(),
     private val ARGUEMENT_KEY_WARNER_TYPE = "warner_type"
     private val ARGUMENT_KEY_COLUMN_NAME = "col_name"
     private val ARGUMENT_KEY_COLUMN_VALUE = "col_value"
-    //private val ARGUMENT_KEY_WARNER_VALUE = "warner_value"
     private val ARGUMENT_KEY_TABLE_NAME = "tb_name"
-    //private val DIALOG_TAG_IMPORT_SENSOR_CONFIG_FAILED = "import_sensor_cfg_err"
     private val adapter = SensorConfigAdapter()
     private lateinit var vBaseInfo: View
     private val databaseHandler = SensorDatabase.buildAsyncEventHandler(this)
@@ -70,10 +67,6 @@ class SensorConfigurationActivity : BaseActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sensor_configuration)
-
-//        if (savedInstanceState !== null) {
-//            intent.putExtra(Constant.COLUMN_SENSOR_CONFIGURATION_ID, savedInstanceState.getLong(Constant.COLUMN_SENSOR_CONFIGURATION_ID))
-//        }
 
         rv_sensor_config.layoutManager = LinearLayoutManager(this)
         rv_sensor_config.addOnItemTouchListener(object : SimpleRecyclerViewItemTouchListener(rv_sensor_config) {
@@ -194,11 +187,6 @@ class SensorConfigurationActivity : BaseActivity(),
         return vBaseInfo
     }
 
-//    override fun onSaveInstanceState(outState: Bundle?) {
-//        outState?.putLong(Constant.COLUMN_SENSOR_CONFIGURATION_ID, getSensorConfigId())
-//        super.onSaveInstanceState(outState)
-//    }
-
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<SensorConfiguration> {
         return SensorConfigurationLoader(this, getSensorConfigId())
     }
@@ -229,16 +217,6 @@ class SensorConfigurationActivity : BaseActivity(),
     override fun onLoaderReset(loader: Loader<SensorConfiguration>) {
         updateBasicInfo(null)
         updateMeasureList(null)
-    }
-
-    override fun onConfirm(dialog: BaseDialog<*>?): Boolean {
-        when (dialog?.tag) {
-//            DIALOG_TAG_IMPORT_SENSOR_CONFIG_FAILED -> {
-//                setResult(Activity.RESULT_CANCELED)
-//                finish()
-//            }
-        }
-        return true
     }
 
     override fun onReceive(dialog: EditDialog?, oldValue: String?, newValue: String?): Boolean {
@@ -289,7 +267,6 @@ class SensorConfigurationActivity : BaseActivity(),
                 if (args.getLong(ARGUMENT_KEY_MEASUREMENT_CONFIG_ID) == 0L) {
                     addMeasurementConfig(dialog, args)
                 } else {
-                    //insertColumnValue(dialog.arguments!!)
                     queryFunctionId(args)
                 }
             }
@@ -318,12 +295,6 @@ class SensorConfigurationActivity : BaseActivity(),
                 values, SQLiteDatabase.CONFLICT_REPLACE)
     }
 
-//    private fun canInputValueQualified(valueStr: String?): Boolean {
-//        if (!valueStr.isNullOrEmpty()) {
-//            valueStr.toDoubleOrNull()
-//        }
-//    }
-
     private fun addMeasurementConfigWithCustomName(dialog: BaseDialog<*>, customName: String?) {
         return addMeasurementConfig(dialog, null, customName)
     }
@@ -333,19 +304,6 @@ class SensorConfigurationActivity : BaseActivity(),
     }
 
     private fun addMeasurementConfig(dialog: BaseDialog<*>, args: Bundle?, customName: String?) {
-//        val values = ContentValues()
-//        values.put(Constant.COLUMN_SENSOR_CONFIGURATION_ID, getSensorConfigId())
-//        values.put(Constant.COLUMN_MEASUREMENT_VALUE_ID, getMeasurementId(dialog))
-//        val type = getMeasurementType(dialog)
-//        if (type != 0) {
-//            values.put(Constant.COLUMN_TYPE, type)
-//        }
-//        if (args === null) {
-//            values.put(Constant.COLUMN_CUSTOM_NAME, customName)
-//        }
-//        databaseHandler.startInsert(TOKEN_ADD_MEASUREMENT_CONFIG,
-//                args, Constant.TABLE_MEASUREMENT_CONFIGURATION,
-//                values, SQLiteDatabase.CONFLICT_NONE)
         return addMeasurementConfig(getMeasurementId(dialog), getMeasurementType(dialog), args, customName)
     }
 
@@ -417,14 +375,6 @@ class SensorConfigurationActivity : BaseActivity(),
             insertWarnerType(measurementConfigId, warnerType)
         }
     }
-
-//    private fun buildInsertWarnerTypeArguments(measurementConfigId: Long, warnerType: Int): Bundle {
-//        val args = Bundle()
-//        args.putInt(ARGUMENT_KEY_TOKEN, TOKEN_INSERT_WARNER_TYPE)
-//        args.putLong(ARGUMENT_KEY_MEASUREMENT_CONFIG_ID, measurementConfigId)
-//        args.putInt(ARGUEMENT_KEY_WARNER_TYPE, warnerType)
-//        return args
-//    }
 
     private fun insertWarnerType(measurementConfigId: Long, warnerType: Int) {
         val values = ContentValues()
@@ -528,11 +478,9 @@ class SensorConfigurationActivity : BaseActivity(),
     }
 
     override fun onReplaceComplete(token: Int, cookie: Any?, rowId: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onExecSqlComplete(token: Int, cookie: Any?, result: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun onInsertComplete(token: Int, cookie: Any?, rowId: Long) {
@@ -596,9 +544,6 @@ class SensorConfigurationActivity : BaseActivity(),
             val errStringRes = when (token) {
                 TOKEN_UPDATE_SENSOR_CUSTOM_NAME ->  R.string.sensor_custom_name_modify_failed
                 TOKEN_UPDATE_MEASUREMENT_CUSTOM_NAME -> R.string.measurement_custom_name_modify_failed
-                //TOKEN_UPDATE_HIGH_LIMIT -> R.string.set_high_limit_failed
-                //TOKEN_UPDATE_LOW_LIMIT -> R.string.set_low_limit_failed
-                //TOKEN_UPDATE_ABNORMAL_VALUE -> R.string.set_abnormal_value_failed
                 TOKEN_UPDATE_INITIAL_VALUE -> R.string.set_initial_value_failed
                 TOKEN_UPDATE_INITIAL_DISTANCE -> R.string.set_initial_distance_failed
                 else -> 0
@@ -607,23 +552,6 @@ class SensorConfigurationActivity : BaseActivity(),
                 SimpleCustomizeToast.show(errStringRes)
             }
         }
-//        when (token) {
-//            TOKEN_UPDATE_SENSOR_CUSTOM_NAME -> {
-//                if (affectedRowCount > 0) {
-//                    refreshSensorConfig()
-//                } else {
-//                    SimpleCustomizeToast.show(R.string.sensor_custom_name_modify_failed)
-//                }
-//            }
-//            TOKEN_UPDATE_MEASUREMENT_CUSTOM_NAME -> {
-//                if (affectedRowCount > 0) {
-//                    refreshSensorConfig()
-//                } else {
-//                    SimpleCustomizeToast.show(R.string.measurement_custom_name_modify_failed)
-//                }
-//            }
-//            TOKEN_UPDATE_HIGH_LIMIT
-//        }
     }
 
     private fun refreshSensorConfig() {

@@ -42,6 +42,7 @@
     <color name="shape_gasket_center">#00FF00</color>
     <!--<color name="warner_high_limit">#FFFF00</color>-->
     <color name="warner_high_limit">#FF8D42</color>
+    <color name="warner_abnormal">#FFFF00</color>
     <color name="bg_unselected_header">#1F3650</color>
     <color name="bg_unselected_cell">#1c324a</color>
     <color name="bg_selected_unit">#15A4FA</color>

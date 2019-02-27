@@ -23,7 +23,7 @@ public class SensorDataSQLiteExporter
     public static final int DATABASE_INSERT_SENSOR_DATA_ERROR = 1;
     public static final int SENSOR_DATA_RECORDER_SHUTDOWN = 2;
     
-    private static final int MAX_AFFORDABLE_ERROR_TIMES = 10;
+    private static final int MAX_AFFORDABLE_ERROR_TIMES = 100;
 
     private final int MAX_BUFFER_SIZE = 100;
     private final Handler mMessageSender;

@@ -324,8 +324,8 @@ class PhysicalSensorFragment : DataBrowseFragment<PhysicalSensor, DataBrowsePhys
         //physicalSensorInfoDialog?.notifyMeasurementHistoryValueChanged(measurement, valuePosition)
     }
 
-//    override fun onImportWarnProcessor() {
-//        //super.onImportWarnProcessor()
+//    override fun onSensorConfigurationChanged() {
+//        //super.onSensorConfigurationChanged()
 //        //BaseDataBrowseSensorAdapterDelegate.setWarnProcessor(processor)
 //        //SensorInfoAdapter.warnProcessor = processor
 //        adapter.notifyItemRangeChanged(0, adapter.itemCount, UPDATE_TYPE_VALUE_CHANGED)

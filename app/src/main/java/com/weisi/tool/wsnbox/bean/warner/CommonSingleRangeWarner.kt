@@ -12,13 +12,11 @@ open class CommonSingleRangeWarner : DisplayMeasurement.SingleRangeWarner {
     var lowLimit = 0.0
 
     override fun test(value: DisplayMeasurement.Value): Int {
-        var rawValue = value.rawValue
-        return if (rawValue > highLimit) {
-            RESULT_ABOVE_HIGH_LIMIT
-        } else if (rawValue < lowLimit) {
-            RESULT_BELOW_LOW_LIMIT
-        } else {
-            RESULT_NORMAL
+        val rawValue = value.rawValue
+        return when {
+            rawValue > highLimit -> RESULT_ABOVE_HIGH_LIMIT
+            rawValue < lowLimit -> RESULT_BELOW_LOW_LIMIT
+            else -> RESULT_NORMAL
         }
     }
 }

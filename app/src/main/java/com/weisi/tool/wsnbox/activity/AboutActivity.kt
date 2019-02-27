@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.activity_about.*
 import kotlinx.android.synthetic.main.group_has_new_version.*
 
 
-class AboutActivity : BaseActivity(), View.OnClickListener, BaseDialog.OnDialogConfirmListener {
+class AboutActivity : BaseActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,8 +46,11 @@ class AboutActivity : BaseActivity(), View.OnClickListener, BaseDialog.OnDialogC
         }
     }
 
-    override fun onConfirm(dialog: BaseDialog<*>?): Boolean {
-        when (dialog?.tag) {
+    override fun onConfirm(dialog: BaseDialog<*>): Boolean {
+        if (super.onConfirm(dialog)) {
+            return true
+        }
+        when (dialog.tag) {
             DIALOG_TAG_UPDATE_APP -> {
                 updateVersion(dialog)
             }

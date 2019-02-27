@@ -1,9 +1,9 @@
 package com.weisi.tool.wsnbox.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import com.cjq.lib.weisi.iot.SensorManager
 import com.cjq.tool.qbox.ui.manager.SwitchableFragmentManager
@@ -14,27 +14,23 @@ import com.weisi.tool.wsnbox.fragment.browse.DataBrowseFragment
 import com.weisi.tool.wsnbox.fragment.browse.DeviceNodeFragment
 import com.weisi.tool.wsnbox.fragment.browse.LogicalSensorFragment
 import com.weisi.tool.wsnbox.fragment.browse.PhysicalSensorFragment
-import com.weisi.tool.wsnbox.processor.importer.SensorConfigurationsImporter
+import com.weisi.tool.wsnbox.fragment.dialog.PhysicalSensorDetailsDialog
+import com.weisi.tool.wsnbox.io.Constant
 import com.weisi.tool.wsnbox.service.DataPrepareService
 import com.weisi.tool.wsnbox.util.NullHelper
-import com.weisi.tool.wsnbox.util.SafeAsyncTask
 import kotlinx.android.synthetic.main.activity_data_browse.*
 
 class DataBrowseActivity : BaseActivity(),
-        RadioGroup.OnCheckedChangeListener, SafeAsyncTask.ResultAchiever<SensorManager.MeasurementConfigurationProvider?, SensorManager.MeasurementConfigurationProvider> {
+        RadioGroup.OnCheckedChangeListener {
 
-    //private var realTime = true
-    //private var sortDialog: SortDialog? = null
-    //private var filterDialog: FilterDialog? = null
-    //private var searchDialog: SearchDialog? = null
-    //var warnProcessor: CommonWarnProcessor<View>? = null
     private var switchableFragmentManager: SwitchableFragmentManager<DataBrowseFragment<*, *>> by NullHelper.readonlyNotNull()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_data_browse)
 
-        //Log.d(Tag.LOG_TAG_D_TEST, "onCreate activity")
+        startService(Intent(this, DataPrepareService::class.java))
+        //Log.d(Tag.LOG_TAG_D_TEST, "DataBrowseActivity onCreate")
         BaseDataBrowseSensorAdapterDelegate.init(this)
         //初始化显示模式切换管理器
         switchableFragmentManager = SwitchableFragmentManager(supportFragmentManager,
@@ -45,51 +41,59 @@ class DataBrowseActivity : BaseActivity(),
                 arrayOf(PhysicalSensorFragment::class.java,
                         LogicalSensorFragment::class.java,
                         DeviceNodeFragment::class.java))
-
-        //getSettings().clearLastDataBrowseViewMode()
-        //切换至上一次选择的显示模式
         rg_view_mode.setOnCheckedChangeListener(this)
-        findViewById<RadioButton>(when (settings.lastDataBrowseViewMode) {
-            VM_LOGICAL_SENSOR -> R.id.rdo_logical_sensor_mode
-            VM_DEVICE_NODE -> R.id.rdo_device_node_mode
-            else -> R.id.rdo_physical_sensor_mode
-        }).isChecked = true
 
-        //导入传感器配置
-        importSensorConfigurations()
-//        if (savedInstanceState == null) {
-//            importSensorConfigurations()
-//        }
+        chooseViewModeAndShowSensorInfoFromWarnNotification(intent)
     }
 
-    override fun onDestroy() {
-        SensorManager.setValueContainerConfigurationProvider(null, true)
-        super.onDestroy()
-    }
+    private fun chooseViewModeAndShowSensorInfoFromWarnNotification(newIntent: Intent?) {
+        val sensorAddressFromNotification = newIntent?.getIntExtra(Constant.TAG_ADDRESS, 0) ?: 0
 
-    private fun importSensorConfigurations() {
-        val id = settings.dataBrowseValueContainerConfigurationProviderId
-        if (id > 0) {
-            //val task = ImportSensorConfigurationsTask()
-            //task.execute(id)
-            SensorConfigurationsImporter(this).execute(id)
+        //切换至上一次选择的显示模式
+        if (sensorAddressFromNotification != 0) {
+            rdo_physical_sensor_mode
+        } else {
+            when (settings.lastDataBrowseViewMode) {
+                VM_LOGICAL_SENSOR -> rdo_logical_sensor_mode
+                VM_DEVICE_NODE -> rdo_device_node_mode
+                else -> rdo_physical_sensor_mode
+            }
+        }.isChecked = true
+
+        //由点击告警通知打开相应传感器详细信息对话框
+        if (sensorAddressFromNotification != 0) {
+            val dialog = PhysicalSensorDetailsDialog()
+            dialog.init(SensorManager.getPhysicalSensor(sensorAddressFromNotification))
+            dialog.show(supportFragmentManager, DataBrowseFragment.DIALOG_TAG_INFO)
         }
     }
 
-//    override fun onServiceConnectionCreate(service: DataPrepareService) {
-//        switchableFragmentManager.currentFragment.onServiceConnectionCreate(service)
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        //Log.d(Tag.LOG_TAG_D_TEST, "onNewIntent, address: ${intent?.getIntExtra(Constant.TAG_ADDRESS, 0)}")
+        chooseViewModeAndShowSensorInfoFromWarnNotification(intent)
+    }
+
+//    override fun onDestroy() {
+//        Log.d(Tag.LOG_TAG_D_TEST, "DataBrowseActivity onDestroy")
+//        //SensorManager.setValueContainerConfigurationProvider(null, true)
+//        super.onDestroy()
 //    }
-//
-//    override fun onServiceConnectionStart(service: DataPrepareService) {
-//        switchableFragmentManager.currentFragment.onServiceConnectionStart(service)
-//    }
-//
-//    override fun onServiceConnectionStop(service: DataPrepareService) {
-//        switchableFragmentManager.currentFragment.onServiceConnectionStop(service)
-//    }
-//
-//    override fun onServiceConnectionDestroy(service: DataPrepareService) {
-//        switchableFragmentManager.currentFragment.onServiceConnectionDestroy(service)
+
+    override fun onBackPressed() {
+        if (intent.getIntExtra(Constant.TAG_ADDRESS, 0) != 0
+                && isTaskRoot
+                && !settings.isDataMonitorBackgroundEnable) {
+            stopService(Intent(this, DataPrepareService::class.java))
+        }
+        super.onBackPressed()
+    }
+
+//    private fun importSensorConfigurations() {
+//        val id = settings.dataBrowseValueContainerConfigurationProviderId
+//        if (id > 0) {
+//            SensorConfigurationsChanger(this).execute(id)
+//        }
 //    }
 
     override fun onCheckedChanged(group: RadioGroup?, checkedId: Int) {
@@ -104,9 +108,6 @@ class DataBrowseActivity : BaseActivity(),
             R.id.rdo_device_node_mode -> VM_DEVICE_NODE
             else -> VM_PHYSICAL_SENSOR
         }
-        //sortDialog = null
-        //filterDialog = null
-        //searchDialog = null
     }
 
     override fun onServiceConnectionCreate(service: DataPrepareService) {
@@ -121,10 +122,6 @@ class DataBrowseActivity : BaseActivity(),
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-//            R.id.mi_data_source -> {
-//                //realTime = !realTime
-//                switchableFragmentManager.currentFragment.changeDataSource()
-//            }
             R.id.mi_sort -> {
                 switchableFragmentManager.currentFragment.onSortButtonClick()
             }
@@ -141,41 +138,13 @@ class DataBrowseActivity : BaseActivity(),
         return true
     }
 
-    override fun onResultAchieved(result: SensorManager.MeasurementConfigurationProvider?) {
-        result?.let {
-            switchableFragmentManager.currentFragment.onImportWarnProcessor()
-        }
+    override fun onSensorConfigurationChanged() {
+        switchableFragmentManager.currentFragment.onSensorConfigurationChanged()
     }
 
-//    private inner class ImportSensorConfigurationsTask : AsyncTask<Long, SensorManager.MeasurementConfigurationProvider, SensorManager.MeasurementConfigurationProvider?>() {
-//
-//        override fun doInBackground(vararg params: Long?): SensorManager.MeasurementConfigurationProvider? {
-//            if (params.isEmpty()) {
-//                return null
-//            }
-//            val provider = SensorDatabase.importMeasurementConfigurationProvider(params[0]!!)
-//            SensorManager.setValueContainerConfigurationProvider(provider, true)
-//            return provider
-//        }
-//
-//        override fun onPostExecute(provider: SensorManager.MeasurementConfigurationProvider?) {
-//            if (provider != null) {
-//                //创建CommonWarnProcessor
-//                //注，目前暂时硬编码，之后由设置界面进行修改
-//                //当前传感器列表界面和单一传感器数据界面使用同一个warnProcessor，
-//                //以后根据需求可以设置不同的warnProcessor
-////                warnProcessor = CommonWarnProcessor<View>()
-////                warnProcessor?.addExecutor(ViewBackgroundSingleRangeWarnExecutor(
-////                        this@DataBrowseActivity,
-////                        android.R.color.holo_red_light,
-////                        android.R.color.holo_green_light)
-////                )
-////                warnProcessor?.addExecutor(ViewBackgroundSwitchWarnExecutor(
-////                        this@DataBrowseActivity,
-////                        android.R.color.holo_red_light
-////                ))
-//                switchableFragmentManager.currentFragment.onImportWarnProcessor()
-//            }
+//    override fun onResultAchieved(result: SensorManager.MeasurementConfigurationProvider?) {
+//        result?.let {
+//            switchableFragmentManager.currentFragment.onSensorConfigurationChanged()
 //        }
 //    }
 }

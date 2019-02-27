@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import com.cjq.lib.weisi.iot.Measurement
 import com.github.mikephil.charting.charts.LineChart
 import com.weisi.tool.wsnbox.R
-import com.weisi.tool.wsnbox.fragment.BaseFragment2
+import com.weisi.tool.wsnbox.fragment.BaseFragment
 
-class MeasurementCurveFragment<M : Measurement<*, *>> : BaseFragment2() {
+class MeasurementCurveFragment<M : Measurement<*, *>> : BaseFragment() {
 
     private val measurements = mutableListOf<M>()
 

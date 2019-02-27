@@ -1,11 +1,9 @@
 package com.weisi.tool.wsnbox.fragment.settings;
 
-import android.content.Intent;
 import android.preference.PreferenceFragment;
 import android.view.MenuItem;
 
 import com.weisi.tool.wsnbox.activity.BasePreferenceActivity;
-import com.weisi.tool.wsnbox.activity.SettingsActivity;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
 
 /**

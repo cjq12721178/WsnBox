@@ -4,7 +4,6 @@
     <string name="app_name_debug">智联之窗DEBUG</string>
     <string name="home_page_title">智联之窗</string>
     <string name="about_app">关于智联之窗</string>
-    <string name="action_start_about_activity">android.intent.action.ABOUT_GENERAL</string>
 
     <!-- 通用 -->
     <string name="data_browse">数据浏览</string>
@@ -51,6 +50,8 @@
     <string name="usb">USB</string>
     <string name="data_store">数据保存</string>
     <string name="data_export">数据导出</string>
+    <string name="data_warn">数据告警</string>
+    <string name="data_monitor">数据监测</string>
     <string name="sensor_protocol">协议</string>
     <string name="physical_sensor_mode">传感器</string>
     <string name="logical_sensor_mode">测量量</string>
@@ -77,6 +78,12 @@
     <string name="warner_type_none">无</string>
     <string name="warner_type_single_range">上下限</string>
     <string name="warner_type_switch">开关</string>
+    <string name="abnormal">异常</string>
+    <string name="above_high_limit">超过告警上限</string>
+    <string name="below_low_limit">超过告警下限</string>
+    <string name="sdcard_directory">WsnBox</string>
+    <string name="configuration_directory">configurations</string>
+    <string name="warn_info">告警信息</string>
     <!-- string name="service_server_url_debug">http://192.168.1.222:21524/</string -->
     <!-- string name="service_server_url">http://122.225.88.90:21524/</string -->
 
@@ -120,6 +127,8 @@
     <string name="intelligent_gasket_demo">智能垫片演示</string>
     <string name="filtrate_info">信息筛选</string>
     <string name="dialog_title_select_available_sensors">请在检测到的传感器中选择所需进行配置</string>
+    <string name="notice_title_sensor_data_abnormal" formatted="false">%s(%s)数据异常</string>
+    <string name="notice_text_info" formatted="false">当前%s: %s(%s)</string>
 
     <!-- 设置相关 -->
     <string name="preference_key_udp_enable">udp_enable</string>
@@ -180,6 +189,28 @@
     <string name="preference_key_output_file_path">output_path</string>
     <string name="preference_key_time_synchronize">time_sync</string>
     <string name="preference_title_time_synchronize">时间同步</string>
+    <string name="preference_key_data_warn_enable">data_warn</string>
+    <string name="preference_title_data_warn_enable">实时数据告警</string>
+    <string name="preference_key_data_warn_notify_enable">dw_notify</string>
+    <string name="preference_title_data_warn_notify_enable">发送系统通知</string>
+    <string name="preference_key_data_warn_notify_sound_enable">dwn_sound</string>
+    <string name="preference_title_data_warn_notify_sound_enable">提示音</string>
+    <string name="preference_key_data_warn_notify_vibrate_enable">dwn_vibrate</string>
+    <string name="preference_title_data_warn_notify_vibrate_enable">震动</string>
+    <string name="preference_key_data_warn_notify_float_enable">dwn_float</string>
+    <string name="preference_title_data_warn_notify_float_enable">浮动显示</string>
+    <string name="preference_key_data_warn_notify_screen_enable">dwn_screen</string>
+    <string name="preference_title_data_warn_notify_screen_enable">锁屏显示</string>
+    <string name="preference_key_data_warn_toast_enable">dw_toast</string>
+    <string name="preference_title_data_warn_toast_enable">弹出侧边栏</string>
+    <string name="preference_key_data_monitor_background_enable">dm_back</string>
+    <string name="preference_title_data_monitor_background_enable">后台监测数据</string>
+    <string name="preference_summary_data_monitor_background_enable">启用后允许APP关闭后依然可以接收传感器实时数据并提供告警服务</string>
+    <string name="preference_key_notification_parameter">notice_para</string>
+    <string name="preference_title_notification_parameter">通知参数</string>
+    <string name="preference_key_data_warn_notify_settings">dwn_set</string>
+    <string name="preference_title_data_warn_notify_settings">系统设置</string>
+    <string name="preference_summary_data_warn_notify_settings">若以上设置不起作用，请点此转至系统设置</string>
 
     <!-- 提示信息 -->
     <string name="unknown_error">发生未知错误</string>
@@ -292,11 +323,14 @@
     <string name="export_configuration_provider">导出参数配置至文件</string>
     <string name="devices_not_config">设备未配置</string>
     <string name="devices_config_error">设备配置有误</string>
-    <string name="product_display_provider_not_apply">请先在参数配置界面为产品展示应用相应配置</string>
+    <string name="no_configuration_provider">请先在参数配置界面应用相应配置</string>
     <string name="excel_export_success">导出传感器数据至“内部存储/WsnBox/data.xls”</string>
     <string name="excel_export_failed">导出传感器数据至Excel文件失败</string>
     <string name="exporting_sensor_data">正在导出传感器数据，请稍候</string>
     <string name="no_available_sensors">未检测到可用传感器</string>
+    <string name="parameter_configuration_export_success" formatted="false">参数配置成功导出至“%s”</string>
+    <string name="parameter_configuration_export_failed">参数配置导出失败</string>
+    <string name="enable_monitor_data_background">是否允许后台监测数据</string>
 
     <!-- 常数 -->
     <string-array name="baud_rates">

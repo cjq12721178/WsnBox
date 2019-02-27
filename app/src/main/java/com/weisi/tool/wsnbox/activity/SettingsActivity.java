@@ -1,9 +1,9 @@
 package com.weisi.tool.wsnbox.activity;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,11 +16,13 @@ import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.fragment.settings.BleSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.settings.DataStoreSettingsFragment;
+import com.weisi.tool.wsnbox.fragment.settings.DataMonitorSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.settings.SerialPortSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.settings.TcpSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.settings.UdpSettingsFragment;
 import com.weisi.tool.wsnbox.fragment.settings.UsbSettingsFragment;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;
+import com.weisi.tool.wsnbox.permission.WritePermissionsRequester;
 import com.weisi.tool.wsnbox.util.UriHelper;
 
 import java.util.List;
@@ -85,7 +87,8 @@ public class SettingsActivity extends BasePreferenceActivity {
                 || UsbSettingsFragment.class.getName().equals(fragmentName)
                 || SerialPortSettingsFragment.class.getName().equals(fragmentName)
                 || DataStoreSettingsFragment.class.getName().equals(fragmentName)
-                || TcpSettingsFragment.class.getName().equals(fragmentName);
+                || TcpSettingsFragment.class.getName().equals(fragmentName)
+                || DataMonitorSettingsFragment.class.getName().equals(fragmentName);
     }
 
     @Override
@@ -100,29 +103,34 @@ public class SettingsActivity extends BasePreferenceActivity {
 
     @Override
     public void onHeaderClick(Header header, int position) {
-        super.onHeaderClick(header, position);
-        if (header.fragment == null && header.intent == null) {
-            switch (header.titleRes) {
-                case R.string.data_export:
-                    new PermissionsRequester(this, 2, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }) {
-                        @Override
-                        protected int getRequestRationaleRes() {
-                            return R.string.grant_write_permission;
-                        }
-                    }.requestPermissions(new PermissionsRequester.OnRequestResultListener() {
-                        @Override
-                        public void onPermissionsGranted() {
-                            getDataPrepareService().exportSensorDataToExcel();
-                        }
+        if (header.fragment == null) {
+            if (header.intent == null) {
+                switch (header.titleRes) {
+                    default:break;
+                    case R.string.data_export:
+                        new WritePermissionsRequester(this, 2).requestPermissions(new PermissionsRequester.OnRequestResultListener() {
+                            @Override
+                            public void onPermissionsGranted() {
+                                getDataPrepareService().exportSensorDataToExcel();
+                            }
 
-                        @Override
-                        public void onPermissionsDenied() {
-                            SimpleCustomizeToast.show(R.string.lack_write_permissions);
-                        }
-                    });
-                    break;
+                            @Override
+                            public void onPermissionsDenied() {
+                                SimpleCustomizeToast.show(R.string.lack_write_permissions);
+                            }
+                        });
+                        return;
+                }
+            } else {
+                try {
+                    String realAction = getPackageManager().getActivityInfo(getComponentName(), PackageManager.GET_META_DATA).metaData.getString(header.intent.getAction());
+                    header.intent.setAction(realAction);
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
+        super.onHeaderClick(header, position);
     }
 
     @Override

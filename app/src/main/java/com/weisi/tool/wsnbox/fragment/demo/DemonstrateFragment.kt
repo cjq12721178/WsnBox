@@ -1,20 +1,18 @@
 package com.weisi.tool.wsnbox.fragment.demo
 
 import android.os.Bundle
-import android.util.Log
 import com.cjq.lib.weisi.iot.LogicalSensor
 import com.cjq.lib.weisi.iot.PhysicalSensor
 import com.cjq.lib.weisi.iot.PracticalMeasurement
 import com.cjq.lib.weisi.iot.Sensor
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.bean.data.Device
-import com.weisi.tool.wsnbox.fragment.BaseFragment2
+import com.weisi.tool.wsnbox.fragment.BaseFragment
 import com.weisi.tool.wsnbox.processor.transfer.DataTransferStation
 import com.weisi.tool.wsnbox.service.DataPrepareService
 import com.weisi.tool.wsnbox.util.NullHelper
-import com.weisi.tool.wsnbox.util.Tag
 
-open class DemonstrateFragment : BaseFragment2(), DataTransferStation.Detector {
+open class DemonstrateFragment : BaseFragment(), DataTransferStation.Detector {
 
     override var enableDetectPhysicalSensorNetIn = false
     override var enableDetectLogicalSensorNetIn = false
@@ -55,7 +53,7 @@ open class DemonstrateFragment : BaseFragment2(), DataTransferStation.Detector {
         service.dataTransferStation.register(this)
         //registerMeasurements(service)
         //service.dataTransferStation.enableDetectMeasurementRealTimeValueUpdate = DataTransferStation.MODE_CHECK_ATTENTION
-        Log.d(Tag.LOG_TAG_D_TEST, "fragment onServiceConnectionCreate")
+        //Log.d(Tag.LOG_TAG_D_TEST, "fragment onServiceConnectionCreate")
     }
 
 //    private fun registerMeasurements(service: DataPrepareService) {
@@ -68,14 +66,14 @@ open class DemonstrateFragment : BaseFragment2(), DataTransferStation.Detector {
 
     override fun onServiceConnectionStart(service: DataPrepareService) {
         //registerMeasurements(service)
-        Log.d(Tag.LOG_TAG_D_TEST, "fragment onServiceConnectionStart")
+        //Log.d(Tag.LOG_TAG_D_TEST, "fragment onServiceConnectionStart")
         //enableDetectMeasurementRealTimeValueUpdate = true
         enableDetectMeasurementDynamicValueUpdate = true
     }
 
     override fun onServiceConnectionStop(service: DataPrepareService) {
         //unregisterMeasurements(service)
-        Log.d(Tag.LOG_TAG_D_TEST, "fragment onServiceConnectionStop")
+        //Log.d(Tag.LOG_TAG_D_TEST, "fragment onServiceConnectionStop")
         //enableDetectMeasurementRealTimeValueUpdate = false
         enableDetectMeasurementDynamicValueUpdate = false
     }
@@ -89,7 +87,7 @@ open class DemonstrateFragment : BaseFragment2(), DataTransferStation.Detector {
 //    }
 
     override fun onServiceConnectionDestroy(service: DataPrepareService) {
-        Log.d(Tag.LOG_TAG_D_TEST, "fragment onServiceConnectionDestroy")
+        //Log.d(Tag.LOG_TAG_D_TEST, "fragment onServiceConnectionDestroy")
         //service.dataTransferStation.enableDetectMeasurementRealTimeValueUpdate = DataTransferStation.MODE_NO_CHECK
         service.dataTransferStation.unregister(this)
     }

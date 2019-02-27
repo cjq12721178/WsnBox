@@ -15,6 +15,8 @@ import com.weisi.tool.wsnbox.application.BaseApplication;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
 import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
+import com.weisi.tool.wsnbox.processor.SensorConfigurationsChanger;
+import com.weisi.tool.wsnbox.processor.ValueAlarmer;
 import com.weisi.tool.wsnbox.processor.accessor.BleSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.CommonSensorDataAccessor;
 import com.weisi.tool.wsnbox.processor.accessor.IntelligentGasketSimulationDataAccess;
@@ -46,6 +48,7 @@ public class DataPrepareService
         OnSensorHistoryDataAccessListener {
 
     private final LocalBinder mLocalBinder = new LocalBinder();
+    private ServiceInfoObserver mServiceInfoObserver;
     private SensorDataSQLiteExporter mSensorDataSQLiteExporter;
     private BleSensorDataAccessor mBleSensorDataAccessor;
     private UdpSensorDataAccessor mUdpSensorDataAccessor;
@@ -57,6 +60,9 @@ public class DataPrepareService
 
     private SensorHistoryDataAccessor mSensorHistoryDataAccessor;
     private final DataTransferStation mDataTransferStation = new DataTransferStation();
+
+    private ValueAlarmer mValueAlarmer;
+    private boolean mInitialized;
 
     private final Handler mEventHandler = new Handler() {
 
@@ -76,13 +82,30 @@ public class DataPrepareService
     public DataPrepareService() {
     }
 
+    public void setServiceInfoObserver(ServiceInfoObserver serviceInfoObserver) {
+        mServiceInfoObserver = serviceInfoObserver;
+    }
+
+    public boolean isInitialized() {
+        return mInitialized;
+    }
+
+    public void finishInitialization() {
+        mInitialized = true;
+    }
+
     @Override
     public void onCreate() {
+        //Log.d(Tag.LOG_TAG_D_TEST, "DataPrepareService onCreate");
         mDataTransferStation.init();
     }
 
     @Override
     public void onDestroy() {
+        //Log.d(Tag.LOG_TAG_D_TEST, "DataPrepareService onDestroy");
+        stopListenDataAlarm();
+        stopAccessSensorData();
+        stopCaptureAndRecordSensorData();
         if (mSensorHistoryDataAccessor != null) {
             mSensorHistoryDataAccessor.setOnSensorHistoryDataAccessListener(null);
         }
@@ -209,11 +232,6 @@ public class DataPrepareService
     public SerialPortSensorDataAccessor getSerialPortSensorDataAccessor() {
         if (mSerialPortSensorDataAccessor == null) {
             mSerialPortSensorDataAccessor = FlavorClassBuilder.buildImplementation(SerialPortSensorDataAccessor.class);
-//            try {
-//                mSerialPortSensorDataAccessor = (SerialPortSensorDataAccessor) Class.forName("com.weisi.tool.wsnbox.processor.SerialPortSensorDataAccessorImpl").newInstance();
-//            } catch (Exception e) {
-//                mSerialPortSensorDataAccessor = new SerialPortSensorDataAccessor();
-//            }
         }
         return mSerialPortSensorDataAccessor;
     }
@@ -230,6 +248,13 @@ public class DataPrepareService
             mTcpSensorDataAccessor = new TcpSensorDataAccessor();
         }
         return mTcpSensorDataAccessor;
+    }
+
+    public ValueAlarmer getValueAlarmer() {
+        if (mValueAlarmer == null) {
+            mValueAlarmer = new ValueAlarmer(getApplicationContext(), getBaseApplication().getSettings());
+        }
+        return mValueAlarmer;
     }
 
     public boolean importSensorConfigurations() {
@@ -354,21 +379,6 @@ public class DataPrepareService
     public void exportSensorDataToExcel() {
         SimpleCustomizeToast.show(R.string.exporting_sensor_data);
         if (!getBaseApplication().getSettings().isExportingSensorData()) {
-//            new AsyncTask<String, Void, Boolean>() {
-//
-//                @Override
-//                protected Boolean doInBackground(String... params) {
-//                    return SensorDatabase.exportSensorDataToExcel(params[0]);
-//                }
-//
-//                @Override
-//                protected void onPostExecute(Boolean result) {
-//                    SimpleCustomizeToast.show(result
-//                            ? R.string.excel_export_success
-//                            : R.string.excel_export_failed);
-//                    getBaseApplication().getSettings().setExportingSensorData(result);
-//                }
-//            }.execute(getBaseApplication().getSettings().getOutputFilePath());
             new SensorDataExcelExporter(new SafeAsyncTask.ResultAchiever<Boolean, Unit>() {
                 @Override
                 public void onProgressUpdate(@NotNull Unit[] values) {
@@ -389,6 +399,43 @@ public class DataPrepareService
                     return false;
                 }
             }).execute(getBaseApplication().getSettings().getOutputFilePath());
+        }
+    }
+
+    public void changeSensorConfigurations() {
+        new SensorConfigurationsChanger(new SafeAsyncTask.ResultAchiever<SensorManager.MeasurementConfigurationProvider, SensorManager.MeasurementConfigurationProvider>() {
+            @Override
+            public void onProgressUpdate(@NotNull SensorManager.MeasurementConfigurationProvider[] values) {
+            }
+
+            @Override
+            public void onResultAchieved(@Nullable SensorManager.MeasurementConfigurationProvider measurementConfigurationProvider) {
+                if (mServiceInfoObserver != null) {
+                    mServiceInfoObserver.onSensorConfigurationChanged();
+                }
+            }
+
+            @Override
+            public boolean invalid() {
+                return false;
+            }
+        }).execute(getBaseApplication().getSettings().getDataBrowseValueContainerConfigurationProviderId());
+    }
+
+    public void startListenDataAlarm() {
+        startListenDataAlarm(false);
+    }
+
+    public void startListenDataAlarm(boolean withoutAllowance) {
+        if (withoutAllowance || getBaseApplication().getSettings().isDataWarnEnable()) {
+            getValueAlarmer().start();
+        }
+    }
+
+    public void stopListenDataAlarm() {
+        if (mValueAlarmer != null) {
+            mValueAlarmer.stop();
+            mValueAlarmer = null;
         }
     }
 }

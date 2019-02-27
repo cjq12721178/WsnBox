@@ -4,8 +4,13 @@
         android:title="@string/serial_port"
         android:fragment="com.weisi.tool.wsnbox.fragment.settings.SerialPortSettingsFragment"/>
     <header
+        android:title="@string/data_warn"
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.DataMonitorSettingsFragment"/>
+    <header
         android:title="@string/data_store"
         android:fragment="com.weisi.tool.wsnbox.fragment.settings.DataStoreSettingsFragment"/>
+    <header
+        android:title="@string/data_export"/>
     <header
         android:title="@string/about_app">
         <intent

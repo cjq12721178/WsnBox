@@ -31,7 +31,6 @@ import kotlinx.android.synthetic.main.lh_device_base_config.view.*
 
 class DeviceConfigurationActivity : BaseActivity(),
         SimpleSQLiteAsyncEventHandler.OnMissionCompleteListener,
-        BaseDialog.OnDialogConfirmListener,
         BaseDialog.OnDialogCancelListener,
         EditDialog.OnContentReceiver,
         ListDialog.OnMultipleItemSelectedListener,
@@ -153,8 +152,11 @@ class DeviceConfigurationActivity : BaseActivity(),
         adapter.changeCursor(null)
     }
 
-    override fun onConfirm(dialog: BaseDialog<*>?): Boolean {
-        when (dialog?.tag) {
+    override fun onConfirm(dialog: BaseDialog<*>): Boolean {
+        if (super.onConfirm(dialog)) {
+            return true
+        }
+        when (dialog.tag) {
             DIALOG_TAG_CONFIRM_DELETE_NODE_CONFIG -> {
                 adapter.getDeletingItemsPosition().forEach() {
                     databaseHandler.startDelete(TOKEN_DELETE_NODE_CONFIG,

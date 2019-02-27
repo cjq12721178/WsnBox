@@ -35,6 +35,7 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
     private val selectedTextColor = ContextCompat.getColor(context, R.color.tc_selected_cell)
     private val lowLimitCellBackgroundColor = ContextCompat.getColor(context, R.color.warner_low_limit)
     private val highLimitCellBackgroundColor = ContextCompat.getColor(context, R.color.warner_high_limit)
+    private val abnormalCellBackgroundColor = ContextCompat.getColor(context, R.color.warner_abnormal)
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
     private val date = Date()
 
@@ -119,6 +120,7 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
             cellSelected -> selectedBackgroundColor
             cell.warnerResult == DisplayMeasurement.SingleRangeWarner.RESULT_ABOVE_HIGH_LIMIT -> highLimitCellBackgroundColor
             cell.warnerResult == DisplayMeasurement.SingleRangeWarner.RESULT_BELOW_LOW_LIMIT -> lowLimitCellBackgroundColor
+            cell.warnerResult == DisplayMeasurement.SwitchWarner.RESULT_ABNORMAL -> abnormalCellBackgroundColor
             else -> unselectedCellBackgroundColor
         })
         holder.itemView.tv_cell_content.setTextColor(if (cellSelected) {
@@ -459,6 +461,7 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
                         selectedColumn = SelectionHandler.UNSELECTED_POSITION
                     }
                 }
+                correctItemLocation()
             }
             ValueContainer.VALUE_UPDATED -> {
                 setMainValue(mainMeasurement, valuePosition)

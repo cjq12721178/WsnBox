@@ -6,16 +6,26 @@ package com.weisi.tool.wsnbox.io;
 
 public interface Constant {
     String TAG_SENSOR = "sensor";
+    String TAG_SENSORS = "sensors";
     String TAG_MEASUREMENT = "measurement";
     String TAG_ADDRESS = "address";
     String TAG_NAME = "name";
     String TAG_TYPE = "type";
     String TAG_WARNER = "warner";
     String TAG_DEVICE = "device";
+    String TAG_DEVICES = "devices";
     String TAG_NODE = "node";
     String TAG_INDEX = "index";
     String TAG_NAMES = "names";
     String TAG_ADDRESSES = "addresses";
+    String TAG_PROVIDERS = "providers";
+    String TAG_PROVIDER = "provider";
+    String TAG_PATTERN = "pattern";
+    String TAG_SINGLE_RANGE_WARNER = "gsr";
+    String TAG_SWITCH_WARNER = "gs";
+    String TAG_LOW_LIMIT = "low";
+    String TAG_HIGH_LIMIT = "high";
+    String TAG_ABNORMAL = "abnormal";
     String TABLE_SENSOR_INIT_DATA = "sensor_init_data";
     String TABLE_MEASUREMENT_INIT_DATA = "measurement_init_data";
     String TABLE_SENSOR_DATA = "sensor_data";

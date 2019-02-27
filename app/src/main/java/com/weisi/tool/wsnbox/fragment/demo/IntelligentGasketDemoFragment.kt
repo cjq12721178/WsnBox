@@ -5,7 +5,6 @@ import android.media.AudioManager
 import android.media.SoundPool
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,6 @@ import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.bean.data.Node
 import com.weisi.tool.wsnbox.bean.warner.CommonSingleRangeWarner
 import com.weisi.tool.wsnbox.fragment.dialog.PhysicalSensorDetailsDialog
-import com.weisi.tool.wsnbox.util.Tag
 import com.weisi.tool.wsnbox.view.IntelligentGasketView
 import kotlinx.android.synthetic.main.fragment_intelligent_gasket_demo.view.*
 
@@ -37,7 +35,7 @@ class IntelligentGasketDemoFragment : DemonstrateFragment() {
     private var warningVolume = 1.0f
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.d(Tag.LOG_TAG_D_TEST, "fragment onCreateView")
+        //Log.d(Tag.LOG_TAG_D_TEST, "fragment onCreateView")
         initWarning()
         val result = inflater.inflate(R.layout.fragment_intelligent_gasket_demo, null)
         gaskets = arrayOf(result.ig1, result.ig2, result.ig3, result.ig4)

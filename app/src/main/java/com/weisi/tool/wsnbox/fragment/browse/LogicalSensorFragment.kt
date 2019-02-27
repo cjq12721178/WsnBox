@@ -261,8 +261,8 @@ class LogicalSensorFragment : DataBrowseFragment<LogicalSensor, DataBrowseLogica
 //        logicalSensorInfoDialog?.notifySensorInfoHistoryValueChanged(sensor, infoValuePosition)
 //    }
 
-//    override fun onImportWarnProcessor() {
-//        //super.onImportWarnProcessor()
+//    override fun onSensorConfigurationChanged() {
+//        //super.onSensorConfigurationChanged()
 //        //adapter.warnProcessor = processor
 //        adapter.notifyItemRangeChanged(0, adapter.itemCount, UPDATE_TYPE_VALUE_CHANGED)
 //        //logicalSensorInfoDialog?.notifyWarnProcessorLoaded()

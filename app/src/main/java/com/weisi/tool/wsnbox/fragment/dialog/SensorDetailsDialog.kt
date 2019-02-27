@@ -23,7 +23,6 @@ abstract class SensorDetailsDialog<S : Sensor> : MeasurementsDetailsDialog(), IT
     protected var viewPrepared = false
         private set
     private var tableView: TableView by NullHelper.readonlyNotNull()
-    //private var tableAdapter: SensorInfoTableAdapter<out Value, out Measurement<out Value, out Configuration<out Value>>> by NullHelper.readonlyNotNull()
     private var tableAdapter: SensorInfoTableAdapter by NullHelper.readonlyNotNull()
 
     open fun init(sensor: S) {
@@ -51,13 +50,12 @@ abstract class SensorDetailsDialog<S : Sensor> : MeasurementsDetailsDialog(), IT
         super.onSaveInstanceState(outState)
     }
 
-    override fun onServiceConnectionCreate(service: DataPrepareService) {
-        super.onServiceConnectionCreate(service)
-        if (isRealTime()) {
-            //service.dataTransferStation.payAttentionToPhysicalSensor(sensor)
-            payAttentionToSensor(service)
-        }
-    }
+//    override fun onServiceConnectionCreate(service: DataPrepareService) {
+//        super.onServiceConnectionCreate(service)
+//        if (isRealTime()) {
+//            payAttentionToSensor(service)
+//        }
+//    }
 
     override fun onServiceConnectionStart(service: DataPrepareService) {
         super.onServiceConnectionStart(service)
@@ -77,30 +75,30 @@ abstract class SensorDetailsDialog<S : Sensor> : MeasurementsDetailsDialog(), IT
         }
     }
 
-    override fun onServiceConnectionDestroy(service: DataPrepareService) {
-        if (isRealTime()) {
-            payNoAttentionToSensor(service)
-        }
-        super.onServiceConnectionDestroy(service)
-    }
+//    override fun onServiceConnectionDestroy(service: DataPrepareService) {
+//        if (isRealTime()) {
+//            payNoAttentionToSensor(service)
+//        }
+//        super.onServiceConnectionDestroy(service)
+//    }
 
-    private fun payAttentionToSensor(service: DataPrepareService?) {
-        service ?: return
-        service.dataTransferStation.payAttentionToSensor(sensor)
-    }
-
-    private fun payNoAttentionToSensor(service: DataPrepareService?) {
-        service ?: return
-        service.dataTransferStation.payAttentionToSensor(sensor)
-    }
-
-    override fun onStopHistoryMode() {
-        payAttentionToSensor(getBaseActivity()?.dataPrepareService)
-    }
-
-    override fun onStopRealTimeMode() {
-        payNoAttentionToSensor(getBaseActivity()?.dataPrepareService)
-    }
+//    private fun payAttentionToSensor(service: DataPrepareService?) {
+//        service ?: return
+//        service.dataTransferStation.payAttentionToSensor(sensor)
+//    }
+//
+//    private fun payNoAttentionToSensor(service: DataPrepareService?) {
+//        service ?: return
+//        service.dataTransferStation.payAttentionToSensor(sensor)
+//    }
+//
+//    override fun onStopHistoryMode() {
+//        payAttentionToSensor(getBaseActivity()?.dataPrepareService)
+//    }
+//
+//    override fun onStopRealTimeMode() {
+//        payNoAttentionToSensor(getBaseActivity()?.dataPrepareService)
+//    }
 
     override fun hasRealTimeValue(): Boolean {
         return sensor.mainMeasurement.hasRealTimeValue()

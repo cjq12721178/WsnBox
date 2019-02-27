@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,15 +18,18 @@ import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;
 import com.weisi.tool.wsnbox.permission.PriorPermissionsRequester;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
+import com.weisi.tool.wsnbox.util.Tag;
 
 public class MainActivity
         extends BaseActivity
         implements BaseDialog.OnDialogConfirmListener,
+        ConfirmDialog.OnDialogConfirmListener,
+        ConfirmDialog.OnDialogCancelListener,
         View.OnClickListener {
 
-    private static final String DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED = "tag_import_sns_cfg_err";
     private static final String DIALOG_TAG_CONFIGURATION_NOT_PREPARED = "tag_cfg_no_prep";
     private static final String DIALOG_TAG_APP_LACK_OF_PERMISSIONS = "lack_permissions";
+    private static final String DIALOG_TAG_ENABLE_MONITOR_DATA_BACKGROUND = "en_mon_data_bg";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,7 @@ public class MainActivity
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setTitle(R.string.home_page_title);
 
+        //Log.d(Tag.LOG_TAG_D_TEST, "MainActivity onCreate");
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
@@ -65,38 +70,46 @@ public class MainActivity
         }
     }
 
-    @Override
-    public void onServiceConnectionCreate(@NonNull DataPrepareService service) {
-        if (service.importSensorConfigurations()) {
-            service.startAccessSensorData(this);
-            if (SensorDatabase.launch(this)) {
-                service.startCaptureAndRecordSensorData();
-            } else {
-                ConfirmDialog dialog = new ConfirmDialog();
-                dialog.setTitle(R.string.launch_sensor_database_failed);
-                dialog.setDrawCancelButton(false);
-                dialog.show(getSupportFragmentManager(),
-                        "launch_sensor_database_failed");
-            }
-        } else {
-            ConfirmDialog dialog = new ConfirmDialog();
-            dialog.setTitle(R.string.import_sensor_configurations_failed);
-            dialog.setDrawCancelButton(false);
-            dialog.show(getSupportFragmentManager(),
-                    DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED);
-        }
-    }
+//    @Override
+//    public void onServiceConnectionCreate(@NonNull DataPrepareService service) {
+//        Log.d(Tag.LOG_TAG_D_TEST, "MainActivity onServiceConnectionCreate");
+//        if (service.isInitialized()) {
+//            return;
+//        }
+//        if (service.importSensorConfigurations()) {
+//            service.startAccessSensorData(this);
+//            service.startListenDataAlarm();
+//            if (SensorDatabase.launch(this)) {
+//                service.finishInitialization();
+//                service.startCaptureAndRecordSensorData();
+//                service.changeSensorConfigurations();
+//            } else {
+//                ConfirmDialog dialog = new ConfirmDialog();
+//                dialog.setTitle(R.string.launch_sensor_database_failed);
+//                dialog.setDrawCancelButton(false);
+//                dialog.show(getSupportFragmentManager(),
+//                        "launch_sensor_database_failed");
+//            }
+//        } else {
+//            ConfirmDialog dialog = new ConfirmDialog();
+//            dialog.setTitle(R.string.import_sensor_configurations_failed);
+//            dialog.setDrawCancelButton(false);
+//            dialog.show(getSupportFragmentManager(),
+//                    DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED);
+//        }
+//    }
 
-    @Override
-    public void onServiceConnectionDestroy(@NonNull DataPrepareService service) {
-        service.stopAccessSensorData();
-        service.stopCaptureAndRecordSensorData();
-    }
+//    @Override
+//    public void onServiceConnectionDestroy(@NonNull DataPrepareService service) {
+//    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService(new Intent(this, DataPrepareService.class));
+        if (!getSettings().isDataMonitorBackgroundEnable()) {
+            stopService(new Intent(this, DataPrepareService.class));
+        }
+        //Log.d(Tag.LOG_TAG_D_TEST, "MainActivity onDestroy");
     }
 
     @Override
@@ -119,11 +132,10 @@ public class MainActivity
 
     @Override
     public boolean onConfirm(BaseDialog dialog) {
-        if (dialog.getTag() == null) {
+        if (super.onConfirm(dialog)) {
             return true;
         }
         switch (dialog.getTag()) {
-            case DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED:
             case DIALOG_TAG_CONFIGURATION_NOT_PREPARED:
             case DIALOG_TAG_APP_LACK_OF_PERMISSIONS:
                 finish();
@@ -148,14 +160,52 @@ public class MainActivity
                 showExpectDialog();
                 break;
             case R.id.cl_product_display:
-                if (getSettings().getProductDisplayValueContainerConfigurationProviderId() != 0) {
+                if (getSettings().getDataBrowseValueContainerConfigurationProviderId() != 0) {
                     startActivity(new Intent(this, DemonstrationActivity.class));
                 } else {
                     ConfirmDialog dialog = new ConfirmDialog();
-                    dialog.setTitle(R.string.product_display_provider_not_apply);
+                    dialog.setTitle(R.string.no_configuration_provider);
                     dialog.setDrawCancelButton(false);
                     dialog.show(getSupportFragmentManager(), "pd_no_cfg");
                 }
+                break;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!getSettings().isDataMonitorBackgroundEnableSet()) {
+            ConfirmDialog dialog = new ConfirmDialog();
+            dialog.setTitle(R.string.enable_monitor_data_background);
+            dialog.setDrawNoPromptTag(true);
+            dialog.show(getSupportFragmentManager(), DIALOG_TAG_ENABLE_MONITOR_DATA_BACKGROUND);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onConfirm(@NonNull ConfirmDialog dialog, boolean noTips) {
+        if (dialog.getTag() == null) {
+            return true;
+        }
+        switch (dialog.getTag()) {
+            case DIALOG_TAG_ENABLE_MONITOR_DATA_BACKGROUND:
+                getSettings().setDataMonitorBackgroundEnable(true);
+                super.onBackPressed();
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void onCancel(@NonNull ConfirmDialog dialog, boolean noTips) {
+        switch (String.valueOf(dialog.getTag())) {
+            case DIALOG_TAG_ENABLE_MONITOR_DATA_BACKGROUND:
+                if (noTips) {
+                    getSettings().setDataMonitorBackgroundEnable(false);
+                }
+                super.onBackPressed();
                 break;
         }
     }

@@ -3,7 +3,6 @@ package com.weisi.tool.wsnbox.bean.warner.processor
 import com.cjq.lib.weisi.iot.DisplayMeasurement
 import com.cjq.lib.weisi.iot.DisplayMeasurement.SingleRangeWarner.RESULT_ABOVE_HIGH_LIMIT
 import com.cjq.lib.weisi.iot.DisplayMeasurement.SingleRangeWarner.RESULT_BELOW_LOW_LIMIT
-import com.cjq.lib.weisi.iot.DisplayMeasurement.SwitchWarner.RESULT_IN_NORMAL_STATE
 import com.cjq.lib.weisi.iot.Warner
 import com.cjq.lib.weisi.iot.Warner.RESULT_NORMAL
 import com.weisi.tool.wsnbox.bean.warner.executor.BackgroundNormalWarnExecutor
@@ -50,7 +49,7 @@ class CommonWarnProcessor<E> {
                 warner: Warner<DisplayMeasurement.Value>?,
                 env: E) {
         if (value != null && warner != null) {
-            var warnResult = warner.test(value)
+            val warnResult = warner.test(value)
             when (warner) {
                 is DisplayMeasurement.SingleRangeWarner -> when (warnResult) {
                     RESULT_NORMAL -> processNormalResult(env)
@@ -61,7 +60,7 @@ class CommonWarnProcessor<E> {
                         executor -> executor.onResultBelowLowLimit(env)
                     }
                 }
-                is DisplayMeasurement.SwitchWarner -> if (warnResult == RESULT_IN_NORMAL_STATE) {
+                is DisplayMeasurement.SwitchWarner -> if (warnResult == RESULT_NORMAL) {
                     processNormalResult(env)
                 } else {
                     switchWarnExecutors.forEach {

@@ -16,6 +16,9 @@
         android:title="@string/tcp"
         android:fragment="com.weisi.tool.wsnbox.fragment.settings.TcpSettingsFragment"/>
     <header
+        android:title="@string/data_monitor"
+        android:fragment="com.weisi.tool.wsnbox.fragment.settings.DataMonitorSettingsFragment"/>
+    <header
         android:title="@string/data_store"
         android:fragment="com.weisi.tool.wsnbox.fragment.settings.DataStoreSettingsFragment"/>
     <header

@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:name=".application.BaseApplication"
@@ -36,12 +37,16 @@
         <activity
             android:name=".activity.DataBrowseActivity"
             android:label="@string/data_browse"
+            android:launchMode="singleTask"
             android:parentActivityName=".activity.MainActivity">
         </activity>
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/settings"
             android:parentActivityName=".activity.MainActivity">
+            <meta-data
+                android:name="action_start_about_activity"
+                android:value="${actionStartAboutActivity}${actionSuffix}"/>
         </activity>
         <activity
             android:name=".activity.ParameterConfigurationActivity"
@@ -53,7 +58,7 @@
             android:label="@string/about_app"
             android:parentActivityName=".activity.SettingsActivity">
             <intent-filter>
-                <action android:name="${actionStartAboutActivity}"/>
+                <action android:name="${actionStartAboutActivity}${actionSuffix}"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>

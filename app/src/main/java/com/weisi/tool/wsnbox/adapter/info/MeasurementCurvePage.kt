@@ -39,7 +39,6 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
     var onMeasurementValueSelectedListener: OnMeasurementValueSelectedListener? = null
     private val measurements = mutableListOf<Measurement<*, *>>()
     private var vChart: BarLineChartBase<*>? = null
-    //private var earliestTime: Long by Delegates.notNull()
     private var chartMaker: ChartMaker<out Entry> by NullHelper.readonlyNotNull()
 
     fun addMeasurement(measurement: Measurement<*, *>) {
@@ -51,7 +50,6 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
             }
         }
         measurements.add(measurement)
-        //addDataSet(measurement, measurements.size - 1)
         chartMaker.addDataSet(measurements.size - 1)
     }
 
@@ -68,7 +66,6 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
         val pos = measurements.indexOf(measurement)
         if (pos >= 0) {
             measurements.removeAt(pos)
-            //removeDataSet(pos)
             chartMaker.removeDataSet(pos)
         }
         return measurements.size
@@ -94,329 +91,11 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
 
     fun notifyDataSetChanged() {
         chartMaker.notifyDataSetChanged()
-//        val chart = vChart ?: return
-//        val data = chart.data ?: return
-//        resetDataSet(chart, data)
-//        data.notifyDataChanged()
-//        chart.notifyDataSetChanged()
     }
 
     fun getView(group: ViewGroup): View {
         return vChart ?: chartMaker.createView(group).apply { vChart = this }
     }
-
-//    private fun createView(group: ViewGroup): View {
-//        val context = group.context
-//        val chart = LayoutInflater.from(context).inflate(R.layout.fragment_measurement_curve, null) as LineChart
-//        //设置曲线图事件
-//        // enable description text
-//        chart.description.isEnabled = false
-//        // enable touch gestures
-//        chart.setTouchEnabled(true)
-//        // enable scaling and dragging
-//        chart.isDragEnabled = true
-//        chart.setScaleEnabled(true)
-//        chart.setDrawGridBackground(false)
-//        // if disabled, scaling can be done on x- and y-axis separately
-//        chart.setPinchZoom(false)
-//
-//        //设置X、Y轴
-//        val xAxis = chart.xAxis
-//        xAxis.setDrawGridLines(false)
-//        xAxis.setAvoidFirstLastClipping(true)
-//        xAxis.setCenterAxisLabels(true)
-//        xAxis.isEnabled = true
-//        xAxis.granularity = 1f
-//        xAxis.valueFormatter = object : IAxisValueFormatter {
-//            private val dateFormat = SimpleDateFormat("HH:mm:ss")
-//            override fun getFormattedValue(value: Float, axis: AxisBase?): String {
-//                val calendar = Calendar.getInstance()
-//                calendar.timeInMillis = earliestTime
-//                calendar.add(Calendar.SECOND, value.toInt())
-//                //Log.d(Tag.LOG_TAG_D_TEST, dateFormat.format(date))
-//                return dateFormat.format(calendar.time)
-//            }
-//        }
-//        val leftAxis = chart.axisLeft
-//        leftAxis.setDrawGridLines(true)
-//        val rightAxis = chart.axisRight
-//        rightAxis.isEnabled = true
-//
-//        //设置最早时间戳
-//        initEarliestTime()
-//
-//        //设置数据集、告警线
-//        val data = LineData()
-//        measurements.forEachIndexed { index, measurement ->
-//            createDataSet(context, index, data, getCurveDescriptionName(measurement))
-//            setLimitLines(context, leftAxis, measurement)
-//        }
-//        leftAxis.setDrawLimitLinesBehindData(true)
-//        chart.data = data
-//
-//        initData(chart, data)
-//
-//        chart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
-//            override fun onNothingSelected() {
-//
-//            }
-//
-//            override fun onValueSelected(e: Entry, h: Highlight) {
-//                onMeasurementValueSelectedListener?.onMeasurementValueSelectedInCurve(measurements[h.dataSetIndex], e.data as Long)
-////                val calendar = Calendar.getInstance()
-////                calendar.timeInMillis = earliestTime
-////                calendar.add(Calendar.SECOND, e.x.toInt())
-////                Log.d(Tag.LOG_TAG_D_TEST, "time: ${SimpleDateFormat("HH:mm:ss").format(calendar.time)}")
-//            }
-//
-//        })
-//        data.notifyDataChanged()
-//        chart.notifyDataSetChanged()
-//
-//        vChart = chart
-//        return chart
-//    }
-//
-//    private fun setLimitLines(context: Context, yAxis: YAxis, measurement: Measurement<*, *>) {
-//        val configuration = measurement.getConfiguration() as? DisplayMeasurement.Configuration
-//                ?: return
-//        val warner = configuration.warner as? CommonSingleRangeWarner ?: return
-//        val highLimitLabel = context.getString(R.string.high_limit)
-//        val lowLimitLabel = context.getString(R.string.low_limit)
-//        setLimitLine(context, yAxis, warner.lowLimit.toFloat(),
-//                LimitLine.LimitLabelPosition.RIGHT_BOTTOM,
-//                measurement.getName(), lowLimitLabel)
-//        setLimitLine(context, yAxis, warner.highLimit.toFloat(),
-//                LimitLine.LimitLabelPosition.RIGHT_TOP,
-//                measurement.getName(), highLimitLabel)
-//    }
-//
-//    private fun setLimitLine(context: Context, yAxis: YAxis, limit: Float, labelPosition: LimitLine.LimitLabelPosition, measurementName: String, lowLimitLabel: String) {
-//        val limitLinePosition = findLimitLine(yAxis, labelPosition, limit)
-//        if (limitLinePosition >= 0) {
-//            modifyLimitLineLabel(yAxis.limitLines[limitLinePosition], measurementName, lowLimitLabel)
-//        } else {
-//            val limitLine = LimitLine(limit, if (measurements.size == 1) {
-//                lowLimitLabel
-//            } else {
-//                measurementName + lowLimitLabel
-//            })
-//            limitLine.lineWidth = 2f
-//            limitLine.enableDashedLine(10f, 10f, 0f)
-//            limitLine.labelPosition = labelPosition
-//            limitLine.textSize = context.resources.getDimensionPixelSize(R.dimen.size_text_comments).toFloat()
-//            val color = ContextCompat.getColor(context, if (labelPosition == LimitLine.LimitLabelPosition.RIGHT_BOTTOM) {
-//                R.color.warner_low_limit
-//            } else {
-//                R.color.warner_high_limit
-//            })
-//            limitLine.lineColor = color
-//            limitLine.textColor = color
-//            yAxis.addLimitLine(limitLine)
-//        }
-//    }
-//
-//    private fun findLimitLine(yAxis: YAxis, labelPosition: LimitLine.LimitLabelPosition, limit: Float): Int {
-//        repeat(yAxis.limitLines.size) {
-//            val limitLine = yAxis.limitLines[it]
-//            if (limitLine.labelPosition == labelPosition
-//                    && Math.abs(limitLine.limit - limit) <= 1) {
-//                return it
-//            }
-//        }
-//        return -1
-//    }
-//
-//    private fun modifyLimitLineLabel(limitLine: LimitLine, measurementName: String, labelSuffix: String) {
-//        limitLine.label = limitLine.label.substringBeforeLast(labelSuffix) + '、' + measurementName + labelSuffix
-//    }
-
-//    private fun initEarliestTime() {
-//        earliestTime = createEarliestTime()
-//    }
-
-//    private fun createEarliestTime() = measurements.map { getMeasurementEarliestTime(it) }.min()
-//            ?: 0L
-
-//    private fun updateEarliestTimeWhenAddSet(measurementEarliestTime: Long, data: LineData) {
-//        val deltaTime: Long = measurementEarliestTime - earliestTime
-//        if (deltaTime >= 0L) {
-//            return
-//        }
-//        if (updateDataSetsTime(data, deltaTime)) {
-//            earliestTime = measurementEarliestTime
-//        }
-//    }
-
-//    private fun updateEarliestTimeWhenRemoveSet(data: LineData) {
-//        val newEarliestTime = createEarliestTime()
-//        if (newEarliestTime > earliestTime) {
-//            if (updateDataSetsTime(data, earliestTime - newEarliestTime)) {
-//                earliestTime = newEarliestTime
-//            }
-//        }
-//    }
-
-//    private fun updateDataSetsTime(data: LineData, deltaTime: Long): Boolean {
-//        val dt = TimeUnit.MILLISECONDS.toSeconds(deltaTime)
-//        if (deltaTime == 0L) {
-//            return false
-//        }
-//        for (i in 0 until data.dataSetCount) {
-//            val set = data.getDataSetByIndex(i)
-//            for (j in 0 until set.entryCount) {
-//                set.getEntryForIndex(j).x += dt
-//            }
-//        }
-//        return true
-//    }
-
-//    private fun createDataSet(context: Context, dataSetIndex: Int, data: LineData, labelName: String) {
-//        val set = LineDataSet(null, labelName)
-//        set.axisDependency = YAxis.AxisDependency.LEFT
-//        val lineColor = ColorTemplate.VORDIPLOM_COLORS[(dataSetIndex + 3) % ColorTemplate.VORDIPLOM_COLORS.size]
-//        set.color = lineColor
-//        set.setCircleColor(lineColor)
-//        set.lineWidth = 2f
-//        set.circleRadius = 4f
-//        //set.fillAlpha = 65
-//        //set.fillColor = ColorTemplate.getHoloBlue()
-//        set.highLightColor = Color.rgb(244, 117, 117)
-//        //set.valueTextColor = Color.WHITE
-//        set.valueTextSize = context.resources.getDimensionPixelSize(R.dimen.size_text_comments).toFloat()
-//        set.setDrawValues(false)
-//        data.addDataSet(set)
-//    }
-
-//    protected open fun getCurveDescriptionName(measurement: Measurement<*, *>) =
-//            measurement.getName()
-
-//    private fun fillDataSet(measurement: Measurement<*, *>, set: ILineDataSet) {
-//        val container = measurement.getUniteValueContainer()
-//        for (j in 0 until container.size()) {
-//            //addEntry(set, value)
-//            set.addEntry(createEntry(container.getValue(j)))
-//        }
-//        set.calcMinMax()
-//    }
-
-//    private fun addEntry(set: ILineDataSet, value: Value) {
-//        set.addEntry(createEntry(value))
-//        //Log.d(Tag.LOG_TAG_D_TEST, "timestamp: ${TimeUnit.MILLISECONDS.toHours(value.timestamp).toFloat()}, value: ${getRawValue(value)}")
-//    }
-//
-//    private fun addEntryOrdered(set: ILineDataSet, value: Value) {
-//        set.addEntryOrdered(Entry(TimeUnit.MILLISECONDS.toSeconds(value.timestamp - earliestTime).toFloat(), getRawValue(value)))
-//    }
-
-//    private fun createEntry(value: Value): Entry {
-//        return Entry(correctTimestamp(value.timestamp), getRawValue(value), value.timestamp)
-//    }
-
-//    private fun correctTimestamp(src: Long): Float {
-//        //        if (measurements[0].getId().dataTypeValue == 0x60.toByte()) {
-////            val calendar = Calendar.getInstance()
-////            calendar.timeInMillis = earliestTime
-////            calendar.add(Calendar.SECOND, result.toInt())
-////            //Log.d(Tag.LOG_TAG_D_TEST, dateFormat.format(date))
-////            Log.d(Tag.LOG_TAG_D_TEST, "curve earliest time: $earliestTime, delta time: $result, label: ${SimpleDateFormat("HH:mm:ss").format(calendar.time)}")
-////        }
-//        return TimeUnit.MILLISECONDS.toSeconds(src - earliestTime + 500L).toFloat()
-//    }
-
-//    private fun initData(chart: LineChart, data: LineData) {
-//        for (i in 0 until data.dataSetCount) {
-//            fillDataSet(measurements[i], data.getDataSetByIndex(i))
-//        }
-//        chart.animateX(750)
-//    }
-
-//    private fun addDataSet(measurement: Measurement<*, *>, measurementPosition: Int) {
-//        val chart = vChart ?: return
-//        val data = chart.data ?: return
-//        updateEarliestTimeWhenAddSet(getMeasurementEarliestTime(measurement), data)
-//        createDataSet(chart.context, measurementPosition, data, getCurveDescriptionName(measurement))
-//        fillDataSet(measurement, data.getDataSetByIndex(measurementPosition))
-//        data.notifyDataChanged()
-//        chart.notifyDataSetChanged()
-//    }
-
-//    private fun getMeasurementEarliestTime(measurement: Measurement<*, *>): Long {
-//        return measurement.getUniteValueContainer().earliestValue?.timestamp ?: Long.MAX_VALUE
-//    }
-
-//    private fun removeDataSet(measurementPosition: Int) {
-//        val chart = vChart ?: return
-//        val data = chart.data ?: return
-//        data.removeDataSet(measurementPosition)
-//        updateEarliestTimeWhenRemoveSet(data)
-//        data.notifyDataChanged()
-//        chart.notifyDataSetChanged()
-//    }
-
-//    private fun resetDataSet(chart: LineChart, data: LineData) {
-//        for (i in 0 until data.dataSetCount) {
-//            val set = data.getDataSetByIndex(i)
-//            set.clear()
-//        }
-//
-//        chart.resetViewPortOffsets()
-//        chart.resetZoom()
-//
-//        initEarliestTime()
-//        initData(chart, data)
-//    }
-
-//    private fun addEntry(measurementPosition: Int, valueLogicalPosition: Int, isLoop: Boolean) {
-//        val chart = vChart ?: return
-//        val data = chart.data ?: return
-//        val container = measurements[measurementPosition].getUniteValueContainer()
-//        val set = data.getDataSetByIndex(measurementPosition)
-//        if (isLoop) {
-//            set.removeFirst()
-//        }
-//        val valuePhysicalPosition = container.getPhysicalPositionByLogicalPosition(valueLogicalPosition)
-//        val value = container.getValue(valuePhysicalPosition)
-//        if (earliestTime > value.timestamp) {
-//            resetDataSet(chart, data)
-//        } else {
-//            val entry = createEntry(value)
-//            if (valuePhysicalPosition >= set.entryCount) {
-//                //addEntry(set, value)
-//                set.addEntry(entry)
-//            } else {
-//                //addEntryOrdered(set, value)
-//                set.addEntryOrdered(entry)
-//            }
-//        }
-//        data.notifyDataChanged()
-//        chart.notifyDataSetChanged()
-//    }
-
-//    private fun replaceEntry(measurementPosition: Int, valueLogicalPosition: Int) {
-//        val chart = vChart ?: return
-//        val data = chart.data ?: return
-//        val container = measurements[measurementPosition].getUniteValueContainer()
-//        val set = data.getDataSetByIndex(measurementPosition)
-//        set.removeFirst()
-//        addEntry(set, container.getValue(container.getPhysicalPositionByLogicalPosition(valueLogicalPosition)))
-//        data.notifyDataChanged()
-//        chart.notifyDataSetChanged()
-//    }
-
-//    private fun setEntry(measurementPosition: Int, valueLogicalPosition: Int) {
-//        val chart = vChart ?: return
-//        val data = chart.data ?: return
-//        val container = measurements[measurementPosition].getUniteValueContainer()
-//        val set = data.getDataSetByIndex(measurementPosition)
-//        val valuePhysicalPosition = container.getPhysicalPositionByLogicalPosition(valueLogicalPosition)
-//        val entry = set.getEntryForIndex(valuePhysicalPosition) ?: return
-//        entry.y = getRawValue(container.getValue(valuePhysicalPosition))
-//        data.notifyDataChanged()
-//        chart.notifyDataSetChanged()
-//    }
-
-    //protected abstract fun getRawValue(value: Value): Float
 
     fun highlightEntry(measurement: Measurement<*, *>, targetTimestamp: Long) {
         val chart = vChart ?: return
@@ -509,7 +188,6 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
                 constructor.isAccessible = true
             }
             return constructor.newInstance()
-            //return SimpleReflection.getClassParameterizedType(chart, 0).javaClass.newInstance() as BarLineScatterCandleBubbleData<IBarLineScatterCandleBubbleDataSet<E>>
         }
 
         private fun getCurveDescriptionName(measurement: Measurement<*, *>): String {
@@ -577,10 +255,8 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
             } else {
                 val entry = createEntry(value)
                 if (valuePhysicalPosition >= set.entryCount) {
-                    //addEntry(set, value)
                     set.addEntry(entry)
                 } else {
-                    //addEntryOrdered(set, value)
                     set.addEntryOrdered(entry)
                 }
                 onAddEntry(chart, data, measurementPosition, entry)
@@ -605,7 +281,6 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
         }
 
         fun correctTimestamp(src: Long): Float {
-            //return (TimeUnit.MILLISECONDS.toSeconds(src - earliestTime + 500L * 30) / 30).toFloat()
             return ((src - earliestTime + timeInterval / 2) / timeInterval).toFloat()
         }
 
@@ -652,7 +327,6 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
         private fun fillDataSet(measurement: Measurement<*, *>, set: IDataSet<E>) {
             val container = measurement.getUniteValueContainer()
             for (j in 0 until container.size()) {
-                //addEntry(set, value)
                 set.addEntry(createEntry(container.getValue(j)))
             }
             set.calcMinMax()

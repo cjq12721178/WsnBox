@@ -1,7 +1,6 @@
 package com.weisi.tool.wsnbox.activity
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.widget.RadioGroup
 import com.cjq.tool.qbox.ui.manager.SwitchableFragmentManager
 import com.weisi.tool.wsnbox.R
@@ -11,7 +10,7 @@ import com.weisi.tool.wsnbox.fragment.config.SensorConfigurationFragment
 import com.weisi.tool.wsnbox.io.Constant
 import kotlinx.android.synthetic.main.activity_provider_configuration.*
 
-class ProviderConfigurationActivity : AppCompatActivity(), RadioGroup.OnCheckedChangeListener {
+class ProviderConfigurationActivity : BaseActivity(), RadioGroup.OnCheckedChangeListener {
 
     private lateinit var switchableFragmentManager: SwitchableFragmentManager<ConfigurationFragment>
 

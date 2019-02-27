@@ -1,6 +1,5 @@
 package com.weisi.tool.wsnbox.activity
 
-import android.util.Log
 import com.cjq.tool.qbox.ui.dialog.BaseDialog
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog
 import com.weisi.tool.wsnbox.R
@@ -8,22 +7,22 @@ import com.weisi.tool.wsnbox.bean.data.Device
 import com.weisi.tool.wsnbox.bean.warner.CommonSingleRangeWarner
 import com.weisi.tool.wsnbox.fragment.demo.DemonstrateFragment
 import com.weisi.tool.wsnbox.fragment.demo.IntelligentGasketDemoFragment
-import com.weisi.tool.wsnbox.processor.importer.SensorAndDeviceConfigurationImporter
+import com.weisi.tool.wsnbox.processor.importer.DevicesBatchImporter
 import com.weisi.tool.wsnbox.service.DataPrepareService
 import com.weisi.tool.wsnbox.util.NullHelper
 import com.weisi.tool.wsnbox.util.SafeAsyncTask
-import com.weisi.tool.wsnbox.util.Tag
 
-class DemonstrationActivity : BaseActivity(), BaseDialog.OnDialogConfirmListener, SafeAsyncTask.ResultAchiever<List<Device>, Void> {
+class DemonstrationActivity : BaseActivity(),
+        SafeAsyncTask.ResultAchiever<List<Device>?, Void> {
 
     private val DIALOG_TAG_DEVICES_NOT_CONFIG = "dev_not_cfg"
     private val DIALOG_TAG_DEVICES_CONFIG_ERROR = "dev_cfg_err"
     private val FRAGMENT_TAG_DEMO_DELEGATE = "demo_delegate"
 
-    private var demoDelegate: DemonstrateFragment? = null
+    //private var demoDelegate: DemonstrateFragment? = null
 
     override fun onServiceConnectionCreate(service: DataPrepareService) {
-        Log.d(Tag.LOG_TAG_D_TEST, "activity onServiceConnectionCreate")
+        //Log.d(Tag.LOG_TAG_D_TEST, "activity onServiceConnectionCreate")
         NullHelper.ifNullOrNot(supportFragmentManager.findFragmentByTag(FRAGMENT_TAG_DEMO_DELEGATE) as DemonstrateFragment?, {
             importParameterConfigurations()
         }, {
@@ -31,27 +30,13 @@ class DemonstrationActivity : BaseActivity(), BaseDialog.OnDialogConfirmListener
         })
     }
 
-    override fun onServiceConnectionStart(service: DataPrepareService) {
-        Log.d(Tag.LOG_TAG_D_TEST, "activity onServiceConnectionStart")
-        //demoDelegate?.onServiceConnectionStart(service)
-    }
-
-    override fun onServiceConnectionStop(service: DataPrepareService) {
-        Log.d(Tag.LOG_TAG_D_TEST, "activity onServiceConnectionStop")
-        //demoDelegate?.onServiceConnectionStop(service)
-    }
-
-    override fun onServiceConnectionDestroy(service: DataPrepareService) {
-        Log.d(Tag.LOG_TAG_D_TEST, "activity onServiceConnectionDestroy")
-        //demoDelegate?.onServiceConnectionDestroy(service)
-    }
-
     private fun importParameterConfigurations() {
-        SensorAndDeviceConfigurationImporter(this)
-                .execute(baseApplication.settings.productDisplayValueContainerConfigurationProviderId)
+        //SensorAndDeviceConfigurationImporter(this)
+        DevicesBatchImporter(this)
+                .execute(baseApplication.settings.dataBrowseValueContainerConfigurationProviderId)
     }
 
-    fun displayDemo(devices: List<Device>?) {
+    private fun displayDemo(devices: List<Device>?) {
         if (devices?.isNotEmpty() == true) {
             if (isIntelligentGasketDemo(devices)) {
                 //Log.d(Tag.LOG_TAG_D_TEST, "fragment exists: ${supportFragmentManager.findFragmentByTag(FRAGMENT_TAG_DEMO_DELEGATE) != null}")
@@ -62,7 +47,7 @@ class DemonstrationActivity : BaseActivity(), BaseDialog.OnDialogConfirmListener
                         .add(android.R.id.content, fragment, FRAGMENT_TAG_DEMO_DELEGATE)
                         .commit()
                 onDemoFragmentCreate(fragment)
-                demoDelegate = fragment
+                //demoDelegate = fragment
             } else {
                 val dialog = ConfirmDialog()
                 dialog.setTitle(R.string.devices_config_error)
@@ -95,8 +80,11 @@ class DemonstrationActivity : BaseActivity(), BaseDialog.OnDialogConfirmListener
         return false
     }
 
-    override fun onConfirm(dialog: BaseDialog<*>?): Boolean {
-        when (dialog?.tag) {
+    override fun onConfirm(dialog: BaseDialog<*>): Boolean {
+        if (super.onConfirm(dialog)) {
+            return true
+        }
+        when (dialog.tag) {
             DIALOG_TAG_DEVICES_NOT_CONFIG,
             DIALOG_TAG_DEVICES_CONFIG_ERROR -> {
                 finish()

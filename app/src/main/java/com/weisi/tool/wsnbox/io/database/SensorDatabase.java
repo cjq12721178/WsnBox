@@ -1069,7 +1069,7 @@ public class SensorDatabase implements Constant {
             Map<ID, Configuration<?>> configurationMap) {
         importMeasurementConfigurationsWithSingleRangeWarner(providerId, builder, configurationMap);
         importMeasurementConfigurationsWithSwitchWarner(providerId, builder, configurationMap);
-        importMeasurementConfigurationsWithoutWarner(builder, configurationMap);
+        importMeasurementConfigurationsWithoutWarner(providerId, builder, configurationMap);
     }
 
     private static void importMeasurementConfigurationsWithSingleRangeWarner(
@@ -1167,7 +1167,7 @@ public class SensorDatabase implements Constant {
     }
 
     private static void importMeasurementConfigurationsWithoutWarner(
-            StringBuilder builder,
+            long providerId, StringBuilder builder,
             Map<ID, Configuration<?>> configurationMap) {
         Cursor cursor = null;
         try {
@@ -1183,7 +1183,12 @@ public class SensorDatabase implements Constant {
                     .append(" FROM ").append(TABLE_GENERAL_SINGLE_RANGE_WARNER)
                     .append(" gsr UNION SELECT gs.").append(COLUMN_COMMON_ID)
                     .append(" FROM ").append(TABLE_GENERAL_SWITCH_WARNER)
-                    .append(" gs)");
+                    .append(" gs)")
+                    .append(" AND ").append(COLUMN_SENSOR_CONFIGURATION_ID)
+                    .append(" IN (SELECT s.").append(COLUMN_COMMON_ID)
+                    .append(" FROM ").append(TABLE_SENSOR_CONFIGURATION)
+                    .append(" s WHERE ").append(COLUMN_CONFIGURATION_PROVIDER_ID)
+                    .append(" = ").append(providerId).append(')');
             cursor = database.rawQuery(builder.toString(), null);
             if (cursor != null) {
                 int measurementConfigIdIndex = cursor.getColumnIndex(COLUMN_COMMON_ID);
@@ -1831,6 +1836,7 @@ public class SensorDatabase implements Constant {
                     .append(TABLE_CONFIGURATION_PROVIDER).append(" (")
                     .append(COLUMN_COMMON_ID).append(" INTEGER PRIMARY KEY AUTOINCREMENT,")
                     .append(COLUMN_CONFIGURATION_PROVIDER_NAME).append(" VARCHAR(255) NOT NULL,")
+                    //.append(COLUMN_TYPE).append(" INT,")
                     .append(COLUMN_CREATE_TIME).append(" BIGINT NOT NULL,")
                     .append(COLUMN_MODIFY_TIME).append(" BIGINT NOT NULL")
                     .append(')').toString());
@@ -1950,34 +1956,38 @@ public class SensorDatabase implements Constant {
         }
 
         private void modifyMeasurementConfigurationColumnTypeDataType(SQLiteDatabase db, StringBuilder builder) {
-            //把原表改成另外一个名字作为暂存表
-            builder.setLength(0);
-            builder.append("ALTER TABLE ").append(TABLE_MEASUREMENT_CONFIGURATION)
-                    .append(" RENAME TO ").append(TABLE_MEASUREMENT_CONFIGURATION)
-                    .append("_tmp");
-            db.execSQL(builder.toString());
+//            //把原表改成另外一个名字作为暂存表
+//            builder.setLength(0);
+//            builder.append("ALTER TABLE ").append(TABLE_MEASUREMENT_CONFIGURATION)
+//                    .append(" RENAME TO ").append(TABLE_MEASUREMENT_CONFIGURATION)
+//                    .append("_tmp");
+//            db.execSQL(builder.toString());
+            changeTableToTemporaryTable(db, builder, TABLE_MEASUREMENT_CONFIGURATION);
             //用原表的名字创建新表
             createMeasurementConfigurationDataTable(db, builder);
-            //将暂存表数据写入到新表，很方便的是不需要去理会自动增长的 ID
-            builder.setLength(0);
-            builder.append("INSERT INTO ").append(TABLE_MEASUREMENT_CONFIGURATION)
-                    .append(" SELECT * FROM ").append(TABLE_MEASUREMENT_CONFIGURATION)
-                    .append("_tmp");
-            db.execSQL(builder.toString());
-            //删除暂存表
-            builder.setLength(0);
-            builder.append("DROP TABLE ").append(TABLE_MEASUREMENT_CONFIGURATION)
-                    .append("_tmp");
-            db.execSQL(builder.toString());
+            insertDataFromTemporaryTableToTargetTable(db, builder, TABLE_MEASUREMENT_CONFIGURATION);
+            deleteTemporaryTable(db, builder, TABLE_MEASUREMENT_CONFIGURATION);
+//            //将暂存表数据写入到新表，很方便的是不需要去理会自动增长的 ID
+//            builder.setLength(0);
+//            builder.append("INSERT INTO ").append(TABLE_MEASUREMENT_CONFIGURATION)
+//                    .append(" SELECT * FROM ").append(TABLE_MEASUREMENT_CONFIGURATION)
+//                    .append("_tmp");
+//            db.execSQL(builder.toString());
+//            //删除暂存表
+//            builder.setLength(0);
+//            builder.append("DROP TABLE ").append(TABLE_MEASUREMENT_CONFIGURATION)
+//                    .append("_tmp");
+//            db.execSQL(builder.toString());
         }
 
         private void deleteColumnCustomNameFromTableRatchetWheelConfiguration(SQLiteDatabase db, StringBuilder builder) {
-            //把原表改成另外一个名字作为暂存表
-            builder.setLength(0);
-            builder.append("ALTER TABLE ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
-                    .append(" RENAME TO ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
-                    .append("_tmp");
-            db.execSQL(builder.toString());
+            changeTableToTemporaryTable(db, builder, TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION);
+//            //把原表改成另外一个名字作为暂存表
+//            builder.setLength(0);
+//            builder.append("ALTER TABLE ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+//                    .append(" RENAME TO ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+//                    .append("_tmp");
+//            db.execSQL(builder.toString());
             //用原表的名字创建新表
             createRatchetWheelMeasurementConfigurationDataTable(db, builder);
             //将暂存表数据写入到新表，很方便的是不需要去理会自动增长的 ID
@@ -1989,11 +1999,12 @@ public class SensorDatabase implements Constant {
                     .append(" FROM ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
                     .append("_tmp");
             db.execSQL(builder.toString());
-            //删除暂存表
-            builder.setLength(0);
-            builder.append("DROP TABLE ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
-                    .append("_tmp");
-            db.execSQL(builder.toString());
+            deleteTemporaryTable(db, builder, TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION);
+//            //删除暂存表
+//            builder.setLength(0);
+//            builder.append("DROP TABLE ").append(TABLE_RATCHET_WHEEL_MEASUREMENT_CONFIGURATION)
+//                    .append("_tmp");
+//            db.execSQL(builder.toString());
         }
 
         private boolean isTableRatchetWheelConfigurationExits(SQLiteDatabase db, StringBuilder builder) {
@@ -2015,6 +2026,39 @@ public class SensorDatabase implements Constant {
                 }
             }
             return false;
+        }
+
+        private void changeTableToTemporaryTable(@NonNull SQLiteDatabase db, @NonNull StringBuilder builder, @NonNull String srcTableName) {
+            //把原表改成另外一个名字作为暂存表
+            builder.setLength(0);
+            builder.append("ALTER TABLE ").append(srcTableName)
+                    .append(" RENAME TO ").append(srcTableName)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+        }
+
+        private void insertDataFromTemporaryTableToTargetTable(@NonNull SQLiteDatabase db, @NonNull StringBuilder builder, @NonNull String srcTableName) {
+            //将暂存表数据写入到新表，很方便的是不需要去理会自动增长的 ID
+            builder.setLength(0);
+            builder.append("INSERT INTO ").append(srcTableName)
+                    .append(" SELECT * FROM ").append(srcTableName)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+        }
+
+        private void deleteTemporaryTable(@NonNull SQLiteDatabase db, @NonNull StringBuilder builder, @NonNull String srcTableName) {
+            //删除暂存表
+            builder.setLength(0);
+            builder.append("DROP TABLE ").append(srcTableName)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
+        }
+
+        private void addColumnTypeFromTableConfigurationProvider(SQLiteDatabase db, StringBuilder builder) {
+            changeTableToTemporaryTable(db, builder, TABLE_CONFIGURATION_PROVIDER);
+            createConfigurationProviderDataTable(db, builder);
+            insertDataFromTemporaryTableToTargetTable(db, builder, TABLE_CONFIGURATION_PROVIDER);
+            deleteTemporaryTable(db, builder, TABLE_CONFIGURATION_PROVIDER);
         }
     }
 
@@ -2040,6 +2084,7 @@ public class SensorDatabase implements Constant {
         private double mHighLimit;
         private String mWarnerType;
         private String mProviderName;
+        //private int mProviderType;
         private int mProviderCount;
         private double mInitValue;
         private double mInitDistance;
@@ -2084,8 +2129,10 @@ public class SensorDatabase implements Constant {
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
             switch (localName) {
-                case "provider":
+                case TAG_PROVIDER:
                     mProviderName = attributes.getValue(TAG_NAME);
+//                    String type = attributes.getValue(TAG_TYPE);
+//                    mProviderType = TextUtils.isEmpty(type) ? 0 : Integer.parseInt(type);
                     break;
                 case TAG_SENSOR:
                     mAddress = Integer.parseInt(attributes.getValue(TAG_ADDRESS), 16);
@@ -2094,7 +2141,7 @@ public class SensorDatabase implements Constant {
                     mIntoMeasurementElement = true;
                     String dataType = attributes.getValue(TAG_TYPE);
                     String index = attributes.getValue(TAG_INDEX);
-                    String measurementType = attributes.getValue("pattern");
+                    String measurementType = attributes.getValue(TAG_PATTERN);
                     mMeasurementValueId = ID.getId(mAddress,
                             TextUtils.isEmpty(dataType) ? 0 : (byte) Integer.parseInt(dataType, 16),
                             TextUtils.isEmpty(index) ? 0 : Integer.parseInt(index));
@@ -2156,13 +2203,13 @@ public class SensorDatabase implements Constant {
                         mSensorName = mBuilder.toString();
                     }
                     break;
-                case "abnormal":
+                case TAG_ABNORMAL:
                     mAbnormalValue = Double.parseDouble(mBuilder.toString());
                     break;
-                case "low":
+                case TAG_LOW_LIMIT:
                     mLowLimit = Double.parseDouble(mBuilder.toString());
                     break;
-                case "high":
+                case TAG_HIGH_LIMIT:
                     mHighLimit = Double.parseDouble(mBuilder.toString());
                     break;
                 case TAG_WARNER:
@@ -2218,6 +2265,7 @@ public class SensorDatabase implements Constant {
                     }
                     mValues.clear();
                     mValues.put(COLUMN_CONFIGURATION_PROVIDER_NAME, mProviderName);
+                    //mValues.put(COLUMN_TYPE, mProviderType);
                     long currentTime = System.currentTimeMillis();
                     mValues.put(COLUMN_CREATE_TIME, currentTime);
                     mValues.put(COLUMN_MODIFY_TIME, currentTime);
@@ -2261,12 +2309,12 @@ public class SensorDatabase implements Constant {
             mValues.clear();
             mValues.put(COLUMN_COMMON_ID, mMeasurementConfigId);
             switch (mWarnerType) {
-                case "gs":
+                case TAG_SWITCH_WARNER:
                     mValues.put(COLUMN_ABNORMAL_VALUE, mAbnormalValue);
                     result = database.insert(TABLE_GENERAL_SWITCH_WARNER, null, mValues);
                     mAbnormalValue = 0;
                     break;
-                case "gsr":
+                case TAG_SINGLE_RANGE_WARNER:
                     mValues.put(COLUMN_LOW_LIMIT, mLowLimit);
                     mValues.put(COLUMN_HIGH_LIMIT, mHighLimit);
                     result = database.insert(TABLE_GENERAL_SINGLE_RANGE_WARNER, null, mValues);

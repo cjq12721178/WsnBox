@@ -9,6 +9,7 @@ import com.cjq.lib.weisi.iot.DisplayMeasurement;
 import com.cjq.lib.weisi.iot.Measurement;
 import com.cjq.lib.weisi.iot.PhysicalSensor;
 import com.cjq.lib.weisi.iot.Sensor;
+import com.cjq.lib.weisi.iot.Warner;
 import com.cjq.lib.weisi.iot.container.Value;
 import com.cjq.tool.qbox.ui.adapter.AdapterDelegate;
 import com.weisi.tool.wsnbox.R;
@@ -36,6 +37,7 @@ public abstract class BaseDataBrowseSensorAdapterDelegate implements AdapterDele
 
     private static @ColorInt int warnerHighLimitColor;
     private static @ColorInt int warnerLowLimitColor;
+    private static @ColorInt int warnerAbnormalColor;
     private static @ColorInt int warnerNormalColor;
     private static @ColorInt int realTimeDataColor;
     private static @ColorInt int historyDataColor;
@@ -45,6 +47,7 @@ public abstract class BaseDataBrowseSensorAdapterDelegate implements AdapterDele
     public static void init(@NonNull Context context) {
         warnerHighLimitColor = ContextCompat.getColor(context, R.color.warner_high_limit);
         warnerLowLimitColor = ContextCompat.getColor(context, R.color.warner_low_limit);
+        warnerAbnormalColor = ContextCompat.getColor(context, R.color.warner_abnormal);
         warnerNormalColor = ContextCompat.getColor(context, android.R.color.transparent);
         realTimeDataColor = ContextCompat.getColor(context, R.color.bg_real_time_sensor_data);
         historyDataColor = ContextCompat.getColor(context, R.color.bg_history_sensor_data);
@@ -109,17 +112,21 @@ public abstract class BaseDataBrowseSensorAdapterDelegate implements AdapterDele
     static void setMeasurementValueText(@NonNull TextView tvMeasurementValue, @NonNull DisplayMeasurement<?> measurement, DisplayMeasurement.Value value) {
         if (value != null) {
             tvMeasurementValue.setText(measurement.formatValue(value));
-            int warnResult = measurement.testValue(value);
-            if (warnResult == DisplayMeasurement.SingleRangeWarner.RESULT_ABOVE_HIGH_LIMIT) {
-                tvMeasurementValue.setBackgroundColor(warnerHighLimitColor);
-            } else if (warnResult == DisplayMeasurement.SingleRangeWarner.RESULT_BELOW_LOW_LIMIT) {
-                tvMeasurementValue.setBackgroundColor(warnerLowLimitColor);
-            } else {
-                tvMeasurementValue.setBackgroundColor(warnerNormalColor);
+            switch (measurement.testValue(value)) {
+                case Warner.RESULT_NORMAL:
+                default:
+                    tvMeasurementValue.setBackgroundColor(warnerNormalColor);
+                    break;
+                case DisplayMeasurement.SingleRangeWarner.RESULT_ABOVE_HIGH_LIMIT:
+                    tvMeasurementValue.setBackgroundColor(warnerHighLimitColor);
+                    break;
+                case DisplayMeasurement.SingleRangeWarner.RESULT_BELOW_LOW_LIMIT:
+                    tvMeasurementValue.setBackgroundColor(warnerLowLimitColor);
+                    break;
+                case DisplayMeasurement.SwitchWarner.RESULT_ABNORMAL:
+                    tvMeasurementValue.setBackgroundColor(warnerAbnormalColor);
+                    break;
             }
-//            if (warnProcessor != null) {
-//                warnProcessor.process(value, measurement.getConfiguration().getWarner(), tvMeasurementValue);
-//            }
         } else {
             tvMeasurementValue.setText(null);
             tvMeasurementValue.setBackgroundColor(warnerNormalColor);

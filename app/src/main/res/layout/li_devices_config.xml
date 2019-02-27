@@ -17,7 +17,7 @@
             android:id="@+id/chk_delete_selection"
             android:button="@null"
             android:background="@null"
-            android:drawableRight="@drawable/selector_selection"
+            android:drawableRight="@drawable/qbox_selector_checkbox_button"
             app:drawableRight_width="@dimen/size_image_micro"
             app:drawableRight_height="@dimen/size_image_micro"
             android:checked="false"

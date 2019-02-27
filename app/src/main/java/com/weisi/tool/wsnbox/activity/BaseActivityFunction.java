@@ -8,12 +8,14 @@ import com.weisi.tool.wsnbox.bean.configuration.Settings;
 import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 import com.weisi.tool.wsnbox.service.OnServiceConnectionListener;
+import com.weisi.tool.wsnbox.service.ServiceInfoObserver;
 import com.weisi.tool.wsnbox.util.SafeAsyncTask;
 
 public interface BaseActivityFunction
         extends OnServiceConnectionListener,
         PermissionsRequesterBuilder,
-        SafeAsyncTask.AchieverChecker {
+        SafeAsyncTask.AchieverChecker,
+        ServiceInfoObserver {
 
     DataPrepareService getDataPrepareService();
     @NonNull BaseApplication getBaseApplication();

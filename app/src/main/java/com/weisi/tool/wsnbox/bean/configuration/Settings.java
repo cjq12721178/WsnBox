@@ -1,10 +1,14 @@
 package com.weisi.tool.wsnbox.bean.configuration;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
 import com.weisi.tool.wsnbox.BuildConfig;
@@ -30,40 +34,41 @@ public class Settings {
 
     //通讯模块默认设置
     //UDP
-    boolean mDefaultUdpEnable;
-    private String mDefaultBaseStationIp;
-    private int mDefaultBaseStationPort;
-    private long mDefaultUdpDataRequestCycle;   /* 单位毫秒 */
+    protected boolean mDefaultUdpEnable;
+    protected String mDefaultBaseStationIp;
+    protected int mDefaultBaseStationPort;
+    protected long mDefaultUdpDataRequestCycle;   /* 单位毫秒 */
 
     //TCP
-    boolean mDefaultTcpEnable;
-    private String mDefaultRemoteServerIp;
-    private int mDefaultRemoteServerPort;
-    private long mDefaultTcpDataRequestCycle;
+    protected boolean mDefaultTcpEnable;
+    protected String mDefaultRemoteServerIp;
+    protected int mDefaultRemoteServerPort;
+    protected long mDefaultTcpDataRequestCycle;
 
     //Serial Port
-    boolean mDefaultSerialPortEnable;
-    String mDefaultSerialPortName;
-    int mDefaultSerialPortBaudRate;
-    private long mDefaultSerialPortDataRequestCycle;    /* 单位毫秒 */
+    protected boolean mDefaultSerialPortEnable;
+    protected String mDefaultSerialPortName;
+    protected int mDefaultSerialPortBaudRate;
+    protected long mDefaultSerialPortDataRequestCycle;    /* 单位毫秒 */
+
     //BLE
-    boolean mDefaultBleEnable;
-    private long mDefaultBleScanCycle;  /* 单位秒 */
-    private long mDefaultBleScanDuration;   /* 单位秒 */
+    protected boolean mDefaultBleEnable;
+    protected long mDefaultBleScanCycle;  /* 单位秒 */
+    protected long mDefaultBleScanDuration;   /* 单位秒 */
 
     //USB
-    boolean mDefaultUsbEnable;
-    long mDefaultUsbVendorProductId;   /* 0-31位为ProductId， 32-63位为VendorId */
-    int mDefaultUsbBaudRate;
-    int mDefaultUsbDataBits;
-    int mDefaultUsbStopBits;
-    int mDefaultUsbParity;
-    private long mDefaultUsbDataRequestCycle;   /* 单位毫秒 */
-    String mDefaultUsbProtocol;
+    protected boolean mDefaultUsbEnable;
+    protected long mDefaultUsbVendorProductId;   /* 0-31位为ProductId， 32-63位为VendorId */
+    protected int mDefaultUsbBaudRate;
+    protected int mDefaultUsbDataBits;
+    protected int mDefaultUsbStopBits;
+    protected int mDefaultUsbParity;
+    protected long mDefaultUsbDataRequestCycle;   /* 单位毫秒 */
+    protected String mDefaultUsbProtocol;
 
     //数据处理模块默认设置
-    boolean mDefaultSensorDataGatherEnable;
-    private long mDefaultSensorDataGatherCycle; /* 单位秒 */
+    protected boolean mDefaultSensorDataGatherEnable;
+    protected long mDefaultSensorDataGatherCycle; /* 单位秒 */
 
     //最新版本
     private String mLatestVersionName;
@@ -71,9 +76,62 @@ public class Settings {
     //数据导出模块处理
     private boolean mExportingSensorData;
 
+    //数据告警
+    protected boolean mDefaultDataWarnEnable;
+    protected boolean mDefaultDataWarnNotifyEnable;
+    protected boolean mDefaultDataWarnNotifySoundEnable;
+    protected boolean mDefaultDataWarnNotifyVibrateEnable;
+    protected boolean mDefaultDataWarnNotifyFloatEnable;
+    protected boolean mDefaultDataWarnNotifyScreenEnable;
+    protected boolean mDefaultDataWarnToastEnable;
+    protected boolean mDefaultDataMonitorBackgroundEnable;
+
     public Settings(Context context) {
         mContext = context.getApplicationContext();
         mLatestVersionName = BuildConfig.VERSION_NAME;
+        init();
+    }
+
+    protected void init() {
+        mDefaultUdpEnable = false;
+        mDefaultBaseStationIp = "192.168.1.18";
+        mDefaultBaseStationPort = 5000;
+        mDefaultUdpDataRequestCycle = 500;
+
+        mDefaultTcpEnable = false;
+        mDefaultRemoteServerIp = "122.225.88.90";
+        mDefaultRemoteServerPort = 33361;
+        mDefaultTcpDataRequestCycle = 2000;
+
+        mDefaultBleEnable = true;
+        mDefaultBleScanCycle = 5;
+        mDefaultBleScanDuration = 10;
+
+        mDefaultSerialPortEnable = false;
+        mDefaultSerialPortName = "/dev/ttyHSL1";
+        mDefaultSerialPortBaudRate = 115200;
+        mDefaultSerialPortDataRequestCycle = 2000;
+
+        mDefaultUsbEnable = false;
+        mDefaultUsbVendorProductId = 0;
+        mDefaultUsbBaudRate = 115200;
+        mDefaultUsbDataBits = 8;
+        mDefaultUsbStopBits = 1;
+        mDefaultUsbParity = 0;
+        mDefaultUsbDataRequestCycle = 2000;
+        mDefaultUsbProtocol = "ESB";
+
+        mDefaultSensorDataGatherEnable = true;
+        mDefaultSensorDataGatherCycle = 60;
+
+        mDefaultDataWarnEnable = true;
+        mDefaultDataWarnNotifyEnable = true;
+        mDefaultDataWarnNotifySoundEnable = true;
+        mDefaultDataWarnNotifyVibrateEnable = true;
+        mDefaultDataWarnNotifyFloatEnable = true;
+        mDefaultDataWarnNotifyScreenEnable = true;
+        mDefaultDataWarnToastEnable = true;
+        mDefaultDataMonitorBackgroundEnable = false;
     }
 
     public String getDefaultBaseStationIp() {
@@ -222,6 +280,10 @@ public class Settings {
 //            return defaultValue;
 //        }
         return getSharedPreferences().getBoolean(mContext.getString(preferenceKeyRes), defaultValue);
+    }
+
+    private void putBoolean(@StringRes int preferenceKeyRes, boolean newValue) {
+        getSharedPreferences().edit().putBoolean(mContext.getString(preferenceKeyRes), newValue).commit();
     }
 
     public String getBaseStationIp() {
@@ -444,16 +506,16 @@ public class Settings {
                 .commit();
     }
 
-    public long getProductDisplayValueContainerConfigurationProviderId() {
-        return getSharedPreferences().getLong("demo_cfg_pvd_id", 0);
-    }
-
-    public void setProductDisplayValueContainerConfigurationProviderId(long id) {
-        getSharedPreferences()
-                .edit()
-                .putLong("demo_cfg_pvd_id", id)
-                .commit();
-    }
+//    public long getProductDisplayValueContainerConfigurationProviderId() {
+//        return getSharedPreferences().getLong("demo_cfg_pvd_id", 0);
+//    }
+//
+//    public void setProductDisplayValueContainerConfigurationProviderId(long id) {
+//        getSharedPreferences()
+//                .edit()
+//                .putLong("demo_cfg_pvd_id", id)
+//                .commit();
+//    }
 
     public String getOutputFilePath() {
         return getString(R.string.preference_key_output_file_path, Environment.getExternalStorageDirectory() + File.separator + "WsnBox");
@@ -496,5 +558,120 @@ public class Settings {
 
     public void setExportingSensorData(boolean exportingSensorData) {
         mExportingSensorData = exportingSensorData;
+    }
+
+    public boolean isDefaultDataWarnEnable() {
+        return mDefaultDataWarnEnable;
+    }
+
+    public boolean isDataWarnEnable() {
+        return getBoolean(R.string.preference_key_data_warn_enable, isDefaultDataWarnEnable());
+    }
+
+    public boolean isDefaultDataWarnNotifyEnable() {
+        return mDefaultDataWarnNotifyEnable;
+    }
+
+    public boolean isDataWarnNotifyEnable() {
+        return getBoolean(R.string.preference_key_data_warn_notify_enable, isDefaultDataWarnNotifyEnable());
+    }
+
+    public boolean isDefaultDataWarnNotifySoundEnable() {
+        return mDefaultDataWarnNotifySoundEnable;
+    }
+
+    public boolean isDataWarnNotifySoundEnable() {
+        return getBoolean(R.string.preference_key_data_warn_notify_sound_enable, isDefaultDataWarnNotifySoundEnable());
+    }
+
+    private void setDataWarnNotifySoundEnable(boolean enabled) {
+        putBoolean(R.string.preference_key_data_warn_notify_sound_enable, enabled);
+    }
+
+    public boolean isDefaultDataWarnNotifyVibrateEnable() {
+        return mDefaultDataWarnNotifyVibrateEnable;
+    }
+
+    public boolean isDataWarnNotifyVibrateEnable() {
+        return getBoolean(R.string.preference_key_data_warn_notify_vibrate_enable, isDefaultDataWarnNotifyVibrateEnable());
+    }
+
+    private void setDataWarnNotifyVibrateEnable(boolean enabled) {
+        putBoolean(R.string.preference_key_data_warn_notify_vibrate_enable, enabled);
+    }
+
+    public boolean isDefaultDataWarnToastEnable() {
+        return mDefaultDataWarnToastEnable;
+    }
+
+    public boolean isDataWarnToastEnable() {
+        return getBoolean(R.string.preference_key_data_warn_toast_enable, isDefaultDataWarnToastEnable());
+    }
+
+    public boolean isDefaultDataWarnNotifyFloatEnable() {
+        return mDefaultDataWarnNotifyFloatEnable;
+    }
+
+    public boolean isDataWarnNotifyFloatEnable() {
+        return getBoolean(R.string.preference_key_data_warn_notify_float_enable, isDefaultDataWarnNotifyFloatEnable());
+    }
+
+    public boolean isDefaultDataWarnNotifyScreenEnable() {
+        return mDefaultDataWarnNotifyScreenEnable;
+    }
+
+    public boolean isDataWarnNotifyScreenEnable() {
+        return getBoolean(R.string.preference_key_data_warn_notify_screen_enable, isDefaultDataWarnNotifyScreenEnable());
+    }
+
+    public @NonNull String getWarnNotificationChannelId() {
+        return getSharedPreferences().getString("warn_ncn", "0");
+    }
+
+    public @NonNull String getNewWarnNotificationChannelId() {
+        String newNo = String.valueOf(Integer.parseInt(getWarnNotificationChannelId()) + 1);
+        getSharedPreferences().edit().putString("warn_ncn", newNo).commit();
+        return newNo;
+    }
+
+    public void notificationParameterCorrect() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager manager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (manager == null) {
+                return;
+            }
+            NotificationChannel channel = manager.getNotificationChannel(getWarnNotificationChannelId());
+            if (channel == null) {
+                return;
+            }
+            boolean actualDataWarnNotifySoundEnable = channel.getSound() != null || channel.getAudioAttributes() != null;
+            if (isDataWarnNotifySoundEnable() != actualDataWarnNotifySoundEnable) {
+                setDataWarnNotifySoundEnable(actualDataWarnNotifySoundEnable);
+            }
+            boolean actualDataWarnNotifyVibrateEnable = channel.shouldVibrate();
+            if (isDataWarnNotifyVibrateEnable() != actualDataWarnNotifyVibrateEnable) {
+                setDataWarnNotifyVibrateEnable(actualDataWarnNotifyVibrateEnable);
+            }
+        }
+    }
+
+    public boolean isDefaultDataMonitorBackgroundEnable() {
+        return mDefaultDataMonitorBackgroundEnable;
+    }
+
+    public boolean isDataMonitorBackgroundEnable() {
+        return getBoolean(R.string.preference_key_data_monitor_background_enable, isDefaultDataMonitorBackgroundEnable());
+    }
+
+    public void setDataMonitorBackgroundEnable(boolean enabled) {
+        putBoolean(R.string.preference_key_data_monitor_background_enable, enabled);
+    }
+
+    public boolean isDataMonitorBackgroundEnableSet() {
+        return getSharedPreferences().contains(mContext.getString(R.string.preference_key_data_monitor_background_enable));
+    }
+
+    public void clearDataMonitorBackgroundEnable() {
+        getSharedPreferences().edit().remove(mContext.getString(R.string.preference_key_data_monitor_background_enable)).commit();
     }
 }

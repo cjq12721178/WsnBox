@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
@@ -19,12 +20,15 @@ import android.view.MenuItem;
 import android.view.ViewConfiguration;
 
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
+import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.application.BaseApplication;
+import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.permission.BlePermissionsRequester;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;
 import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
+import com.weisi.tool.wsnbox.service.ServiceInfoObserver;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -33,7 +37,9 @@ import java.lang.reflect.Method;
  * Created by CJQ on 2018/1/4.
  */
 
-public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction> {
+public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction> implements ServiceInfoObserver {
+
+    static final String DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED = "tag_import_sns_cfg_err";
 
     private final A mActivity;
     private DataPrepareService mDataPrepareService;
@@ -44,6 +50,8 @@ public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction>
         public void onServiceConnected(ComponentName name, IBinder service) {
             if (mDataPrepareService == null) {
                 mDataPrepareService = ((DataPrepareService.LocalBinder)service).getService();
+                mDataPrepareService.setServiceInfoObserver(mActivity);
+                initDataPrepareService(mDataPrepareService);
                 mActivity.onServiceConnectionCreate(mDataPrepareService);
                 mActivity.notifyRegisteredFragmentsServiceConnectionCreate();
             }
@@ -55,6 +63,7 @@ public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction>
         public void onServiceDisconnected(ComponentName name) {
             mActivity.onServiceConnectionStop(mDataPrepareService);
             mActivity.onServiceConnectionDestroy(mDataPrepareService);
+            mDataPrepareService.setServiceInfoObserver(null);
             mDataPrepareService = null;
         }
     };
@@ -69,6 +78,51 @@ public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction>
 
     public final BaseApplication getBaseApplication() {
         return (BaseApplication) mActivity.getApplication();
+    }
+
+    private void initDataPrepareService(@NonNull DataPrepareService service) {
+        if (mDataPrepareService.isInitialized()) {
+            return;
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        if (service.importSensorConfigurations()) {
+            service.startAccessSensorData(mActivity);
+            service.startListenDataAlarm();
+            if (SensorDatabase.launch(mActivity)) {
+                service.finishInitialization();
+                service.startCaptureAndRecordSensorData();
+                service.changeSensorConfigurations();
+            } else {
+                if (fragmentManager != null) {
+                    ConfirmDialog dialog = new ConfirmDialog();
+                    dialog.setTitle(R.string.launch_sensor_database_failed);
+                    dialog.setDrawCancelButton(false);
+                    dialog.show(fragmentManager,
+                            "launch_sensor_database_failed");
+                } else {
+                    SimpleCustomizeToast.show(R.string.launch_sensor_database_failed);
+                    mActivity.finish();
+                }
+            }
+        } else {
+            if (fragmentManager != null) {
+                ConfirmDialog dialog = new ConfirmDialog();
+                dialog.setTitle(R.string.import_sensor_configurations_failed);
+                dialog.setDrawCancelButton(false);
+                dialog.show(fragmentManager,
+                        DIALOG_TAG_IMPORT_SENSOR_CONFIGURATIONS_FAILED);
+            } else {
+                SimpleCustomizeToast.show(R.string.import_sensor_configurations_failed);
+                mActivity.finish();
+            }
+        }
+    }
+
+    private FragmentManager getSupportFragmentManager() {
+        if (mActivity instanceof FragmentActivity) {
+            return ((FragmentActivity) mActivity).getSupportFragmentManager();
+        }
+        return null;
     }
 
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -107,14 +161,24 @@ public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction>
             case android.R.id.home:
                 Intent upIntent = NavUtils.getParentActivityIntent(mActivity);
                 if (upIntent != null) {
-                    if (NavUtils.shouldUpRecreateTask(mActivity, upIntent)) {
+                    if (NavUtils.shouldUpRecreateTask(mActivity, upIntent)
+                            || mActivity.isTaskRoot()) {
                         TaskStackBuilder.create(mActivity)
                                 .addNextIntentWithParentStack(upIntent)
                                 .startActivities();
                     } else {
-                        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        NavUtils.navigateUpTo(mActivity, upIntent);
+                        mActivity.finish();
+//                        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                        NavUtils.navigateUpTo(mActivity, upIntent);
                     }
+//                    if (NavUtils.shouldUpRecreateTask(mActivity, upIntent)) {
+//                        TaskStackBuilder.create(mActivity)
+//                                .addNextIntentWithParentStack(upIntent)
+//                                .startActivities();
+//                    } else {
+//                        upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                        NavUtils.navigateUpTo(mActivity, upIntent);
+//                    }
                     return true;
                 } else {
                     return false;
@@ -179,5 +243,9 @@ public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction>
 
     public boolean isActivityInvalid() {
         return mActivity.isFinishing() || mActivity.isDestroyed();
+    }
+
+    @Override
+    public void onSensorConfigurationChanged() {
     }
 }
