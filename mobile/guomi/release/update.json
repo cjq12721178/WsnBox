@@ -1,0 +1,7 @@
+{
+    "apkName": "com.weisi.tool.wsnbox.guomi_1.0.8_20190320.apk",
+    "versionName": "1.0.8",
+    "versionCode": 44,
+    "forceUpdate": false,
+    "versionDescription": "1. 修复线性拟合数据校准设置修改方式选择界面“采样值”误写为“采用组”的问题\n2. 修复线性拟合数据校准设置无法新增校准-采样组(前)的问题\n3. 优化传感器配置界面UI"
+}

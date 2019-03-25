@@ -1,0 +1,250 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+static def buildTime() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMdd')
+    return formattedDate
+}
+
+ext {
+    forceUpdate = false
+}
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
+    defaultConfig {
+        applicationId "com.weisi.tool.wsnbox"
+        minSdkVersion 18
+        targetSdkVersion 28
+        versionCode 50
+        versionName "2.0.9"
+        flavorDimensions "wsn"
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        packagingOptions {
+            exclude "META-INF/proguard/androidx-annotations.pro"
+        }
+    }
+    productFlavors {
+        general {
+            manifestPlaceholders = [
+                    actionStartAboutActivity: "android.intent.action.ABOUT_GENERAL"
+            ]
+        }
+        guomi {
+            manifestPlaceholders = [
+                    actionStartAboutActivity: "android.intent.action.ABOUT_GUOMI"
+            ]
+            applicationIdSuffix ".guomi"
+            versionCode 45
+            versionName "1.0.9"
+        }
+        jiugang {
+            manifestPlaceholders = [
+                    actionStartAboutActivity: "android.intent.action.ABOUT_JIUGANG"
+            ]
+            applicationIdSuffix ".jiugang"
+            versionCode 32
+            versionName "1.0.9"
+        }
+        show {
+            manifestPlaceholders = [
+                    actionStartAboutActivity: "android.intent.action.ABOUT_SHOW"
+            ]
+            applicationIdSuffix ".show"
+            versionCode 27
+            versionName "1.0.9"
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+
+            //resValue "string", "app_name", appDefaultName + "DEBUG"
+            manifestPlaceholders = [
+                    appName: "@string/app_name_debug",
+                    actionSuffix: "_DEBUG"
+            ]
+
+            buildConfigField("boolean", "APP_DEBUG", "true")
+            buildConfigField("String", "SERVICE_SERVER_URL", "\"http://192.168.1.222:21524/\"")
+        }
+        release {
+            //resValue "string", "app_name", appDefaultName
+            manifestPlaceholders = [
+                    appName: "@string/app_name",
+                    actionSuffix: ""
+            ]
+
+            buildConfigField "boolean", "APP_DEBUG", "false"
+            buildConfigField("String", "SERVICE_SERVER_URL", "\"http://122.225.88.90:21524/\"")
+
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    //打包后应用名称
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            if (outputFileName != null && outputFileName.endsWith('.apk')) {
+                if (variant.buildType.name == 'release') {
+                    outputFileName = "${variant.applicationId}_${variant.versionName}_${buildTime()}.apk"
+                } else if (variant.buildType.name == 'debug') {
+                    outputFileName = "debug_${variant.applicationId}_${variant.versionName}.apk"
+                }
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    google()
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testImplementation 'junit:junit:4.12'
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+//    implementation(name: 'jxl', ext: 'jar')
+//    implementation(name: 'com.cjq.tool.qbox-1.7.6', ext: 'aar')
+//    implementation(name: 'com.cjq.lib.weisi-7.1.6', ext: 'aar')
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.android.support:preference-v7:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:support-v13:28.0.0'
+    implementation 'com.kaopiz:kprogresshud:1.0.2'
+    implementation 'io.apisense:rhino-android:1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'pub.devrel:easypermissions:1.1.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation 'com.android.support:cardview-v7:28.0.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.16'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
+    implementation 'com.google.android:flexbox:0.2.5'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
+    implementation 'com.github.castorflex.verticalviewpager:library:19.0.1'
+    implementation "com.evrencoskun.library:tableview:0.8.8"
+    //implementation 'org.apache.commons:commons-lang3:3.8.1'
+    //wearApp project(':wear')
+    //implementation 'com.google.android.gms:play-services-wearable:16.0.1'
+}
+
+androidExtensions {
+    experimental = true
+}
+
+afterEvaluate {
+    tasks.matching {
+        // 以process开头以ReleaseJavaRes或DebugJavaRes结尾的task
+        it.name.startsWith("assemble") && it.name.endsWith("Release")
+    }.each { task ->
+        //task.dependsOn(testAssembleRelease)  // 任务依赖：执行task之前需要执行dependsOn指定的任务
+        task.doLast {
+            def productName = task.name.substring("assemble".size(), task.name.size() - "Release".size())
+            def product = productName == "General" ? android.defaultConfig : android.productFlavors.getByName(productName.toLowerCase())
+            def outputDir = "${projectDir}/${productName}/release"
+            def version = "${product.versionName}"
+            def apkName
+            def hasVersionDescription = false
+            def versionDescriptions = []
+            def versionDescriptionFileName = "${outputDir}/版本说明.txt"
+            new File(outputDir).eachFile {
+                if (it.name.contains(version)) {
+                    apkName = it.name
+                }
+                if (it.name.contains("版本说明")) {
+                    //versionDescriptionFileName = it.name
+                    it.eachLine { line ->
+                        if (hasVersionDescription) {
+                            versionDescriptions.add(line)
+                        }
+                        if (line.contains(version)) {
+                            hasVersionDescription = true
+                        }
+                    }
+                }
+            }
+            if (!hasVersionDescription) {
+                new File("${projectDir}/general/release").eachFile {
+                    if (it.name.contains("版本说明")) {
+                        def latestVersionLineNo = 0
+                        def lineNo = 0
+                        it.eachLine { line ->
+                            lineNo++
+                            if (line.contains("):")) {
+                                latestVersionLineNo = lineNo
+                            }
+                        }
+                        if (latestVersionLineNo > 0) {
+                            hasVersionDescription = true
+                            lineNo = 0
+                            it.eachLine() { line ->
+                                lineNo++
+                                if (latestVersionLineNo < lineNo) {
+                                    versionDescriptions.add(line)
+                                }
+                            }
+                        }
+                        if (hasVersionDescription) {
+                            def versionDescriptionFile = new File(versionDescriptionFileName)
+                            versionDescriptionFile.append("\r\n", "utf8")
+                            //versionDescriptionFile.append("${lineNo}\r\n")
+                            //versionDescriptionFile.append("${latestVersionLineNo}\r\n")
+                            versionDescriptionFile.append("${buildTime()}-${version}(${product.versionCode}):\r\n", "utf8")
+                            versionDescriptions.forEach() { line ->
+                                versionDescriptionFile.append("${line}\r\n", "utf8")
+                            }
+                        }
+                    }
+                }
+            }
+            new File("${outputDir}/update.json").withPrintWriter("UTF-8") { writer ->
+                writer.println("{")
+                writer.println("    \"apkName\": \"${apkName}\",")
+                writer.println("    \"versionName\": \"${version}\",")
+                writer.println("    \"versionCode\": ${product.versionCode},")
+                writer.println("    \"forceUpdate\": ${forceUpdate},")
+//                writer.println("    \"versionDescription\": \"" +
+//                        //"1. 修复BLE协议解析阵列传感器时数据类型区分失败的问题\\n" +
+//                        "1. 修复历史数据对话框时间选择异常的问题\"")
+                writer.print("    \"versionDescription\": \"")
+                if (versionDescriptions.empty) {
+                    writer.print("无更新说明")
+                } else {
+                    writer.print(versionDescriptions.remove(0))
+                    versionDescriptions.forEach() { description ->
+                        writer.print("\\n")
+                        writer.print(description)
+                    }
+                }
+                writer.println("\"")
+                writer.println("}")
+                writer.flush()
+                writer.close()
+            }
+        }
+    }
+}

@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">传感数据安全监控</string>
-    <string name="app_name_debug">传感数据安全监控DEBUG</string>
-    <string name="home_page_title">集成国密算法无线电力传感数据接入系统</string>
-    <string name="about_app">关于传感数据安全监控</string>
-
-</resources>

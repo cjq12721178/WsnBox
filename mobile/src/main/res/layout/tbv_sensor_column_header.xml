@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/size_sensor_info_column_header_height">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/tv_column_label"
+            android:gravity="center"
+            android:lines="1"
+            android:textSize="@dimen/size_text_view_label"
+            android:paddingStart="@dimen/padding_small"
+            android:paddingEnd="@dimen/padding_small"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider_width_fix"
+            android:id="@+id/v_separator"
+            android:background="@color/tbv_separator"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
+
+
+</LinearLayout>
