@@ -19,6 +19,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewConfiguration;
 
+import com.cjq.lib.weisi.iot.DisplayMeasurement;
+import com.cjq.lib.weisi.iot.PracticalMeasurement;
+import com.cjq.lib.weisi.iot.Sensor;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.R;
@@ -29,6 +32,8 @@ import com.weisi.tool.wsnbox.permission.PermissionsRequester;
 import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
 import com.weisi.tool.wsnbox.service.ServiceInfoObserver;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -88,6 +93,7 @@ public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction>
         if (service.importSensorAssets()) {
             service.startAccessSensorData(mActivity);
             service.startListenDataAlarm();
+            service.connectWearable();
             if (SensorDatabase.launch(mActivity)) {
                 service.finishInitialization();
                 service.startCaptureAndRecordSensorData();
@@ -247,5 +253,10 @@ public class ActivityFunctionDelegate<A extends Activity & BaseActivityFunction>
 
     @Override
     public void onSensorConfigurationChanged() {
+    }
+
+    @Override
+    public boolean onValueTestResult(@NotNull Sensor.Info info, @NotNull PracticalMeasurement measurement, @NotNull DisplayMeasurement.Value value, int warnResult) {
+        return false;
     }
 }

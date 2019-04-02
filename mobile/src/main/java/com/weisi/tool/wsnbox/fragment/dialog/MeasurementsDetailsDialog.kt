@@ -8,6 +8,7 @@ import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
 import android.support.v4.app.DialogFragment
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +25,7 @@ import com.weisi.tool.wsnbox.bean.data.Device
 import com.weisi.tool.wsnbox.processor.transfer.DataTransferStation
 import com.weisi.tool.wsnbox.service.DataPrepareService
 import com.weisi.tool.wsnbox.util.NullHelper
+import com.weisi.tool.wsnbox.util.Tag
 import kotlinx.android.synthetic.main.dialog_sensor_details.*
 import kotlinx.android.synthetic.main.dialog_sensor_details.view.*
 import java.util.*
@@ -337,6 +339,7 @@ abstract class MeasurementsDetailsDialog : BaseServiceDialog(), DataTransferStat
         onStopHistoryMode()
         setDateLabel()
         measurements.forEach { it.setUniteValueContainer() }
+        Log.d(Tag.LOG_TAG_D_TEST, "setUniteValueContainer")
         measurementCurvePageAdapter.notifyDataTimeChanged()
         onStartRealTimeMode()
         enableDetectSensorInfoDynamicValueUpdate = true
@@ -349,7 +352,7 @@ abstract class MeasurementsDetailsDialog : BaseServiceDialog(), DataTransferStat
         onStopRealTimeMode()
         setDateLabel()
         measurements.forEach { it.setUniteValueContainer(startTime, endTime) }
-        //Log.d(Tag.LOG_TAG_D_TEST, "before notifyDataTimeChanged")
+        Log.d(Tag.LOG_TAG_D_TEST, "setUniteValueContainer")
         measurementCurvePageAdapter.notifyDataTimeChanged()
         //Log.d(Tag.LOG_TAG_D_TEST, "before onStartHistoryMode")
         onStartHistoryMode(startTime, endTime)

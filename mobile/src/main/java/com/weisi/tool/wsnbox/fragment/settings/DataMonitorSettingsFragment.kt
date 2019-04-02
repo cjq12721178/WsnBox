@@ -59,7 +59,7 @@ class DataMonitorSettingsFragment : BaseSettingsFragment() {
         }
 
         override fun onPreferenceChange(newValue: Any?): Boolean {
-            preferenceActivity.dataPrepareService.valueAlarmer.enableNotifySound(newValue == true)
+            preferenceActivity.dataPrepareService.valueAlarmer.enableNotifySound(settings, newValue == true)
             return true
         }
 
@@ -74,7 +74,7 @@ class DataMonitorSettingsFragment : BaseSettingsFragment() {
         }
 
         override fun onPreferenceChange(newValue: Any?): Boolean {
-            preferenceActivity.dataPrepareService.valueAlarmer.enableNotifyVibrate(newValue == true)
+            preferenceActivity.dataPrepareService.valueAlarmer.enableNotifyVibrate(settings, newValue == true)
             return true
         }
 
@@ -89,7 +89,7 @@ class DataMonitorSettingsFragment : BaseSettingsFragment() {
         }
 
         override fun onPreferenceChange(newValue: Any?): Boolean {
-            preferenceActivity.dataPrepareService.valueAlarmer.enableNotifyFloat(newValue == true)
+            preferenceActivity.dataPrepareService.valueAlarmer.enableNotifyFloat(settings, newValue == true)
             return true
         }
 
@@ -104,7 +104,7 @@ class DataMonitorSettingsFragment : BaseSettingsFragment() {
         }
 
         override fun onPreferenceChange(newValue: Any?): Boolean {
-            preferenceActivity.dataPrepareService.valueAlarmer.enableNotifyScreen(newValue == true)
+            preferenceActivity.dataPrepareService.valueAlarmer.enableNotifyScreen(settings, newValue == true)
             return true
         }
 

@@ -34,6 +34,6 @@ class NodeDetailsDialog : LogicalSensorDetailsDialog() {
     }
 
     override fun getObjectLabel(): String {
-        return node.name ?: super.getObjectLabel()
+        return node.getProperName()
     }
 }

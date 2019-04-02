@@ -217,7 +217,10 @@ public class UsbSensorDataAccessor
 
         @Override
         public int analyzeMultiplePackages(@NonNull byte[] udpData, int offset, int length, @NonNull OnFrameAnalyzedListener listener) {
+            //Log.d(Tag.LOG_TAG_D_TEST, NumericConverter.bytesToHexDataString(udpData, offset, length));
             return mProtocol.analyzeMultiplePackages(udpData, offset, length, listener);
+            //Log.d(Tag.LOG_TAG_D_TEST, "analyzeMultiplePackages: offset: " + offset + ", length: " + length + ", handled: " + result);
+            //return result;
         }
 
         @Override

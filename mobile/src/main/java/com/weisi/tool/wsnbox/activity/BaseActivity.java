@@ -14,6 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.cjq.lib.weisi.iot.DisplayMeasurement;
+import com.cjq.lib.weisi.iot.PracticalMeasurement;
+import com.cjq.lib.weisi.iot.Sensor;
 import com.cjq.tool.qbox.ui.dialog.BaseDialog;
 import com.cjq.tool.qbox.ui.dialog.ConfirmDialog;
 import com.weisi.tool.wsnbox.R;
@@ -261,5 +264,10 @@ public abstract class BaseActivity
     @Override
     public void onSensorConfigurationChanged() {
         getFunctionDelegate().onSensorConfigurationChanged();
+    }
+
+    @Override
+    public boolean onValueTestResult(@NotNull Sensor.Info info, @NotNull PracticalMeasurement measurement, @NotNull DisplayMeasurement.Value value, int warnResult) {
+        return getFunctionDelegate().onValueTestResult(info, measurement, value, warnResult);
     }
 }

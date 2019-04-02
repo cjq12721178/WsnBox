@@ -6,15 +6,18 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 
+import com.cjq.lib.weisi.iot.DisplayMeasurement;
+import com.cjq.lib.weisi.iot.PracticalMeasurement;
+import com.cjq.lib.weisi.iot.Sensor;
 import com.cjq.lib.weisi.iot.SensorManager;
 import com.cjq.tool.qbox.ui.toast.SimpleCustomizeToast;
 import com.weisi.tool.wsnbox.BuildConfig;
 import com.weisi.tool.wsnbox.R;
 import com.weisi.tool.wsnbox.application.BaseApplication;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
-import com.weisi.tool.wsnbox.io.database.SensorDatabase;
 import com.weisi.tool.wsnbox.permission.PermissionsRequesterBuilder;
 import com.weisi.tool.wsnbox.processor.ValueAlarmer;
 import com.weisi.tool.wsnbox.processor.accessor.BleSensorDataAccessor;
@@ -46,7 +49,8 @@ public class DataPrepareService
         extends Service
         implements SensorDynamicDataAccessor.OnStartResultListener,
         OnSensorDynamicDataAccessListener,
-        OnSensorHistoryDataAccessListener {
+        OnSensorHistoryDataAccessListener,
+        Sensor.OnValueAlarmListener/*, DataApi.DataListener */ {
 
     private final LocalBinder mLocalBinder = new LocalBinder();
     private ServiceInfoObserver mServiceInfoObserver;
@@ -65,6 +69,8 @@ public class DataPrepareService
     private ValueAlarmer mValueAlarmer;
     private boolean mInitialized;
 
+    //private GoogleApiClient mGoogleApiClient;
+
     private final Handler mEventHandler = new Handler() {
 
         @Override
@@ -74,7 +80,7 @@ public class DataPrepareService
                     SimpleCustomizeToast.show(getString(R.string.database_insert_sensor_data_error));
                     break;
                 case SensorDataSQLiteExporter.SENSOR_DATA_RECORDER_SHUTDOWN:
-                    SensorDatabase.shutdown();
+                    //SensorDatabase.shutdown();
                     break;
             }
         }
@@ -104,6 +110,7 @@ public class DataPrepareService
     @Override
     public void onDestroy() {
         //Log.d(Tag.LOG_TAG_D_TEST, "DataPrepareService onDestroy");
+        disconnectWearable();
         stopListenDataAlarm();
         stopAccessSensorData();
         stopCaptureAndRecordSensorData();
@@ -205,6 +212,13 @@ public class DataPrepareService
         mDataTransferStation.processMeasurementHistoryDataAccess(sensorId, timestamp, rawValue);
     }
 
+    @Override
+    public void onValueTestResult(@NonNull Sensor.Info info, @NonNull PracticalMeasurement measurement, @NonNull DisplayMeasurement.Value value, int warnResult) {
+        if (!mServiceInfoObserver.onValueTestResult(info, measurement, value, warnResult)) {
+            getValueAlarmer().processValueTest(getBaseApplication().getSettings(), info, measurement, value, warnResult);
+        }
+    }
+
     public class LocalBinder extends Binder {
 
         public DataPrepareService getService() {
@@ -253,7 +267,7 @@ public class DataPrepareService
 
     public ValueAlarmer getValueAlarmer() {
         if (mValueAlarmer == null) {
-            mValueAlarmer = new ValueAlarmer(getApplicationContext(), getBaseApplication().getSettings());
+            mValueAlarmer = new ValueAlarmer(getApplicationContext());
         }
         return mValueAlarmer;
     }
@@ -431,14 +445,93 @@ public class DataPrepareService
 
     public void startListenDataAlarm(boolean withoutAllowance) {
         if (withoutAllowance || getBaseApplication().getSettings().isDataWarnEnable()) {
-            getValueAlarmer().start();
+            Sensor.setOnValueAlarmListener(this);
+            getValueAlarmer().start(getBaseApplication().getSettings());
         }
     }
 
     public void stopListenDataAlarm() {
-        if (mValueAlarmer != null) {
-            mValueAlarmer.stop();
-            mValueAlarmer = null;
-        }
+        Sensor.setOnValueAlarmListener(null);
+        getValueAlarmer().stop();
+//        if (mValueAlarmer != null) {
+//            mValueAlarmer.stop();
+//            mValueAlarmer = null;
+//        }
     }
+
+    public void connectWearable() {
+//        mGoogleApiClient = new GoogleApiClient.Builder(this)
+//                .addApi(Wearable.API)
+//                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+//                    @Override
+//                    public void onConnected(@android.support.annotation.Nullable Bundle bundle) {
+//                        Log.d(Tag.LOG_TAG_D_TEST, "wear connected, " + BuildConfig.APPLICATION_ID);
+//                        new Thread(new Runnable() {
+//
+//                            private int count;
+//
+//                            @Override
+//                            public void run() {
+//                                for (int i = 0;i < 10;++i) {
+//                                    try {
+//                                        Thread.sleep(4000);
+//                                    } catch (InterruptedException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                    Log.d(Tag.LOG_TAG_D_TEST, "send data to wear, count: " + count);
+//                                    PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/count");
+//                                    putDataMapReq.getDataMap().putInt("count", count++);
+//                                    PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+//                                    Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq).setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+//                                        @Override
+//                                        public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
+//                                            if (!dataItemResult.getStatus().isSuccess()) {
+//                                                Log.d(Tag.LOG_TAG_D_TEST, "send failed");
+//                                            } else {
+//                                                Log.d(Tag.LOG_TAG_D_TEST, "send success");
+//                                            }
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        }).start();
+//                    }
+//
+//                    @Override
+//                    public void onConnectionSuspended(int i) {
+//                        Log.d(Tag.LOG_TAG_D_TEST, "wear connection suspended");
+//                    }
+//                })
+//                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+//                    @Override
+//                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+//                        Log.d(Tag.LOG_TAG_D_TEST, "wear connection failed");
+//                    }
+//                })
+//                .build();
+//        mGoogleApiClient.connect();
+//        Wearable.DataApi.addListener(mGoogleApiClient, this);
+    }
+
+    public void disconnectWearable() {
+        //Wearable.DataApi.removeListener(mGoogleApiClient, this);
+        //mGoogleApiClient.disconnect();
+    }
+
+//    @Override
+//    public void onDataChanged(DataEventBuffer dataEventBuffer) {
+//        for (DataEvent event : dataEventBuffer) {
+//            if (event.getType() == DataEvent.TYPE_CHANGED) {
+//                // DataItem changed
+//                DataItem item = event.getDataItem();
+//                if (item.getUri().getPath().compareTo("/count") == 0) {
+//                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+//                    Log.d(Tag.LOG_TAG_D_TEST, "mobile data changed, count: " + dataMap.getInt("count"));
+//                }
+//            } else if (event.getType() == DataEvent.TYPE_DELETED) {
+//                // DataItem deleted
+//                Log.d(Tag.LOG_TAG_D_TEST, "mobile data deleted");
+//            }
+//        }
+//    }
 }

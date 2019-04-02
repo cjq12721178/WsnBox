@@ -4,8 +4,10 @@ import android.os.Handler
 import android.os.Message
 import android.support.annotation.UiThread
 import android.support.annotation.WorkerThread
+import android.util.Log
 import com.cjq.lib.weisi.iot.*
 import com.weisi.tool.wsnbox.bean.data.SensorData
+import com.weisi.tool.wsnbox.util.Tag
 
 
 /**
@@ -211,6 +213,7 @@ class DataTransferStation {
                                        timestamp: Long,
                                        batteryVoltage: Float,
                                        rawValue: Double) {
+        //Log.d(Tag.LOG_TAG_D_TEST, String.format("address: %04X, type: %02X, value: %.3f", address, dataTypeValue, rawValue))
         if (isInAttentionList(address, dataTypeValue, dataTypeValueIndex)) {
             sendSensorDynamicDataAccessMessage(address, dataTypeValue, dataTypeValueIndex, timestamp, batteryVoltage, rawValue)
         } else {

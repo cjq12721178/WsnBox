@@ -23,7 +23,7 @@ import javax.xml.transform.stream.StreamResult
 object Xml {
 
     @JvmStatic
-    fun exportParameterConfiguration(provider: SensorManager.MeasurementConfigurationProvider, devices: List<Device>, filePath: String): Boolean {
+    fun exportParameterConfiguration(type: Int, provider: SensorManager.MeasurementConfigurationProvider, devices: List<Device>, filePath: String): Boolean {
         try {
             val file = FileUtil.openOrCreate(filePath) ?: return false
             // 生成xml
@@ -49,6 +49,7 @@ object Xml {
             handler.startElement("", "", TAG_PROVIDERS, attr)
             insertTab(handler)
             attr.addAttribute("", "", TAG_NAME, "", filePath.substring(filePath.lastIndexOf('/') + 1, filePath.lastIndexOf('.')))
+            attr.addAttribute("", "", TAG_TYPE, "", type.toString())
             handler.startElement("", "", TAG_PROVIDER, attr)
             attr.clear()
             //编辑“sensors”

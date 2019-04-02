@@ -61,8 +61,10 @@ class ParameterConfigurationActivity : BaseActivity(),
     private val ARGUMENT_KEY_NEW_CONFIG_POSITION = "new_cfg_pos"
     private val DIALOG_TAG_CONFIRM_DELETE_CONFIG = "delete_config"
     private val DIALOG_TAG_EDIT_CONFIG_NAME = "edit_name"
+    private val DIALOG_TAG_CHOOSE_CONFIG_TYPE = "cfg_type"
     private val DIALOG_TAG_EDIT_ADD_CONFIG = "et_add"
     private val DIALOG_TAG_EXPORT_CONFIG = "exp_cfg"
+    private val DIALOG_TAG_CHOOSE_PROVIDER = "ld_choose_provider"
     private val ARGUEMENT_KEY_SCENE_TYPE = "scene_type"
     private val ARGUMENT_KEY_POSITION = "position"
 
@@ -133,6 +135,7 @@ class ParameterConfigurationActivity : BaseActivity(),
         val intent = Intent(this, ProviderConfigurationActivity::class.java)
         intent.putExtra(Constant.COLUMN_CONFIGURATION_PROVIDER_NAME, adapter.getProviderName(position))
         intent.putExtra(Constant.COLUMN_CONFIGURATION_PROVIDER_ID, adapter.getItemId(position))
+        intent.putExtra(Constant.COLUMN_TYPE, adapter.getProviderType(position))
         startActivityForResult(intent, REQUEST_CODE_MODIFY_CURRENT_PARA_CONFIG)
     }
 
@@ -168,10 +171,10 @@ class ParameterConfigurationActivity : BaseActivity(),
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.cv_add -> {
-                val dialog = EditDialog()
-                dialog.setTitle(R.string.input_parameter_config_name)
-                dialog.setContent(R.string.sensor_config)
-                dialog.show(supportFragmentManager, DIALOG_TAG_EDIT_ADD_CONFIG)
+                val dialog = ListDialog()
+                dialog.setTitle(R.string.choose_parameter_config_type)
+                dialog.setItems(resources.getStringArray(R.array.parameter_config_types))
+                dialog.show(supportFragmentManager, DIALOG_TAG_CHOOSE_CONFIG_TYPE)
             }
             R.id.cv_import -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -197,7 +200,7 @@ class ParameterConfigurationActivity : BaseActivity(),
                     dialog.setTitle(R.string.choose_scene_config)
                     dialog.setItems(it)
                     dialog.arguments!!.putInt(ARGUEMENT_KEY_SCENE_TYPE, v.tag as Int)
-                    dialog.show(supportFragmentManager, "ld_choose_provider")
+                    dialog.show(supportFragmentManager, DIALOG_TAG_CHOOSE_PROVIDER)
                 }
             }
         }
@@ -286,28 +289,28 @@ class ParameterConfigurationActivity : BaseActivity(),
     }
 
     override fun onItemSelected(dialog: ListDialog, position: Int, items: Array<out Any>) {
-        val selectedProviderId = if (position == adapter.itemCount) {
-            0
-        } else {
-            adapter.getItemId(position)
-        }
-        when (dialog.arguments?.getInt(ARGUEMENT_KEY_SCENE_TYPE)) {
-            R.string.data_browse -> {
-                setSceneProvider(selectedProviderId)
-//                if (baseApplication.settings.dataBrowseValueContainerConfigurationProviderId != selectedProviderId) {
-//                    baseApplication
-//                            .settings
-//                            .dataBrowseValueContainerConfigurationProviderId = selectedProviderId
-//                    dataPrepareService.importSensorConfigurations()
-//                }
+        when (dialog.tag) {
+            DIALOG_TAG_CHOOSE_PROVIDER -> {
+                val selectedProviderId = if (position == adapter.itemCount) {
+                    0
+                } else {
+                    adapter.getItemId(position)
+                }
+                when (dialog.arguments?.getInt(ARGUEMENT_KEY_SCENE_TYPE)) {
+                    R.string.data_browse -> {
+                        setSceneProvider(selectedProviderId)
+                    }
+                }
+                updateScenesConfigName()
             }
-//            R.string.product_display -> {
-//                baseApplication
-//                        .settings
-//                        .productDisplayValueContainerConfigurationProviderId = selectedProviderId
-//            }
+            DIALOG_TAG_CHOOSE_CONFIG_TYPE -> {
+                val d = EditDialog()
+                d.setTitle(R.string.input_parameter_config_name)
+                d.setContent(items[position].toString())
+                d.arguments?.putInt(COLUMN_TYPE, position)
+                d.show(supportFragmentManager, DIALOG_TAG_EDIT_ADD_CONFIG)
+            }
         }
-        updateScenesConfigName()
     }
 
     override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor?) {
@@ -425,6 +428,7 @@ class ParameterConfigurationActivity : BaseActivity(),
                 } else {
                     val values = ContentValues()
                     values.put(COLUMN_CONFIGURATION_PROVIDER_NAME, newValue)
+                    values.put(COLUMN_TYPE, dialog.arguments?.getInt(COLUMN_TYPE) ?: 0)
                     values.put(COLUMN_CREATE_TIME, System.currentTimeMillis())
                     values.put(COLUMN_MODIFY_TIME, System.currentTimeMillis())
                     databaseHandler.startInsert(TOKEN_INSERT_CONFIG,

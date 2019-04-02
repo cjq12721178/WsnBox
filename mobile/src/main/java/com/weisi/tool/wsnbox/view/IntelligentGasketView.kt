@@ -83,20 +83,20 @@ class IntelligentGasketView : ConstraintLayout {
         if (value < bottomValue) {
             actualBias = 1.0f
         } else if (value < topValue) {
-            if (theoryBias in MIN_LOW_LIMIT_BIAS..MAX_LOW_LIMIT_BIAS) {
+            actualBias = if (theoryBias in MIN_LOW_LIMIT_BIAS..MAX_LOW_LIMIT_BIAS) {
                 if (value > lowLimit) {
-                    actualBias = MIN_LOW_LIMIT_BIAS
+                    MIN_LOW_LIMIT_BIAS
                 } else {
-                    actualBias = MAX_LOW_LIMIT_BIAS
+                    MAX_LOW_LIMIT_BIAS
                 }
             } else if (theoryBias in MIN_HIGH_LIMIT_BIAS..MAX_HIGH_LIMIT_BIAS) {
                 if (value < highLimit) {
-                    actualBias = MAX_HIGH_LIMIT_BIAS
+                    MAX_HIGH_LIMIT_BIAS
                 } else {
-                    actualBias = MIN_HIGH_LIMIT_BIAS
+                    MIN_HIGH_LIMIT_BIAS
                 }
             } else {
-                actualBias = theoryBias
+                theoryBias
             }
         }
         return actualBias
@@ -171,6 +171,6 @@ class IntelligentGasketView : ConstraintLayout {
         val tensionInterpreter = FloatInterpreter(0, "KN")
         tv_low_limit.text = tensionInterpreter.interpret(lowLimit)
         tv_high_limit.text = tensionInterpreter.interpret(highLimit)
-        realTimeValue = realTimeValue
+        //realTimeValue = realTimeValue
     }
 }

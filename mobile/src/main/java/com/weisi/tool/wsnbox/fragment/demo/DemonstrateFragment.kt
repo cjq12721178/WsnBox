@@ -1,10 +1,7 @@
 package com.weisi.tool.wsnbox.fragment.demo
 
 import android.os.Bundle
-import com.cjq.lib.weisi.iot.LogicalSensor
-import com.cjq.lib.weisi.iot.PhysicalSensor
-import com.cjq.lib.weisi.iot.PracticalMeasurement
-import com.cjq.lib.weisi.iot.Sensor
+import com.cjq.lib.weisi.iot.*
 import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.bean.data.Device
 import com.weisi.tool.wsnbox.fragment.BaseFragment
@@ -12,7 +9,8 @@ import com.weisi.tool.wsnbox.processor.transfer.DataTransferStation
 import com.weisi.tool.wsnbox.service.DataPrepareService
 import com.weisi.tool.wsnbox.util.NullHelper
 
-open class DemonstrateFragment : BaseFragment(), DataTransferStation.Detector {
+open class DemonstrateFragment : BaseFragment(),
+        DataTransferStation.Detector {
 
     override var enableDetectPhysicalSensorNetIn = false
     override var enableDetectLogicalSensorNetIn = false
@@ -26,9 +24,9 @@ open class DemonstrateFragment : BaseFragment(), DataTransferStation.Detector {
     protected var devices: List<Device> by NullHelper.readonlyNotNull()
     private val measurementIds = HashSet<Long>()
 
-    fun initDevices(devices: List<Device>) {
+    open fun initDevices(devices: List<Device>): Boolean {
         if (!measurementIds.isEmpty()) {
-            return
+            return false
         }
         this.devices = devices
         devices.forEach { device ->
@@ -36,6 +34,11 @@ open class DemonstrateFragment : BaseFragment(), DataTransferStation.Detector {
                 node.measurement.id.id
             })
         }
+        return true
+    }
+
+    protected fun getMeasurementIds(): List<Long> {
+        return measurementIds.toList()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,5 +122,9 @@ open class DemonstrateFragment : BaseFragment(), DataTransferStation.Detector {
 //            }
 //        }
         return measurementIds.contains(measurementId)
+    }
+
+    open fun onValueTestResult(info: Sensor.Info, measurement: PracticalMeasurement, value: DisplayMeasurement.Value, warnResult: Int): Boolean {
+        return false
     }
 }

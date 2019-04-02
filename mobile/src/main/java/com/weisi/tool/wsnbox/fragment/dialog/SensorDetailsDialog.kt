@@ -110,7 +110,9 @@ abstract class SensorDetailsDialog<S : Sensor> : MeasurementsDetailsDialog(), IT
 
     override fun onStartHistoryMode(startTime: Long, endTime: Long) {
         initTableData()
-        getBaseActivity()?.dataPrepareService?.sensorHistoryDataAccessor?.importSensorHistoryValue(sensor.id.id, startTime, endTime, null)
+        if (sensor.mainMeasurement.uniteValueContainer.empty()) {
+            getBaseActivity()?.dataPrepareService?.sensorHistoryDataAccessor?.importSensorHistoryValue(sensor.id.id, startTime, endTime, null)
+        }
     }
 
     override fun initDataTableView(selectedMeasurementIndexes: IntArray?): View {

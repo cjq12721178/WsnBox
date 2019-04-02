@@ -29,6 +29,7 @@ import com.weisi.tool.wsnbox.bean.corrector.CorrectorUtil;
 import com.weisi.tool.wsnbox.bean.corrector.LinearFittingCorrector;
 import com.weisi.tool.wsnbox.bean.data.Device;
 import com.weisi.tool.wsnbox.bean.data.Node;
+import com.weisi.tool.wsnbox.bean.data.ParameterConfigurationProvider;
 import com.weisi.tool.wsnbox.bean.data.SensorData;
 import com.weisi.tool.wsnbox.bean.decorator.CommonMeasurementDecorator;
 import com.weisi.tool.wsnbox.bean.decorator.CommonSensorInfoDecorator;
@@ -82,7 +83,9 @@ public class SensorDatabase implements Constant {
     private static final int VN_NO_RATCHET_WHEEL = 8;
     //测量量配置新增字段（unit、corrector）
     private static final int VN_CORRECTOR = 9;
-    private static final int CURRENT_VERSION_NO = VN_CORRECTOR;
+    //参数配置新增字段(type)
+    private static final int VN_PARAMETER_TYPE = 10;
+    private static final int CURRENT_VERSION_NO = VN_PARAMETER_TYPE;
 
     private static SQLiteLauncher launcher;
     private static SQLiteDatabase database;
@@ -1411,6 +1414,30 @@ public class SensorDatabase implements Constant {
         }
     }
 
+    public static int getParameterConfigurationProviderType(long providerId) {
+        if (database == null) {
+            return ParameterConfigurationProvider.TYPE_COMMON;
+        }
+        Cursor cursor = null;
+        try {
+            String builder = "SELECT " + COLUMN_TYPE +
+                    " FROM " + TABLE_CONFIGURATION_PROVIDER +
+                    " WHERE " + COLUMN_COMMON_ID +
+                    " = " + providerId;
+            cursor = database.rawQuery(builder, null);
+            if (cursor != null && cursor.moveToNext()) {
+                return cursor.getInt(cursor.getColumnIndex(COLUMN_TYPE));
+            }
+        } catch (Exception e) {
+            ExceptionLog.record(e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return ParameterConfigurationProvider.TYPE_COMMON;
+    }
+
     public interface OnImportDeviceListener {
         void onImportDevice(@NonNull Device device);
     }
@@ -1476,7 +1503,7 @@ public class SensorDatabase implements Constant {
         }
         try {
             return database.query(TABLE_CONFIGURATION_PROVIDER,
-                    new String[] { COLUMN_COMMON_ID, COLUMN_CONFIGURATION_PROVIDER_NAME },
+                    new String[] { COLUMN_COMMON_ID, COLUMN_CONFIGURATION_PROVIDER_NAME, COLUMN_TYPE },
                     null, null, null, null,
                     COLUMN_COMMON_ID + " ASC");
         } catch (Exception e) {
@@ -1870,6 +1897,9 @@ public class SensorDatabase implements Constant {
             if (oldVersion < VN_CORRECTOR) {
                 addColumnCorrectorFromTableMeasurementConfiguration(db, builder);
             }
+            if (oldVersion < VN_PARAMETER_TYPE) {
+                addColumnTypeFromTableConfigurationProvider(db, builder);
+            }
         }
 
         private void createConfigurationProviderDataTable(SQLiteDatabase db, StringBuilder builder) {
@@ -1878,7 +1908,7 @@ public class SensorDatabase implements Constant {
                     .append(TABLE_CONFIGURATION_PROVIDER).append(" (")
                     .append(COLUMN_COMMON_ID).append(" INTEGER PRIMARY KEY AUTOINCREMENT,")
                     .append(COLUMN_CONFIGURATION_PROVIDER_NAME).append(" VARCHAR(255) NOT NULL,")
-                    //.append(COLUMN_TYPE).append(" INT,")
+                    .append(COLUMN_TYPE).append(" INT NOT NULL,")
                     .append(COLUMN_CREATE_TIME).append(" BIGINT NOT NULL,")
                     .append(COLUMN_MODIFY_TIME).append(" BIGINT NOT NULL")
                     .append(')').toString());
@@ -2102,7 +2132,20 @@ public class SensorDatabase implements Constant {
         private void addColumnTypeFromTableConfigurationProvider(SQLiteDatabase db, StringBuilder builder) {
             changeTableToTemporaryTable(db, builder, TABLE_CONFIGURATION_PROVIDER);
             createConfigurationProviderDataTable(db, builder);
-            insertDataFromTemporaryTableToTargetTable(db, builder, TABLE_CONFIGURATION_PROVIDER);
+            builder.setLength(0);
+            builder.append("INSERT INTO ").append(TABLE_CONFIGURATION_PROVIDER)
+                    .append('(').append(COLUMN_COMMON_ID)
+                    .append(',').append(COLUMN_CONFIGURATION_PROVIDER_NAME)
+                    .append(',').append(COLUMN_TYPE)
+                    .append(',').append(COLUMN_CREATE_TIME)
+                    .append(',').append(COLUMN_MODIFY_TIME)
+                    .append(") SELECT ").append(COLUMN_COMMON_ID)
+                    .append(',').append(COLUMN_CONFIGURATION_PROVIDER_NAME)
+                    .append(",0,").append(COLUMN_CREATE_TIME)
+                    .append(',').append(COLUMN_MODIFY_TIME)
+                    .append(" FROM ").append(TABLE_CONFIGURATION_PROVIDER)
+                    .append("_tmp");
+            db.execSQL(builder.toString());
             deleteTemporaryTable(db, builder, TABLE_CONFIGURATION_PROVIDER);
         }
 
@@ -2148,7 +2191,7 @@ public class SensorDatabase implements Constant {
         private double mHighLimit;
         private String mWarnerType;
         private String mProviderName;
-        //private int mProviderType;
+        private int mProviderType;
         private int mProviderCount;
         private double mInitValue;
         private double mInitDistance;
@@ -2199,8 +2242,8 @@ public class SensorDatabase implements Constant {
             switch (localName) {
                 case TAG_PROVIDER:
                     mProviderName = attributes.getValue(TAG_NAME);
-//                    String type = attributes.getValue(TAG_TYPE);
-//                    mProviderType = TextUtils.isEmpty(type) ? 0 : Integer.parseInt(type);
+                    String type = attributes.getValue(TAG_TYPE);
+                    mProviderType = TextUtils.isEmpty(type) ? ParameterConfigurationProvider.TYPE_COMMON : Integer.parseInt(type);
                     break;
                 case TAG_SENSOR:
                     mAddress = Integer.parseInt(attributes.getValue(TAG_ADDRESS), 16);
@@ -2345,7 +2388,7 @@ public class SensorDatabase implements Constant {
                     }
                     mValues.clear();
                     mValues.put(COLUMN_CONFIGURATION_PROVIDER_NAME, mProviderName);
-                    //mValues.put(COLUMN_TYPE, mProviderType);
+                    mValues.put(COLUMN_TYPE, mProviderType);
                     long currentTime = System.currentTimeMillis();
                     mValues.put(COLUMN_CREATE_TIME, currentTime);
                     mValues.put(COLUMN_MODIFY_TIME, currentTime);

@@ -14,6 +14,14 @@ class Node(val name: String?, val measurement: DisplayMeasurement<*>) : Parcelab
             parcel.readString(),
             SensorManager.getMeasurement(parcel.readLong()) as DisplayMeasurement<*>)
 
+    fun getProperName(): String {
+        return if (name.isNullOrEmpty()) {
+            measurement.name
+        } else {
+            name
+        }
+    }
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(name)
         parcel.writeLong(measurement.id.id)

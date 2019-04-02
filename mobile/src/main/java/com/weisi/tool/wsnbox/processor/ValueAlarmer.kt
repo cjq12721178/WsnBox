@@ -18,7 +18,7 @@ import com.weisi.tool.wsnbox.bean.configuration.Settings
 import com.weisi.tool.wsnbox.io.Constant
 import com.weisi.tool.wsnbox.util.NullHelper
 
-class ValueAlarmer(context: Context, val settings: Settings) : Sensor.OnValueAlarmListener {
+class ValueAlarmer(context: Context) {
 
     //private val channelId = "warn1"
     private val applicationContext = context.applicationContext
@@ -27,7 +27,7 @@ class ValueAlarmer(context: Context, val settings: Settings) : Sensor.OnValueAla
 //    var enableSound = settings.isDataWarnNotifySoundEnable
 //    var enableToast = settings.isDataWarnToastEnable
 
-    fun start() {
+    fun start(settings: Settings) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NullHelper.doNull(notificationManager.getNotificationChannel(settings.warnNotificationChannelId)) {
                 createNotificationChannel(settings.warnNotificationChannelId,
@@ -37,7 +37,7 @@ class ValueAlarmer(context: Context, val settings: Settings) : Sensor.OnValueAla
                         settings.isDataWarnNotifyScreenEnable)
             }
         }
-        Sensor.setOnValueAlarmListener(this)
+        //Sensor.setOnValueAlarmListener(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -69,36 +69,39 @@ class ValueAlarmer(context: Context, val settings: Settings) : Sensor.OnValueAla
         Sensor.setOnValueAlarmListener(null)
     }
 
-    fun enableNotifySound(enabled: Boolean) {
+    fun enableNotifySound(settings: Settings, enabled: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            resetNotificationChannel(enabled,
+            resetNotificationChannel(settings, enabled,
                     settings.isDataWarnNotifyVibrateEnable,
                     settings.isDataWarnNotifyFloatEnable,
                     settings.isDataWarnNotifyScreenEnable)
         }
     }
 
-    fun enableNotifyVibrate(enabled: Boolean) {
+    fun enableNotifyVibrate(settings: Settings, enabled: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            resetNotificationChannel(settings.isDataWarnNotifySoundEnable,
+            resetNotificationChannel(settings,
+                    settings.isDataWarnNotifySoundEnable,
                     enabled,
                     settings.isDataWarnNotifyFloatEnable,
                     settings.isDataWarnNotifyScreenEnable)
         }
     }
 
-    fun enableNotifyFloat(enabled: Boolean) {
+    fun enableNotifyFloat(settings: Settings, enabled: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            resetNotificationChannel(settings.isDataWarnNotifySoundEnable,
+            resetNotificationChannel(settings,
+                    settings.isDataWarnNotifySoundEnable,
                     settings.isDataWarnNotifyVibrateEnable,
                     enabled,
                     settings.isDataWarnNotifyScreenEnable)
         }
     }
 
-    fun enableNotifyScreen(enabled: Boolean) {
+    fun enableNotifyScreen(settings: Settings, enabled: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            resetNotificationChannel(settings.isDataWarnNotifySoundEnable,
+            resetNotificationChannel(settings,
+                    settings.isDataWarnNotifySoundEnable,
                     settings.isDataWarnNotifyVibrateEnable,
                     settings.isDataWarnNotifyFloatEnable,
                     enabled)
@@ -106,7 +109,8 @@ class ValueAlarmer(context: Context, val settings: Settings) : Sensor.OnValueAla
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun resetNotificationChannel(enableNotifySound: Boolean,
+    private fun resetNotificationChannel(settings: Settings,
+                                         enableNotifySound: Boolean,
                                          enableNotifyVibrate: Boolean,
                                          enableNotifyFloat: Boolean,
                                          enableNotifyScreen: Boolean) {
@@ -118,7 +122,7 @@ class ValueAlarmer(context: Context, val settings: Settings) : Sensor.OnValueAla
                 enableNotifyScreen)
     }
 
-    override fun onValueTestResult(info: Sensor.Info, measurement: PracticalMeasurement, value: DisplayMeasurement.Value, warnResult: Int) {
+    fun processValueTest(settings: Settings, info: Sensor.Info, measurement: PracticalMeasurement, value: DisplayMeasurement.Value, warnResult: Int) {
         if (warnResult != Warner.RESULT_NORMAL) {
             if (settings.isDataWarnNotifyEnable) {
                 val intent = Intent(applicationContext, DataBrowseActivity::class.java)

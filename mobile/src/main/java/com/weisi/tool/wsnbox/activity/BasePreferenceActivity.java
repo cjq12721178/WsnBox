@@ -15,9 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.cjq.lib.weisi.iot.DisplayMeasurement;
+import com.cjq.lib.weisi.iot.PracticalMeasurement;
+import com.cjq.lib.weisi.iot.Sensor;
 import com.weisi.tool.wsnbox.application.BaseApplication;
 import com.weisi.tool.wsnbox.permission.PermissionsRequester;
 import com.weisi.tool.wsnbox.service.DataPrepareService;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A {@link PreferenceActivity} which implements and proxies the necessary calls
@@ -217,5 +222,10 @@ public abstract class BasePreferenceActivity
     @Override
     public void onSensorConfigurationChanged() {
         getFunctionDelegate().onSensorConfigurationChanged();
+    }
+
+    @Override
+    public boolean onValueTestResult(@NotNull Sensor.Info info, @NotNull PracticalMeasurement measurement, @NotNull DisplayMeasurement.Value value, int warnResult) {
+        return getFunctionDelegate().onValueTestResult(info, measurement, value, warnResult);
     }
 }

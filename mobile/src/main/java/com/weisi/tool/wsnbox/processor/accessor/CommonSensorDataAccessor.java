@@ -3,9 +3,11 @@ package com.weisi.tool.wsnbox.processor.accessor;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.cjq.tool.qbox.util.ExceptionLog;
 import com.weisi.tool.wsnbox.bean.configuration.Settings;
+import com.weisi.tool.wsnbox.util.Tag;
 import com.wsn.lib.wsb.communicator.Communicator;
 import com.wsn.lib.wsb.communicator.receiver.DataReceiver;
 import com.wsn.lib.wsb.protocol.ControllableSensorProtocol;
@@ -153,6 +155,7 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
     @Override
     public void onTimeSynchronizationAnalyzed(long timestamp) {
         mHasTimeSynchronized = true;
+        Log.d(Tag.LOG_TAG_D_TEST, "onTimeSynchronizationAnalyzed");
     }
 
     public void restartDataRequestTask(long cycle) {
@@ -192,8 +195,10 @@ public abstract class CommonSensorDataAccessor<C extends Communicator, P extends
             try {
                 if (mHasTimeSynchronized) {
                     sendDataRequestFrame();
+                    //Log.d(Tag.LOG_TAG_D_TEST, "sendDataRequestFrame");
                 } else {
                     timeSynchronize(null);
+                    //Log.d(Tag.LOG_TAG_D_TEST, "timeSynchronize");
                 }
             } catch (IOException e) {
                 e.printStackTrace();

@@ -13,6 +13,7 @@ class ParameterConfigurationExporter(achiever: ResultAchiever<Boolean, Void>) : 
         val filePath = params[1] as? String ?: return false
         val provider = SensorDatabase.importMeasurementConfigurationProvider(providerId) ?: return false
         val devices = SensorDatabase.importDevicesWithNodes(providerId) ?: return false
-        return Xml.exportParameterConfiguration(provider, devices, filePath)
+        val type = SensorDatabase.getParameterConfigurationProviderType(providerId)
+        return Xml.exportParameterConfiguration(type, provider, devices, filePath)
     }
 }

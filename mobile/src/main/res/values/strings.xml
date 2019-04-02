@@ -134,6 +134,7 @@
     <string name="input_sensor_address_or_measurement_id">请输入传感器地址或测量量ID</string>
     <string name="insert_node_input_description">地址格式为XXXX或XXXXXX，ID格式为XXXX-XX-D或XXXXXX-XX-D，其中X为16进制数字，D为十进制数字</string>
     <string name="input_parameter_config_name">请输入参数配置名称</string>
+    <string name="choose_parameter_config_type">请选择参数配置类型</string>
     <string name="intelligent_gasket_demo">智能垫片演示</string>
     <string name="filtrate_info">信息筛选</string>
     <string name="dialog_title_select_available_sensors">请在检测到的传感器中选择所需进行配置</string>
@@ -347,6 +348,7 @@
     <string name="export_configuration_provider">导出参数配置至文件</string>
     <string name="devices_not_config">设备未配置</string>
     <string name="devices_config_error">设备配置有误</string>
+    <string name="common_para_config_not_support_product_display">通用参数配置目前暂不支持产品展示功能</string>
     <string name="no_configuration_provider">请先在参数配置界面应用相应配置</string>
     <string name="excel_export_success">导出传感器数据至“内部存储/WsnBox/data.xls”</string>
     <string name="excel_export_failed">导出传感器数据至Excel文件失败</string>
@@ -482,5 +484,9 @@
         <item>新增校准-采用组(前)</item>
         <item>新增校准-采用组(后)</item>
         <item>删除当前校准-采用组</item>
+    </string-array>
+    <string-array name="parameter_config_types">
+        <item>通用参数配置</item>
+        <item>智能垫片参数配置</item>
     </string-array>
 </resources>

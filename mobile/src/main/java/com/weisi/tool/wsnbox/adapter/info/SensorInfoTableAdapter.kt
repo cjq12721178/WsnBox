@@ -3,6 +3,7 @@ package com.weisi.tool.wsnbox.adapter.info
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import com.evrencoskun.tableview.adapter.AbstractTableAdapter
 import com.evrencoskun.tableview.adapter.recyclerview.holder.AbstractViewHolder
 import com.evrencoskun.tableview.handler.SelectionHandler
 import com.weisi.tool.wsnbox.R
+import com.weisi.tool.wsnbox.util.Tag
 import kotlinx.android.synthetic.main.tbv_sensor_cell.view.*
 import kotlinx.android.synthetic.main.tbv_sensor_column_header.view.*
 import kotlinx.android.synthetic.main.tbv_sensor_row_header.view.*
@@ -330,21 +332,32 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
         }
 
         if (measurements.isNotEmpty()) {
-            val mainContainer = sensor.mainMeasurement.getUniteValueContainer()
+            val mainContainer = sensor.mainMeasurement.uniteValueContainer
             //var measurement: Measurement<*, *>
             var mainValue: Value
             var rowCellItems: MutableList<Cell>
             val start: Int
             val step: Int
             val end: Int
-            if (mainContainer === sensor.mainMeasurement.getDynamicValueContainer()) {
-                start = mainContainer.size() - 1
-                step = -1
-                end = -1
-            } else {
-                start = 0
-                step = 1
-                end = mainContainer.size()
+            when {
+                mainContainer === sensor.mainMeasurement.dynamicValueContainer -> {
+                    Log.d(Tag.LOG_TAG_D_TEST, "iniTableData realTime")
+                    start = mainContainer.size() - 1
+                    step = -1
+                    end = -1
+                }
+                mainContainer === null -> {
+                    Log.d(Tag.LOG_TAG_D_TEST, "iniTableData else")
+                    start = 0
+                    end = 0
+                    step = 0
+                }
+                else -> {
+                    Log.d(Tag.LOG_TAG_D_TEST, "iniTableData history")
+                    start = 0
+                    step = 1
+                    end = mainContainer.size()
+                }
             }
             var i = start
             while (i != end) {
@@ -352,13 +365,6 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
                 rowHeaderItems.add(createRowHeader(mainValue))
                 rowCellItems = MutableList(columnHeaderItems.size) {
                     createCell(measurements[it], i, mainValue.timestamp)
-//                    measurement = measurements[it]
-//                    val measurementValue = measurement.getUniteValueContainer().findValue(i, mainValue.timestamp)
-//                    when (measurementValue) {
-//                        is DisplayMeasurement.Value -> createMeasurementCell(measurement as DisplayMeasurement<*>, measurementValue)
-//                        is Sensor.Info.Value -> createInfoCell(measurementValue)
-//                        else -> createEmptyCell()
-//                    }
                 }
                 cellItems.add(rowCellItems)
                 i += step
@@ -391,7 +397,7 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
     }
 
     private fun createCell(measurement: Measurement<*, *>, physicalValuePosition: Int, timestamp: Long): Cell {
-        val measurementValue = measurement.getUniteValueContainer().findValue(physicalValuePosition, timestamp)
+        val measurementValue = measurement.uniteValueContainer.findValue(physicalValuePosition, timestamp)
         return when (measurementValue) {
             is DisplayMeasurement.Value -> createMeasurementCell(measurement as DisplayMeasurement<*>, measurementValue)
             is Sensor.Info.Value -> createInfoCell(measurementValue)
@@ -440,11 +446,7 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
                 || mainMeasurement != sensor.mainMeasurement) {
             return
         }
-//        val container = mainMeasurement.uniteValueContainer
-//        val physicalPosition = container.getPhysicalPositionByLogicalPosition(valuePosition)
-//        val realTime = container === mainMeasurement.dynamicValueContainer
-        //val mainMeasurementColumnPosition = mColumnHeaderItems.lastIndexOf(mainMeasurement)
-        when (mainMeasurement.getUniteValueContainer().interpretAddResult(valuePosition)) {
+        when (mainMeasurement.uniteValueContainer?.interpretAddResult(valuePosition)) {
             ValueContainer.NEW_VALUE_ADDED -> {
                 addMainValue(mainMeasurement, valuePosition, false)
                 correctItemLocation()
@@ -470,41 +472,29 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
     }
 
     private fun addMainValue(mainMeasurement: Measurement<*, *>, logicalValuePosition: Int, loop: Boolean) {
-        val container = mainMeasurement.getUniteValueContainer()
+        val container = mainMeasurement.uniteValueContainer
         val physicalValuePosition = container.getPhysicalPositionByLogicalPosition(logicalValuePosition)
-        val realTime = container === mainMeasurement.getDynamicValueContainer()
+        val realTime = container === mainMeasurement.dynamicValueContainer
         val mainValue = container.getValue(physicalValuePosition)
         val newRowPosition = getActualRowPosition(physicalValuePosition, realTime, !loop)
         if (newRowPosition < 0 || newRowPosition > rowHeaderRecyclerViewAdapter.itemCount) {
             return
         }
         val mainMeasurementColumnPosition = mColumnHeaderItems.lastIndexOf(mainMeasurement)
-        val isSensorInfo = mainMeasurement.getId().isSensorInfo
+        val isSensorInfo = mainMeasurement.id.isSensorInfo
         val rowHeader = createRowHeader(mainValue)
         val cellItems = MutableList(columnHeaderRecyclerViewAdapter.itemCount) {
             if (it == mainMeasurementColumnPosition) {
-                //createMainMeasurementCell(mainMeasurement, mainValue)
                 if (isSensorInfo) {
                     createInfoCell(mainValue as Sensor.Info.Value)
                 } else {
                     createMeasurementCell(mainMeasurement as DisplayMeasurement<*>, mainValue as DisplayMeasurement.Value)
                 }
-//                if (mainValue is DisplayMeasurement.Value) {
-//                    createMeasurementCell(mainMeasurement as DisplayMeasurement<*>, mainValue)
-//                } else {
-//                    createInfoCell(mainValue as Sensor.Info.Value)
-//                }
             }
             else if (isSensorInfo) {
                 createEmptyCell()
             } else {
                 createCell(mColumnHeaderItems[it], physicalValuePosition, mainValue.timestamp)
-//                val value = mColumnHeaderItems[it].getUniteValueContainer().findValue(physicalValuePosition, mainValue.timestamp)
-//                if (value is Sensor.Info.Value) {
-//                    createInfoCell(value)
-//                } else {
-//                    createMeasurementCell(mColumnHeaderItems[it] as DisplayMeasurement<*>, value as DisplayMeasurement.Value)
-//                }
             }
         }
         addRow(newRowPosition, rowHeader, cellItems)
@@ -544,14 +534,13 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
         if (mainMeasurementColumnPosition < 0) {
             return
         }
-        val container = mainMeasurement.getUniteValueContainer()
+        val container = mainMeasurement.uniteValueContainer
         val physicalValuePosition = container.getPhysicalPositionByLogicalPosition(logicalValuePosition)
-        val realTime = container === mainMeasurement.getDynamicValueContainer()
+        val realTime = container === mainMeasurement.dynamicValueContainer
         val rowPosition = getActualRowPosition(physicalValuePosition, realTime, false)
         val cell = getCellRowItems(rowPosition)[columnHeaderRecyclerViewAdapter.itemCount - 1]
         val mainValue = container.getValue(rowPosition)
         changeCellItem(mainMeasurementColumnPosition, rowPosition,
-                //setMainMeasurementCell(cell, mainMeasurement, mainValue))
                 if (mainValue is Sensor.Info.Value) {
                     setInfoCell(cell, mainValue)
                 } else {
@@ -566,18 +555,18 @@ class SensorInfoTableAdapter(context: Context) : AbstractTableAdapter<Measuremen
         if (columnPosition < 0) {
             return
         }
-        val container = measurement.getUniteValueContainer()
+        val container = measurement.uniteValueContainer ?: return
         val addResult = container.interpretAddResult(valueLogicalPosition)
         if (addResult == ValueContainer.ADD_VALUE_FAILED) {
             return
         }
         val physicalPosition = container.getPhysicalPositionByLogicalPosition(valueLogicalPosition)
         val value = container.getValue(physicalPosition)
-        val infoPhysicalPosition = sensor.mainMeasurement.getUniteValueContainer().findValuePosition(physicalPosition, value.timestamp)
+        val infoPhysicalPosition = sensor.mainMeasurement.uniteValueContainer?.findValuePosition(physicalPosition, value.timestamp) ?: return
         if (infoPhysicalPosition < 0) {
             return
         }
-        val rowPosition = getActualRowPosition(infoPhysicalPosition, container === measurement.getDynamicValueContainer(), false)
+        val rowPosition = getActualRowPosition(infoPhysicalPosition, container === measurement.dynamicValueContainer, false)
         if (rowPosition < 0 || rowPosition >= rowHeaderRecyclerViewAdapter.itemCount) {
             return
         }

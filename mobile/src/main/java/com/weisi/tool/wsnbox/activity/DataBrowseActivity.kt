@@ -66,9 +66,9 @@ class DataBrowseActivity : BaseActivity(),
             val dialog = PhysicalSensorDetailsDialog()
             dialog.init(SensorManager.getPhysicalSensor(sensorAddressFromNotification))
             dialog.show(supportFragmentManager, DataBrowseFragment.DIALOG_TAG_INFO)
-        }
 
-        startService(Intent(this, DataPrepareService::class.java))
+            startService(Intent(this, DataPrepareService::class.java))
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {

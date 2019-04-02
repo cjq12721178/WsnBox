@@ -68,7 +68,7 @@ class DataBrowseDeviceNodeAdapter(private val storage: Storage<Device>) : Recycl
 
         private fun setNodeInfoText(h: ViewHolder, index: Int, item: Device) {
             val measurement = item.nodes[index].measurement
-            h.tvNodeNames[index].text = item.nodes[index].name ?: measurement.defaultName
+            h.tvNodeNames[index].text = item.nodes[index].getProperName()
             BaseDataBrowseSensorAdapterDelegate.setMeasurementTimestampAndValueText(h.tvTimestamps[index], h.tvValues[index], measurement)
             BaseDataBrowseSensorAdapterDelegate.setItemBackground(h.tvNodeNames[index].parent as View, measurement)
             //val value = getValue(measurement)

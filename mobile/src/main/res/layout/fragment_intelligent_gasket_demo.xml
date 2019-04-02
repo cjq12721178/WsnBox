@@ -5,28 +5,33 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <com.weisi.tool.wsnbox.view.IntelligentGasketView
-        android:layout_width="0dp"
+    <fr.castorflex.android.verticalviewpager.VerticalViewPager
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:id="@+id/ig1"/>
+        android:id="@+id/vp_gasket_groups"/>
 
-    <com.weisi.tool.wsnbox.view.IntelligentGasketView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:id="@+id/ig2"/>
+    <!--<com.weisi.tool.wsnbox.view.IntelligentGasketView-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:id="@+id/ig1"/>-->
 
-    <com.weisi.tool.wsnbox.view.IntelligentGasketView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:id="@+id/ig3"/>
+    <!--<com.weisi.tool.wsnbox.view.IntelligentGasketView-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:id="@+id/ig2"/>-->
 
-    <com.weisi.tool.wsnbox.view.IntelligentGasketView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:id="@+id/ig4"/>
+    <!--<com.weisi.tool.wsnbox.view.IntelligentGasketView-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:id="@+id/ig3"/>-->
+
+    <!--<com.weisi.tool.wsnbox.view.IntelligentGasketView-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:id="@+id/ig4"/>-->
 
 </LinearLayout>

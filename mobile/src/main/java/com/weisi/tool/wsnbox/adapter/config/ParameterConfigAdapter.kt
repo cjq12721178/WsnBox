@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.cjq.tool.qbox.ui.adapter.RecyclerViewCursorAdapter
 import com.weisi.tool.wsnbox.R
+import com.weisi.tool.wsnbox.bean.data.ParameterConfigurationProvider
 import com.weisi.tool.wsnbox.io.Constant
 import kotlinx.android.synthetic.main.li_para_config.view.*
 
@@ -25,6 +26,10 @@ class ParameterConfigAdapter : RecyclerViewCursorAdapter() {
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, item: Cursor, position: Int) {
         //var holder = viewHolder as ViewHolder
         viewHolder.itemView.tv_config_provider_name.text = getProviderName(item)
+        viewHolder.itemView.iv_para_config_logo.setImageResource(when (getProviderType(item)) {
+            ParameterConfigurationProvider.TYPE_INTELLIGENT_GASKET -> R.drawable.ic_intelligent_gasket_config_logo
+            else -> R.drawable.ic_general_para_config_logo
+        })
     }
 
     fun getProviderName(position: Int) : String {
@@ -33,6 +38,14 @@ class ParameterConfigAdapter : RecyclerViewCursorAdapter() {
 
     private fun getProviderName(item: Cursor) : String {
         return item.getString(item.getColumnIndex(Constant.COLUMN_CONFIGURATION_PROVIDER_NAME))
+    }
+
+    fun getProviderType(position: Int): Int {
+        return getProviderType(getItemByPosition(position))
+    }
+
+    private fun getProviderType(item: Cursor): Int {
+        return item.getInt(item.getColumnIndex(Constant.COLUMN_TYPE))
     }
 
     fun findProviderNameById(id: Long) : String {

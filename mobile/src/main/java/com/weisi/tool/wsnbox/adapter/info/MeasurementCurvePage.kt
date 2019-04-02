@@ -3,6 +3,7 @@ package com.weisi.tool.wsnbox.adapter.info
 import android.content.Context
 import android.graphics.Color
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import com.cjq.lib.weisi.iot.DisplayMeasurement
@@ -27,6 +28,7 @@ import com.weisi.tool.wsnbox.R
 import com.weisi.tool.wsnbox.bean.warner.CommonSingleRangeWarner
 import com.weisi.tool.wsnbox.bean.warner.CommonSwitchWarner
 import com.weisi.tool.wsnbox.util.NullHelper
+import com.weisi.tool.wsnbox.util.Tag
 import com.wsn.lib.wsb.util.SimpleReflection
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,10 +45,10 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
 
     fun addMeasurement(measurement: Measurement<*, *>) {
         if (measurements.isEmpty()) {
-            chartMaker = buildChartMaker(measurement.getCurvePattern())
+            chartMaker = buildChartMaker(measurement.curvePattern)
         } else {
-            if (measurements[0].getCurveType() != measurement.getCurveType()) {
-                throw IllegalArgumentException("wrong curve type: ${measurement.getCurveType()}")
+            if (measurements[0].curveType != measurement.curveType) {
+                throw IllegalArgumentException("wrong curve type: ${measurement.curveType}")
             }
         }
         measurements.add(measurement)
@@ -125,7 +127,8 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
             if (measurements.isEmpty()) {
                 return
             }
-            timeInterval = if (measurements[0].getUniteValueContainer() === measurements[0].getDynamicValueContainer()) {
+            timeInterval = if (measurements[0].uniteValueContainer == measurements[0].dynamicValueContainer
+                    || measurements[0].uniteValueContainer == null) {
                 1000L
             } else {
                 historyDataTimeInterval
@@ -133,6 +136,7 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
         }
 
         fun createView(group: ViewGroup): BarLineChartBase<*> {
+            Log.d(Tag.LOG_TAG_D_TEST, "createView")
             //设置时间间隔
             initTimeInterval()
 
@@ -244,7 +248,7 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
             val chart = vChart ?: return
             val data = chart.data as? ChartData<out IDataSet<E>> ?: return
             val measurement = measurements[measurementPosition]
-            val container = measurement.getUniteValueContainer()
+            val container = measurement.uniteValueContainer
             val set = data.getDataSetByIndex(measurementPosition)
             if (isLoop) {
                 set.removeFirst()
@@ -326,11 +330,11 @@ class MeasurementCurvePage(private val historyDataTimeInterval: Long, private va
         }
 
         private fun getMeasurementEarliestTime(measurement: Measurement<*, *>): Long {
-            return measurement.getUniteValueContainer().earliestValue?.timestamp ?: Long.MAX_VALUE
+            return measurement.uniteValueContainer.earliestValue?.timestamp ?: Long.MAX_VALUE
         }
 
         private fun fillDataSet(measurement: Measurement<*, *>, set: IDataSet<E>) {
-            val container = measurement.getUniteValueContainer()
+            val container = measurement.uniteValueContainer
             for (j in 0 until container.size()) {
                 set.addEntry(createEntry(container.getValue(j), measurement))
             }

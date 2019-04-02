@@ -157,31 +157,6 @@ public class MainActivity
                 startActivity(new Intent(this, ParameterConfigurationActivity.class));
                 break;
             case R.id.cl_freedom_scout:
-//                // 判断是否有权限
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                    boolean hasInstallPermission = getPackageManager().canRequestPackageInstalls();
-//                    if (!hasInstallPermission) {
-//                        Uri packageURI = Uri.parse("package:"+getPackageName());
-//                        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,packageURI);
-//                        //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        startActivityForResult(intent, INSTALL_PERMISS_CODE);
-//                    } else {
-//                        Updater.tryStartInstallActivity(this, (DownloadManager) Objects.requireNonNull(getSystemService(DOWNLOAD_SERVICE)), Updater.getCurrentDownloadApkId(this));
-//                    }
-//                }
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                    new InstallPackagesPermissionsRequester(this, 3).requestPermissions(new PermissionsRequester.OnRequestResultListener() {
-//                        @Override
-//                        public void onPermissionsGranted() {
-//                            Updater.tryStartInstallActivity(MainActivity.this, (DownloadManager) Objects.requireNonNull(getSystemService(DOWNLOAD_SERVICE)), Updater.getCurrentDownloadApkId(MainActivity.this));
-//                        }
-//
-//                        @Override
-//                        public void onPermissionsDenied() {
-//
-//                        }
-//                    });
-//                }
                 showExpectDialog();
                 break;
             case R.id.cl_product_display:
